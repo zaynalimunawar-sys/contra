@@ -1,1 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONTRA - MEGA EDITION</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap');
 
+        body {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #16213e 50%, #0a0e27 100%);
+            font-family: 'Orbitron', sans-serif; 
+            overflow: auto;
+            padding: 20px;
+        }
+
+        #gameContainer {
+            position: relative; 
+            width: 100%;
+            max-width: 1200px;
+            height: 750px;
+            background: linear-gradient(180deg, rgba(10,15,30,0.95) 0%, rgba(5,10,15,0.95) 100%);
+            border-radius: 40px;
+            box-shadow: 
+                0 60px 140px rgba(0,0,0,0.9),
+                0 0 0 3px rgba(255,68,68,0.5),
+                0 0 80px rgba(255,68,68,0.3);
+            overflow: hidden;
+            border: 4px solid rgba(255,255,255,0.1);
+        }
+
+        canvas { 
+            display: block; 
+            width: 100%;
+            height: 100%;
+            filter: brightness(1.15) contrast(1.2) saturate(1.3);
+        }
+
+        #hud {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between; z-index: 100;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .hud-item {
+            background: linear-gradient(145deg, rgba(10,15,30,0.98) 0%, rgba(20,25,40,0.98) 100%);
+            padding: 18px 30px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 900;
+            font-size: 24px;
+            border: 3px solid;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+        }
+
+        .hud-health { border-color: #00ff88; box-shadow: 0 15px 40px rgba(0,255,136,0.4); }
+        .hud-score { border-color: #ffaa00; box-shadow: 0 15px 40px rgba(255,170,0,0.4); }
+        .hud-level { border-color: #ff4444; box-shadow: 0 15px 40px rgba(255,68,68,0.4); }
+        .hud-money { border-color: #00ffff; box-shadow: 0 15px 40px rgba(0,255,255,0.4); }
+
+        .hud-label {
+            font-size: 10px; 
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px; 
+            letter-spacing: 3px; 
+            text-transform: uppercase;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+            background: rgba(10,15,30,0.98);
+            z-index: 1000; 
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .title {
+            font-size: 100px; 
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff4444 0%, #ff8844 50%, #ffaa00 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px; 
+            letter-spacing: 15px;
+            filter: drop-shadow(0 0 60px rgba(255,68,68,0.8));
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 60px rgba(255,68,68,0.8)); }
+            50% { filter: drop-shadow(0 0 100px rgba(255,136,68,0.9)); }
+        }
+
+        .subtitle {
+            font-size: 24px; 
+            color: #00ff88;
+            margin-bottom: 30px; 
+            letter-spacing: 6px;
+            text-shadow: 0 0 30px rgba(0,255,136,0.8);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .btn {
+            padding: 25px 60px; 
+            font-size: 22px; 
+            font-weight: 900; 
+            color: #fff;
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            border: 4px solid #ff8844; 
+            border-radius: 50px; 
+            cursor: pointer;
+            box-shadow: 0 20px 50px rgba(255,68,68,0.7);
+            transition: all 0.4s; 
+            margin: 12px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .btn:hover {
+            transform: translateY(-8px) scale(1.06);
+            box-shadow: 0 30px 70px rgba(255,68,68,0.9);
+        }
+
+        .btn.store-btn {
+            background: linear-gradient(135deg, #00ffff 0%, #00cccc 100%);
+            border-color: #00ffff;
+            color: #000;
+            box-shadow: 0 20px 50px rgba(0,255,255,0.7);
+        }
+
+        .btn.store-btn:hover {
+            box-shadow: 0 30px 70px rgba(0,255,255,0.9);
+        }
+
+        .btn.admin-btn {
+            background: linear-gradient(135deg, #9900ff 0%, #6600cc 100%);
+            border-color: #bb00ff;
+            color: #fff;
+            box-shadow: 0 20px 50px rgba(153,0,255,0.7);
+            font-size: 18px;
+            padding: 20px 50px;
+        }
+
+        .btn.admin-btn:hover {
+            box-shadow: 0 30px 70px rgba(153,0,255,0.9);
+        }
+
+        .level-select {
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px; 
+            margin: 30px 0;
+            max-width: 1000px;
+        }
+
+        .level-btn {
+            padding: 20px 30px; 
+            font-size: 24px; 
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            border: 4px solid #00ffaa; 
+            border-radius: 20px;
+            cursor: pointer; 
+            transition: all 0.4s;
+            box-shadow: 0 12px 35px rgba(0,255,136,0.5);
+            color: #000;
+        }
+
+        .level-btn:hover:not(.locked) {
+            transform: scale(1.08); 
+            box-shadow: 0 18px 50px rgba(0,255,136,0.8);
+        }
+
+        .level-btn.locked {
+            background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+            border-color: #555; 
+            opacity: 0.4; 
+            cursor: not-allowed;
+            color: #666;
+        }
+
+        .controls {
+            margin-top: 30px; 
+            text-align: center;
+            background: rgba(10,15,30,0.9); 
+            padding: 30px 50px;
+            border-radius: 25px; 
+            border: 3px solid rgba(255,68,68,0.4);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+        }
+
+        .controls div {
+            margin: 12px 0; 
+            font-weight: 700; 
+            font-size: 18px;
+            color: #bbb; 
+            letter-spacing: 2px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .controls div span {
+            color: #ff4444;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255,68,68,0.5);
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+            padding: 10px 25px;
+            border-radius: 40px;
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #000;
+            box-shadow: 0 8px 30px rgba(255,170,0,0.6);
+            border: 2px solid rgba(255,255,255,0.5);
+            z-index: 10000;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            border: 3px solid #00ffaa;
+            border-radius: 25px;
+            cursor: pointer;
+            color: #000;
+            box-shadow: 0 8px 25px rgba(0,255,136,0.5);
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 35px rgba(0,255,136,0.7);
+        }
+
+        .stats-display {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-box {
+            background: rgba(10,15,30,0.8);
+            padding: 20px 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(0,255,136,0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: #00ff88;
+        }
+
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .weapon-card {
+            background: linear-gradient(145deg, rgba(10,15,30,0.95) 0%, rgba(20,25,40,0.95) 100%);
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid #00ffff;
+            box-shadow: 0 12px 35px rgba(0,255,255,0.4);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s;
+        }
+
+        .weapon-card:hover:not(.owned):not(.locked) {
+            transform: scale(1.05);
+            box-shadow: 0 18px 50px rgba(0,255,255,0.7);
+        }
+
+        .weapon-card.owned {
+            border-color: #00ff88;
+            box-shadow: 0 12px 35px rgba(0,255,136,0.4);
+        }
+
+        .weapon-card.equipped {
+            border-color: #ffaa00;
+            box-shadow: 0 12px 35px rgba(255,170,0,0.6);
+        }
+
+        .weapon-icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .weapon-name {
+            font-size: 18px;
+            font-weight: 900;
+            color: #00ffff;
+            margin-bottom: 8px;
+        }
+
+        .weapon-card.owned .weapon-name {
+            color: #00ff88;
+        }
+
+        .weapon-card.equipped .weapon-name {
+            color: #ffaa00;
+        }
+
+        .weapon-stats {
+            font-size: 11px;
+            color: #aaa;
+            margin: 8px 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .weapon-price {
+            font-size: 20px;
+            font-weight: 900;
+            color: #00ffff;
+            margin-top: 10px;
+        }
+
+        .weapon-card.owned .weapon-price {
+            color: #00ff88;
+        }
+
+        .money-display {
+            font-size: 32px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0,255,255,0.8);
+        }
+
+        .admin-panel {
+            background: rgba(10,15,30,0.95);
+            padding: 30px;
+            border-radius: 25px;
+            border: 3px solid #9900ff;
+            box-shadow: 0 15px 50px rgba(153,0,255,0.6);
+            margin: 25px 0;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 15px 20px;
+            margin: 12px 0;
+            font-size: 18px;
+            font-weight: 700;
+            background: rgba(20,25,40,0.9);
+            border: 3px solid #bb00ff;
+            border-radius: 15px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            box-shadow: 0 0 25px rgba(187,0,255,0.6);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .admin-actions button {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #9900ff 0%, #6600cc 100%);
+            border: 3px solid #bb00ff;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .admin-actions button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 10px 30px rgba(153,0,255,0.7);
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 60px; }
+            .subtitle { font-size: 18px; }
+            .btn { padding: 20px 40px; font-size: 18px; }
+            .hud-item { padding: 12px 20px; font-size: 18px; }
+            .level-select { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="premium-badge">MEGA EDITION</div>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+
+        <canvas id="gameCanvas" width="1200" height="750"></canvas>
+
+        <div id="hud" style="display: none;">
+            <div class="hud-item hud-health">
+                <div class="hud-label">HEALTH</div>
+                <div id="health">100</div>
+            </div>
+            <div class="hud-item hud-money">
+                <div class="hud-label">💰 MONEY</div>
+                <div id="hudMoney">0</div>
+            </div>
+            <div class="hud-item hud-score">
+                <div class="hud-label">SCORE</div>
+                <div id="score">0</div>
+            </div>
+            <div class="hud-item hud-level">
+                <div class="hud-label">LEVEL</div>
+                <div id="levelDisplay">1</div>
+            </div>
+        </div>
+
+        <div id="mainMenu" class="screen">
+            <div class="title">CONTRA</div>
+            <div class="subtitle">🎮 MEGA EDITION - 30 LEVELS 🎮</div>
+            <button class="btn" onclick="showLevelSelect()">START GAME</button>
+            <button class="btn store-btn" onclick="showStore()">💰 WEAPON STORE (15 GUNS)</button>
+            <button class="btn admin-btn" onclick="showAdminPrompt()">🔐 ADMIN PANEL</button>
+            <div class="controls">
+                <div><span>← →</span> MOVE</div>
+                <div><span>↑ UP</span> JUMP</div>
+                <div><span>SPACE</span> SHOOT FORWARD</div>
+                <div><span>W</span> SHOOT UP | <span>S</span> SHOOT DOWN</div>
+            </div>
+        </div>
+
+        <div id="levelSelect" class="screen" style="display: none;">
+            <div class="title" style="font-size: 70px;">SELECT LEVEL</div>
+            <div class="level-select" id="levelButtons"></div>
+            <button class="btn" onclick="backToMenu()">BACK</button>
+        </div>
+
+        <div id="weaponStore" class="screen" style="display: none;">
+            <div class="title" style="font-size: 70px;">WEAPON STORE</div>
+            <div class="money-display">💰 $<span id="storeMoney">0</span></div>
+            <div class="store-grid" id="storeGrid"></div>
+            <button class="btn" onclick="backFromStore()">◀ BACK</button>
+        </div>
+
+        <div id="adminPanel" class="screen" style="display: none;">
+            <div class="title" style="font-size: 70px;">ADMIN PANEL</div>
+            <div class="subtitle">🔐 AUTHORIZED ACCESS 🔐</div>
+            <div class="admin-panel">
+                <div class="money-display">Current Money: $<span id="adminMoney">0</span></div>
+                <input type="number" id="moneyInput" class="admin-input" placeholder="Set Money Amount" value="999999">
+                <input type="number" id="levelInput" class="admin-input" placeholder="Unlock Level (1-30)" value="30" min="1" max="30">
+                <div class="admin-actions">
+                    <button onclick="setMoney()">💰 SET MONEY</button>
+                    <button onclick="unlockLevel()">🔓 UNLOCK LEVEL</button>
+                    <button onclick="unlockAllWeapons()">🚀 UNLOCK ALL WEAPONS</button>
+                    <button onclick="resetProgress()">🔄 RESET ALL</button>
+                </div>
+            </div>
+            <button class="btn" onclick="backToMenu()">◀ BACK</button>
+        </div>
+
+        <div id="levelComplete" class="screen" style="display: none;">
+            <div class="title" style="font-size: 80px;">LEVEL CLEAR!</div>
+            <div style="font-size: 32px; color: #00ff88; margin: 20px 0;">
+                ⭐ MISSION COMPLETE ⭐
+            </div>
+            <div class="stats-display">
+                <div class="stat-box">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="levelScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Money Earned</div>
+                    <div class="stat-value" style="color: #00ffff;" id="moneyEarned">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Rank</div>
+                    <div class="stat-value" style="color: #ffaa00;">S</div>
+                </div>
+            </div>
+            <button class="btn" onclick="nextLevel()">NEXT LEVEL</button>
+            <button class="btn store-btn" onclick="showStoreFromComplete()">💰 WEAPON STORE</button>
+            <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+        </div>
+
+        <div id="gameOverScreen" class="screen" style="display: none;">
+            <div class="title" style="font-size: 80px;">K.I.A.</div>
+            <div style="font-size: 36px; color: #ff4444; margin: 30px 0;">
+                💀 MISSION FAILED 💀
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Final Score</div>
+                <div class="stat-value" style="color: #ffaa00;" id="finalScore">0</div>
+            </div>
+            <button class="btn" onclick="restartLevel()">RETRY</button>
+            <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSCODE = "ZAYN2015";
+        const MAX_LEVELS = 30;
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function showAdminPrompt() {
+            const input = prompt("🔐 Enter Admin Passcode:");
+            if(input === ADMIN_PASSCODE) {
+                showAdminPanel();
+            } else if(input !== null) {
+                alert("❌ ACCESS DENIED!");
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('adminMoney').textContent = money;
+        }
+
+        function setMoney() {
+            const amount = parseInt(document.getElementById('moneyInput').value) || 0;
+            money = amount;
+            localStorage.setItem('contraMoney', money);
+            document.getElementById('adminMoney').textContent = money;
+            alert(`✅ Money set to $${money}`);
+        }
+
+        function unlockLevel() {
+            const level = parseInt(document.getElementById('levelInput').value);
+            if(level >= 1 && level <= MAX_LEVELS) {
+                maxUnlockedLevel = level;
+                localStorage.setItem('contraMaxLevel', maxUnlockedLevel);
+                alert(`✅ Unlocked up to Level ${level}`);
+            } else {
+                alert(`❌ Invalid level (1-${MAX_LEVELS})`);
+            }
+        }
+
+        function unlockAllWeapons() {
+            Object.keys(weapons).forEach(key => {
+                weapons[key].owned = true;
+            });
+            saveWeapons();
+            alert("✅ All 15 weapons unlocked!");
+        }
+
+        function resetProgress() {
+            if(confirm("⚠️ Reset ALL progress? This cannot be undone!")) {
+                localStorage.removeItem('contraMoney');
+                localStorage.removeItem('contraMaxLevel');
+                localStorage.removeItem('contraWeapons');
+                localStorage.removeItem('contraEquipped');
+                alert("✅ Progress reset! Reload page to start fresh.");
+                location.reload();
+            }
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameStarted = false;
+        let currentLevel = 1;
+        let maxUnlockedLevel = parseInt(localStorage.getItem('contraMaxLevel') || '1');
+        let score = 0;
+        let health = 100;
+        let cameraX = 0;
+        let levelEndX = 4000;
+        let money = parseInt(localStorage.getItem('contraMoney') || '0');
+        let enemiesKilled = 0;
+        let moneyThisLevel = 0;
+        let storeReturnScreen = 'mainMenu';
+
+        const weapons = {
+            pistol: { name: 'Pistol', icon: '🔫', damage: 1, speed: 12, size: 20, price: 0, owned: true, desc: 'Basic weapon' },
+            rifle: { name: 'Assault Rifle', icon: '🔥', damage: 2, speed: 15, size: 24, price: 500, owned: false, desc: 'Fast & powerful' },
+            shotgun: { name: 'Shotgun', icon: '💥', damage: 3, speed: 10, size: 28, price: 800, owned: false, desc: 'High damage' },
+            smg: { name: 'SMG', icon: '🎯', damage: 2, speed: 20, size: 22, price: 1200, owned: false, desc: 'Ultra fast fire' },
+            laser: { name: 'Laser Gun', icon: '⚡', damage: 4, speed: 20, size: 30, price: 1500, owned: false, desc: 'Energy weapon' },
+            flamethrower: { name: 'Flamethrower', icon: '🌋', damage: 5, speed: 14, size: 32, price: 2000, owned: false, desc: 'Burn them all' },
+            plasma: { name: 'Plasma Cannon', icon: '🌟', damage: 5, speed: 18, size: 35, price: 2500, owned: false, desc: 'Massive damage' },
+            railgun: { name: 'Railgun', icon: '⚛️', damage: 8, speed: 25, size: 38, price: 3500, owned: false, desc: 'Penetrating shot' },
+            minigun: { name: 'Minigun', icon: '🌪️', damage: 4, speed: 22, size: 26, price: 4000, owned: false, desc: 'Rapid fire' },
+            rocket: { name: 'Rocket Launcher', icon: '🚀', damage: 10, speed: 8, size: 40, price: 5000, owned: false, desc: 'Explosive power' },
+            sniper: { name: 'Sniper Rifle', icon: '🎯', damage: 12, speed: 30, size: 42, price: 6500, owned: false, desc: 'Long range' },
+            gauss: { name: 'Gauss Cannon', icon: '🔮', damage: 15, speed: 28, size: 45, price: 8000, owned: false, desc: 'Electromagnetic' },
+            bfg: { name: 'BFG-9000', icon: '💚', damage: 20, speed: 16, size: 50, price: 12000, owned: false, desc: 'Big Fusion Gun' },
+            nuke: { name: 'Nuke Launcher', icon: '☢️', damage: 30, speed: 10, size: 55, price: 20000, owned: false, desc: 'Nuclear power' },
+            omega: { name: 'Omega Destroyer', icon: '🌌', damage: 50, speed: 24, size: 60, price: 50000, owned: false, desc: 'ULTIMATE WEAPON' }
+        };
+
+        let equippedWeapon = 'pistol';
+
+        const savedWeapons = localStorage.getItem('contraWeapons');
+        if(savedWeapons) {
+            const owned = JSON.parse(savedWeapons);
+            Object.keys(weapons).forEach(key => {
+                if(owned[key]) weapons[key].owned = true;
+            });
+        }
+
+        const savedEquipped = localStorage.getItem('contraEquipped');
+        if(savedEquipped) equippedWeapon = savedEquipped;
+
+        const player = {
+            x: 200, y: 400, width: 40, height: 60,
+            velocityX: 0, velocityY: 0,
+            speed: 5, jumpPower: 14,
+            facingRight: true, onGround: false,
+            shootDirection: 'forward'
+        };
+
+        let bullets = [];
+        let enemyBullets = [];
+        let enemies = [];
+        let particles = [];
+        let platforms = [];
+        let enemySpawnTimer = 0;
+        let frameCount = 0;
+
+        const keys = {};
+        document.addEventListener('keydown', e => { keys[e.code] = true; e.preventDefault(); });
+        document.addEventListener('keyup', e => keys[e.code] = false);
+
+        function saveWeapons() {
+            const owned = {};
+            Object.keys(weapons).forEach(key => {
+                owned[key] = weapons[key].owned;
+            });
+            localStorage.setItem('contraWeapons', JSON.stringify(owned));
+            localStorage.setItem('contraEquipped', equippedWeapon);
+        }
+
+        function showStore() {
+            storeReturnScreen = 'mainMenu';
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('weaponStore').style.display = 'flex';
+            document.getElementById('storeMoney').textContent = money;
+            renderStore();
+        }
+
+        function showStoreFromComplete() {
+            storeReturnScreen = 'levelComplete';
+            document.getElementById('levelComplete').style.display = 'none';
+            document.getElementById('weaponStore').style.display = 'flex';
+            document.getElementById('storeMoney').textContent = money;
+            renderStore();
+        }
+
+        function backFromStore() {
+            document.getElementById('weaponStore').style.display = 'none';
+            if(storeReturnScreen === 'levelComplete') {
+                document.getElementById('levelComplete').style.display = 'flex';
+            } else {
+                document.getElementById('mainMenu').style.display = 'flex';
+            }
+        }
+
+        function renderStore() {
+            const grid = document.getElementById('storeGrid');
+            grid.innerHTML = '';
+
+            Object.keys(weapons).forEach(key => {
+                const weapon = weapons[key];
+                const card = document.createElement('div');
+                card.className = 'weapon-card';
+
+                if(weapon.owned) card.classList.add('owned');
+                if(key === equippedWeapon) card.classList.add('equipped');
+
+                card.innerHTML = `
+                    <div class="weapon-icon">${weapon.icon}</div>
+                    <div class="weapon-name">${weapon.name}</div>
+                    <div class="weapon-stats">
+                        DMG: ${weapon.damage} | SPD: ${weapon.speed}<br>
+                        ${weapon.desc}
+                    </div>
+                    <div class="weapon-price">
+                        ${weapon.owned ? (key === equippedWeapon ? '✅ EQUIPPED' : 'CLICK TO EQUIP') : '$' + weapon.price}
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    if(weapon.owned) {
+                        equippedWeapon = key;
+                        saveWeapons();
+                        renderStore();
+                    } else if(money >= weapon.price) {
+                        money -= weapon.price;
+                        weapon.owned = true;
+                        equippedWeapon = key;
+                        localStorage.setItem('contraMoney', money);
+                        saveWeapons();
+                        document.getElementById('storeMoney').textContent = money;
+                        renderStore();
+                    }
+                };
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updateLevelButtons() {
+            const container = document.getElementById('levelButtons');
+            container.innerHTML = '';
+            for(let i = 1; i <= MAX_LEVELS; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn' + (i > maxUnlockedLevel ? ' locked' : '');
+                btn.textContent = i <= maxUnlockedLevel ? i : '🔒';
+                if(i <= maxUnlockedLevel) {
+                    btn.onclick = () => startLevel(i);
+                }
+                container.appendChild(btn);
+            }
+        }
+
+        function showLevelSelect() {
+            updateLevelButtons();
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('levelSelect').style.display = 'flex';
+        }
+
+        function backToMenu() {
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('levelSelect').style.display = 'none';
+            document.getElementById('levelComplete').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('weaponStore').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('hud').style.display = 'none';
+            gameStarted = false;
+        }
+
+        function generateLevelPlatforms(level) {
+            platforms = [{x: 0, y: 650, width: levelEndX + 1000, height: 100}];
+
+            const difficulty = Math.floor((level - 1) / 5);
+            const platformCount = 10 + (level * 2);
+            const platformY = 550 - (difficulty * 30);
+            const spacing = 300 - (difficulty * 20);
+
+            for(let i = 0; i < platformCount; i++) {
+                const variance = Math.sin(i * 0.5) * (50 + difficulty * 20);
+                platforms.push({
+                    x: 400 + (i * spacing),
+                    y: platformY + variance + (Math.random() * 50),
+                    width: 200 - (difficulty * 15),
+                    height: 30
+                });
+            }
+        }
+
+        function startLevel(level) {
+            if(level > maxUnlockedLevel) return;
+
+            currentLevel = level;
+            document.getElementById('levelSelect').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('hudMoney').textContent = money;
+
+            gameStarted = true;
+            health = 100;
+            bullets = []; enemyBullets = []; enemies = []; particles = [];
+            player.x = 200; player.y = 400; cameraX = 0;
+            enemiesKilled = 0;
+            moneyThisLevel = 0;
+
+            levelEndX = 2500 + (level * 500);
+            generateLevelPlatforms(level);
+
+            gameLoop();
+        }
+
+        function restartLevel() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startLevel(currentLevel);
+        }
+
+        function nextLevel() {
+            if(currentLevel === maxUnlockedLevel && currentLevel < MAX_LEVELS) {
+                maxUnlockedLevel++;
+                localStorage.setItem('contraMaxLevel', maxUnlockedLevel);
+            }
+
+            document.getElementById('levelComplete').style.display = 'none';
+            if(currentLevel < MAX_LEVELS) {
+                startLevel(currentLevel + 1);
+            } else {
+                alert("🎉 CONGRATULATIONS! You beat all 30 levels! 🎉");
+                backToMenu();
+            }
+        }
+
+        function createParticles(x, y, color, count = 10) {
+            for(let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10 - 2,
+                    life: 1, color, size: 3 + Math.random() * 3
+                });
+            }
+        }
+
+        function shoot(direction = 'forward') {
+            const weapon = weapons[equippedWeapon];
+            let bullet;
+
+            if(direction === 'up') {
+                bullet = { 
+                    x: player.x + player.width/2 - 4, 
+                    y: player.y, 
+                    width: weapon.size / 2.5, 
+                    height: weapon.size, 
+                    speedX: 0, 
+                    speedY: -weapon.speed, 
+                    direction: 'up',
+                    damage: weapon.damage
+                };
+            } else if(direction === 'down') {
+                bullet = { 
+                    x: player.x + player.width/2 - 4, 
+                    y: player.y + player.height, 
+                    width: weapon.size / 2.5, 
+                    height: weapon.size, 
+                    speedX: 0, 
+                    speedY: weapon.speed, 
+                    direction: 'down',
+                    damage: weapon.damage
+                };
+            } else {
+                const bulletX = player.facingRight ? player.x + player.width : player.x;
+                bullet = { 
+                    x: bulletX, 
+                    y: player.y + 25, 
+                    width: weapon.size, 
+                    height: weapon.size / 2.5, 
+                    speedX: player.facingRight ? weapon.speed : -weapon.speed, 
+                    speedY: 0, 
+                    direction: 'forward',
+                    damage: weapon.damage
+                };
+            }
+
+            bullets.push(bullet);
+            createParticles(bullet.x, bullet.y, '#ffff00', 8);
+        }
+
+        function enemyShoot(e) {
+            const dir = e.x < player.x ? 1 : -1;
+            enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height/2, width: 15, height: 6, speed: 8 * dir });
+        }
+
+        function spawnEnemy() {
+            const spawnX = cameraX + canvas.width + 100;
+            const platformIndex = Math.floor(Math.random() * Math.min(5, platforms.length - 1)) + 1;
+            const platform = platforms[platformIndex] || platforms[0];
+
+            const types = ['grunt', 'heavy', 'fast'];
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            let baseHealth = 1 + Math.floor(currentLevel / 3);
+
+            let enemy = {
+                x: spawnX, y: platform.y - 60, width: 40, height: 55,
+                velocityX: -2 - (currentLevel * 0.2), velocityY: 0,
+                health: baseHealth + currentLevel, 
+                maxHealth: baseHealth + currentLevel,
+                type, animFrame: 0, onGround: false,
+                shootTimer: 0, canShoot: Math.random() > 0.4
+            };
+
+            if(type === 'heavy') {
+                enemy.width = 55; enemy.height = 70;
+                enemy.velocityX *= 0.6; 
+                enemy.health *= 2;
+                enemy.maxHealth *= 2;
+                enemy.canShoot = true;
+            } else if(type === 'fast') {
+                enemy.width = 30; enemy.height = 45;
+                enemy.velocityX *= 1.6;
+            }
+
+            enemies.push(enemy);
+        }
+
+        function drawPlayer() {
+            ctx.save();
+            const px = player.x - cameraX, py = player.y;
+
+            if(!player.facingRight) {
+                ctx.translate(px + player.width, py);
+                ctx.scale(-1, 1);
+                ctx.translate(-px, -py);
+            }
+
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00ff88';
+
+            ctx.fillStyle = '#00cc6a';
+            ctx.beginPath();
+            ctx.roundRect(px + 8, py + 18, 24, 28, 5);
+            ctx.fill();
+
+            ctx.fillStyle = '#008855';
+            const legSwing = Math.sin(frameCount * 0.3) * 3;
+            ctx.beginPath();
+            ctx.roundRect(px + 12, py + 44 + legSwing, 8, 16, 3);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.roundRect(px + 21, py + 44 - legSwing, 8, 16, 3);
+            ctx.fill();
+
+            ctx.fillStyle = '#00aa66';
+            ctx.beginPath();
+            ctx.roundRect(px + 4, py + 23, 7, 16, 3);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.roundRect(px + 30, py + 23, 7, 16, 3);
+            ctx.fill();
+
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#444';
+            if(player.shootDirection === 'up') {
+                ctx.fillRect(px + 17, py + 8, 6, 16);
+            } else if(player.shootDirection === 'down') {
+                ctx.fillRect(px + 17, py + 36, 6, 16);
+            } else {
+                ctx.fillRect(px + 37, py + 26, 16, 6);
+            }
+            ctx.fillStyle = '#ffaa00';
+            ctx.fillRect(px + (player.shootDirection === 'forward' ? 51 : 19), py + (player.shootDirection === 'up' ? 8 : player.shootDirection === 'down' ? 50 : 27), 4, 4);
+
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#00dd77';
+            ctx.beginPath();
+            ctx.arc(px + 20, py + 11, 9, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#003322';
+            ctx.beginPath();
+            ctx.arc(px + 20, py + 9, 7, Math.PI, 0);
+            ctx.fill();
+
+            ctx.fillStyle = '#00ffaa';
+            ctx.fillRect(px + 14, py + 10, 12, 3);
+
+            ctx.fillStyle = '#006644';
+            ctx.fillRect(px + 12, py + 20, 14, 10);
+
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        function drawEnemy(e) {
+            ctx.save();
+            const ex = e.x - cameraX, ey = e.y;
+
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff4444';
+
+            if(e.type === 'heavy') {
+                ctx.fillStyle = '#cc3300';
+                ctx.beginPath();
+                ctx.roundRect(ex + 5, ey + 12, 45, 48, 8);
+                ctx.fill();
+                ctx.fillStyle = '#990000';
+                ctx.fillRect(ex + 12, ey + 18, 30, 7);
+                ctx.fillRect(ex + 12, ey + 35, 30, 7);
+                ctx.fillStyle = '#dd4400';
+                ctx.beginPath();
+                ctx.arc(ex + 27, ey + 8, 11, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(ex + 20, ey + 7, 14, 3);
+            } else if(e.type === 'fast') {
+                ctx.fillStyle = '#ff8800';
+                ctx.beginPath();
+                ctx.roundRect(ex + 8, ey + 10, 18, 24, 4);
+                ctx.fill();
+                ctx.fillStyle = '#ffaa00';
+                ctx.beginPath();
+                ctx.arc(ex + 17, ey + 7, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(ex + 14, ey + 6, 2, 2);
+                ctx.fillRect(ex + 19, ey + 6, 2, 2);
+                ctx.fillStyle = '#dd6600';
+                const legAnim = Math.sin(e.animFrame * 0.4) * 4;
+                ctx.fillRect(ex + 10, ey + 33 + legAnim, 5, 12);
+                ctx.fillRect(ex + 18, ey + 33 - legAnim, 5, 12);
+            } else {
+                ctx.fillStyle = '#cc0000';
+                ctx.beginPath();
+                ctx.roundRect(ex + 8, ey + 16, 24, 26, 5);
+                ctx.fill();
+                ctx.fillStyle = '#660000';
+                ctx.fillRect(ex + 8, ey + 30, 24, 4);
+                ctx.fillStyle = '#dd3300';
+                ctx.beginPath();
+                ctx.arc(ex + 20, ey + 11, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#330000';
+                ctx.beginPath();
+                ctx.arc(ex + 20, ey + 9, 7, Math.PI, 0);
+                ctx.fill();
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(ex + 16, ey + 11, 8, 2);
+                ctx.fillStyle = '#aa0000';
+                ctx.fillRect(ex + 11, ey + 41, 8, 14);
+                ctx.fillRect(ex + 21, ey + 41, 8, 14);
+            }
+
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            if (!gameStarted) return;
+            frameCount++;
+
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#1a2a3a';
+            for(let i = 0; i < 15; i++) {
+                const x = (i * 300) - (cameraX * 0.3);
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height);
+                ctx.lineTo(x + 100, 450);
+                ctx.lineTo(x + 200, 520);
+                ctx.lineTo(x + 300, canvas.height);
+                ctx.fill();
+            }
+
+            player.velocityX = 0;
+            player.shootDirection = 'forward';
+
+            if (keys['ArrowLeft']) {
+                player.velocityX = -player.speed;
+                player.facingRight = false;
+            }
+            if (keys['ArrowRight']) {
+                player.velocityX = player.speed;
+                player.facingRight = true;
+            }
+            if (keys['ArrowUp'] && player.onGround) {
+                player.velocityY = -player.jumpPower;
+                player.onGround = false;
+                createParticles(player.x, player.y + player.height, '#00ff88', 8);
+            }
+
+            if (keys['KeyW']) player.shootDirection = 'up';
+            if (keys['KeyS']) player.shootDirection = 'down';
+
+            player.velocityY += 0.6;
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+
+            player.onGround = false;
+            platforms.forEach(plat => {
+                if (player.x + player.width > plat.x && player.x < plat.x + plat.width) {
+                    if (player.velocityY >= 0 && 
+                        player.y + player.height >= plat.y && 
+                        player.y + player.height <= plat.y + 30) {
+                        player.y = plat.y - player.height;
+                        player.velocityY = 0;
+                        player.onGround = true;
+                    }
+                }
+            });
+
+            cameraX = player.x - 300;
+            if(cameraX < 0) cameraX = 0;
+
+            platforms.forEach(plat => {
+                const px = plat.x - cameraX;
+                if(px > -plat.width && px < canvas.width) {
+                    ctx.fillStyle = '#1a3a2e';
+                    ctx.fillRect(px, plat.y, plat.width, plat.height);
+                    ctx.fillStyle = '#0d1f17';
+                    ctx.fillRect(px, plat.y, plat.width, 8);
+                }
+            });
+
+            const flagX = levelEndX - cameraX;
+            if(flagX > -100 && flagX < canvas.width + 100) {
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillRect(flagX, 500, 10, 150);
+
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff4444';
+                ctx.fillStyle = '#ff4444';
+                ctx.beginPath();
+                ctx.moveTo(flagX + 10, 500);
+                ctx.lineTo(flagX + 80, 520);
+                ctx.lineTo(flagX + 10, 540);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            drawPlayer();
+
+            if (keys['Space'] && bullets.length < 30) {
+                shoot(player.shootDirection);
+                keys['Space'] = false;
+            }
+
+            bullets = bullets.filter(b => {
+                b.x += b.speedX;
+                b.y += b.speedY;
+
+                const bx = b.x - cameraX;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ffff00';
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(bx, b.y, b.width, b.height);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(bx + b.width/4, b.y + b.height/4, b.width/2, b.height/2);
+                ctx.shadowBlur = 0;
+
+                if(b.direction === 'forward') {
+                    let hitPlatform = false;
+                    platforms.forEach(plat => {
+                        if (b.x < plat.x + plat.width && b.x + b.width > plat.x &&
+                            b.y < plat.y + plat.height && b.y + b.height > plat.y) {
+                            hitPlatform = true;
+                        }
+                    });
+                    if(hitPlatform) return false;
+                }
+
+                return b.x > cameraX - 100 && b.x < cameraX + canvas.width + 100 &&
+                       b.y > -100 && b.y < canvas.height + 100;
+            });
+
+            enemyBullets = enemyBullets.filter(b => {
+                b.x += b.speed;
+                const bx = b.x - cameraX;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#ff0000';
+                ctx.fillStyle = '#ff4444';
+                ctx.fillRect(bx, b.y, b.width, b.height);
+                ctx.shadowBlur = 0;
+
+                if (b.x < player.x + player.width && b.x + b.width > player.x &&
+                    b.y < player.y + player.height && b.y + b.height > player.y) {
+                    health -= 5;
+                    createParticles(b.x, b.y, '#ff4444', 10);
+                    return false;
+                }
+
+                return b.x > cameraX - 100 && b.x < cameraX + canvas.width + 100;
+            });
+
+            enemySpawnTimer++;
+            const spawnRate = Math.max(40, 180 - (currentLevel * 4));
+            const maxEnemies = Math.min(15, 3 + Math.floor(currentLevel / 2));
+
+            if (enemySpawnTimer > spawnRate) {
+                if(enemies.length < maxEnemies) {
+                    spawnEnemy();
+                }
+                enemySpawnTimer = 0;
+            }
+
+            enemies = enemies.filter(e => {
+                e.animFrame++;
+                e.x += e.velocityX;
+                e.velocityY += 0.6;
+                e.y += e.velocityY;
+
+                e.onGround = false;
+                platforms.forEach(plat => {
+                    if (e.x + e.width > plat.x && e.x < plat.x + plat.width) {
+                        if (e.velocityY >= 0 && e.y + e.height >= plat.y && e.y + e.height <= plat.y + 30) {
+                            e.y = plat.y - e.height;
+                            e.velocityY = 0;
+                            e.onGround = true;
+                        }
+                    }
+                });
+
+                if(e.canShoot && e.onGround) {
+                    e.shootTimer++;
+                    const shootRate = Math.max(30, 90 - (currentLevel * 2));
+                    if(e.shootTimer > shootRate && Math.abs(e.x - player.x) < 600) {
+                        enemyShoot(e);
+                        e.shootTimer = 0;
+                    }
+                }
+
+                drawEnemy(e);
+
+                const ex = e.x - cameraX;
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(ex, e.y - 10, e.width, 5);
+                ctx.fillStyle = '#00ff88';
+                ctx.fillRect(ex, e.y - 10, (e.width * e.health) / e.maxHealth, 5);
+
+                bullets = bullets.filter(b => {
+                    if (b.x < e.x + e.width && b.x + b.width > e.x &&
+                        b.y < e.y + e.height && b.y + b.height > e.y) {
+                        e.health -= b.damage;
+                        createParticles(b.x, b.y, '#ff4444', 15);
+                        score += 10;
+                        return false;
+                    }
+                    return true;
+                });
+
+                if(e.health <= 0) {
+                    createParticles(e.x, e.y + e.height/2, '#ff4444', 20);
+                    const killBonus = 50 * currentLevel;
+                    score += killBonus;
+
+                    const moneyDrop = Math.floor(30 + (currentLevel * 15) + (Math.random() * 50));
+                    money += moneyDrop;
+                    moneyThisLevel += moneyDrop;
+                    enemiesKilled++;
+
+                    localStorage.setItem('contraMoney', money);
+                    document.getElementById('hudMoney').textContent = money;
+                }
+
+                if (player.x < e.x + e.width && player.x + player.width > e.x &&
+                    player.y < e.y + e.height && player.y + player.height > e.y) {
+                    health -= 3;
+                    createParticles(player.x, player.y + player.height/2, '#ff4444', 10);
+                    e.x = cameraX - 200;
+                }
+
+                return e.health > 0 && e.x > cameraX - 200;
+            });
+
+            particles = particles.filter(p => {
+                p.x += p.vx; 
+                p.y += p.vy; 
+                p.vy += 0.2; 
+                p.life -= 0.02;
+
+                const px = p.x - cameraX;
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(px, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                return p.life > 0;
+            }).slice(0, 100);
+
+            document.getElementById('health').textContent = Math.max(0, health);
+            document.getElementById('score').textContent = score;
+
+            if(player.x >= levelEndX) {
+                gameStarted = false;
+                document.getElementById('levelComplete').style.display = 'flex';
+                document.getElementById('levelScore').textContent = score;
+                document.getElementById('moneyEarned').textContent = moneyThisLevel;
+                document.getElementById('hud').style.display = 'none';
+                return;
+            }
+
+            if (health <= 0) {
+                gameStarted = false;
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                document.getElementById('finalScore').textContent = score;
+                document.getElementById('hud').style.display = 'none';
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
