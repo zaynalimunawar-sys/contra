@@ -7,74 +7,88 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Orbitron',monospace;overflow:hidden;background:#000}
 #gameBox{position:relative;width:100vw;height:100vh;background:radial-gradient(circle at center,#0a0a15,#000)}
-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:5px solid;border-image:linear-gradient(45deg,#f44,#fa0,#0ff,#44f,#f44) 1;box-shadow:0 0 80px rgba(255,68,68,0.6),inset 0 0 60px rgba(0,0,0,0.4);animation:borderPulse 3s infinite}
-@keyframes borderPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
-#hud{position:absolute;top:25px;left:25px;right:25px;display:flex;justify-content:space-between;pointer-events:none;z-index:10}
-.hudBox{background:linear-gradient(135deg,rgba(0,0,0,0.95),rgba(20,20,50,0.9));padding:18px 30px;border-radius:20px;border:3px solid;margin:0 10px;backdrop-filter:blur(15px);box-shadow:0 10px 40px rgba(0,0,0,0.7),inset 0 2px 10px rgba(255,255,255,0.1);transition:all .3s;animation:hudFloat 3s ease-in-out infinite}
-@keyframes hudFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.t{border-color:#0f0;background:linear-gradient(135deg,rgba(0,255,0,0.15),rgba(0,150,0,0.1))}
-.s{border-color:#0ff;background:linear-gradient(135deg,rgba(0,255,255,0.15),rgba(0,150,150,0.1))}
-.c{border-color:#fa0;background:linear-gradient(135deg,rgba(255,170,0,0.15),rgba(150,100,0,0.1))}
-.w{border-color:#f44;background:linear-gradient(135deg,rgba(255,68,68,0.15),rgba(150,0,0,0.1))}
-.hudLabel{font-size:11px;letter-spacing:3px;opacity:0.8;margin-bottom:6px;text-transform:uppercase;font-weight:700}
-.hudValue{font-size:24px;font-weight:900;text-shadow:0 0 15px currentColor,0 0 30px currentColor}
+canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:6px solid;border-image:linear-gradient(45deg,#f44,#fa0,#ff0,#0ff,#44f,#f0f,#f44) 1;box-shadow:0 0 100px rgba(255,68,68,0.8),0 0 200px rgba(0,255,255,0.5),inset 0 0 80px rgba(0,0,0,0.5);animation:borderPulse 2s infinite,borderShift 5s infinite}
+@keyframes borderPulse{0%,100%{filter:brightness(1) saturate(1.2)}50%{filter:brightness(1.4) saturate(1.5)}}
+@keyframes borderShift{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+#hud{position:absolute;top:30px;left:30px;right:30px;display:flex;justify-content:space-between;pointer-events:none;z-index:10}
+.hudBox{background:linear-gradient(135deg,rgba(10,10,30,0.97),rgba(30,30,60,0.95));padding:22px 36px;border-radius:25px;border:4px solid;margin:0 12px;backdrop-filter:blur(20px);box-shadow:0 15px 50px rgba(0,0,0,0.8),inset 0 3px 15px rgba(255,255,255,0.15);transition:all .3s;animation:hudFloat 4s ease-in-out infinite;position:relative;overflow:hidden}
+.hudBox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1),transparent);animation:hudShine 3s infinite}
+@keyframes hudShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes hudFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.t{border-color:#0f0;background:linear-gradient(135deg,rgba(0,255,0,0.2),rgba(0,180,0,0.15));box-shadow:0 0 30px rgba(0,255,0,0.3)}
+.s{border-color:#0ff;background:linear-gradient(135deg,rgba(0,255,255,0.2),rgba(0,180,180,0.15));box-shadow:0 0 30px rgba(0,255,255,0.3)}
+.c{border-color:#fa0;background:linear-gradient(135deg,rgba(255,170,0,0.2),rgba(200,130,0,0.15));box-shadow:0 0 30px rgba(255,170,0,0.3)}
+.w{border-color:#f44;background:linear-gradient(135deg,rgba(255,68,68,0.2),rgba(200,50,50,0.15));box-shadow:0 0 30px rgba(255,68,68,0.3)}
+.hudLabel{font-size:12px;letter-spacing:4px;opacity:0.9;margin-bottom:8px;text-transform:uppercase;font-weight:900}
+.hudValue{font-size:28px;font-weight:900;text-shadow:0 0 20px currentColor,0 0 40px currentColor,0 4px 10px rgba(0,0,0,0.5)}
 .t .hudValue{color:#0f0}
 .s .hudValue{color:#0ff}
 .c .hudValue{color:#fa0}
 .w .hudValue{color:#f44}
-#stars{position:absolute;top:120px;right:30px;font-size:36px;color:#ff4;text-shadow:0 0 25px #f00,0 0 50px #f00;animation:starPulse 1s infinite}
-@keyframes starPulse{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.2) rotate(5deg)}}
-#jukeMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;font-weight:900;color:#0ff;text-shadow:0 0 40px #0ff,0 0 80px #0ff;opacity:0;pointer-events:none;transition:opacity .3s;z-index:100;animation:msgBounce 0.5s ease-out}
-@keyframes msgBounce{0%{transform:translate(-50%,-50%) scale(0.5)}50%{transform:translate(-50%,-50%) scale(1.2)}100%{transform:translate(-50%,-50%) scale(1)}}
+#stars{position:absolute;top:140px;right:35px;font-size:42px;color:#ff4;text-shadow:0 0 30px #f00,0 0 60px #f00,0 5px 15px rgba(0,0,0,0.5);animation:starPulse 0.8s infinite}
+@keyframes starPulse{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.3) rotate(8deg)}}
+#comboBox{position:absolute;top:140px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,68,68,0.95),rgba(255,170,0,0.95));padding:20px 40px;border-radius:25px;border:4px solid #ff0;backdrop-filter:blur(20px);box-shadow:0 15px 50px rgba(255,170,0,0.8);display:none;animation:comboPopIn 0.3s ease-out}
+@keyframes comboPopIn{0%{transform:translateX(-50%) scale(0.5) rotate(-10deg)}100%{transform:translateX(-50%) scale(1) rotate(0deg)}}
+#comboText{font-size:36px;font-weight:900;color:#fff;text-shadow:0 0 30px #f44,0 4px 10px rgba(0,0,0,0.8);letter-spacing:3px}
+#comboCount{font-size:48px;font-weight:900;color:#ff0;text-shadow:0 0 40px #ff0,0 4px 10px rgba(0,0,0,0.8)}
+#streakMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:72px;font-weight:900;color:#ff0;text-shadow:0 0 50px #ff0,0 0 100px #ff0,0 8px 20px rgba(0,0,0,0.8);opacity:0;pointer-events:none;z-index:100;animation:streakBounce 0.5s ease-out}
+@keyframes streakBounce{0%{transform:translate(-50%,-50%) scale(0.4)}50%{transform:translate(-50%,-50%) scale(1.3)}100%{transform:translate(-50%,-50%) scale(1)}}
+#streakMsg.show{opacity:1}
+#jukeMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:72px;font-weight:900;color:#0ff;text-shadow:0 0 50px #0ff,0 0 100px #0ff,0 8px 20px rgba(0,0,0,0.8);opacity:0;pointer-events:none;transition:opacity .3s;z-index:100;animation:msgBounce 0.5s ease-out}
+@keyframes msgBounce{0%{transform:translate(-50%,-50%) scale(0.4) rotate(-10deg)}50%{transform:translate(-50%,-50%) scale(1.3) rotate(3deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}}
 #jukeMsg.show{opacity:1}
-.screen{position:absolute;inset:0;background:radial-gradient(circle,rgba(10,10,35,0.98),rgba(0,0,5,0.99));display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:999;backdrop-filter:blur(25px);overflow-y:auto}
-.title{font-size:clamp(60px,14vw,110px);font-weight:900;margin-bottom:30px;background:linear-gradient(135deg,#f44,#fa0,#ff0,#0ff,#44f,#f4f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 200%;letter-spacing:8px;text-transform:uppercase;animation:titleShine 4s infinite,titleFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,68,68,0.5))}
+.screen{position:absolute;inset:0;background:radial-gradient(circle,rgba(15,15,40,0.98),rgba(5,5,15,0.99));display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:999;backdrop-filter:blur(30px);overflow-y:auto}
+.title{font-size:clamp(70px,15vw,120px);font-weight:900;margin-bottom:35px;background:linear-gradient(135deg,#f44,#fa0,#ff0,#0ff,#44f,#f0f,#f44);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300% 300%;letter-spacing:10px;text-transform:uppercase;animation:titleShine 3s infinite,titleFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(255,68,68,0.6))}
 @keyframes titleShine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.subtitle{font-size:clamp(18px,5vw,28px);margin-bottom:50px;color:#0ff;letter-spacing:6px;text-transform:uppercase;text-shadow:0 0 25px #0ff,0 0 50px #0ff;animation:subtitlePulse 2s infinite}
-@keyframes subtitlePulse{0%,100%{opacity:1}50%{opacity:0.7}}
-.btn{position:relative;padding:clamp(18px,5vw,26px) clamp(40px,8vw,60px);font:bold clamp(18px,5vw,24px) 'Orbitron';background:linear-gradient(135deg,#f44,#c22);color:#fff;border:4px solid #f66;border-radius:35px;cursor:pointer;margin:16px;letter-spacing:4px;text-transform:uppercase;box-shadow:0 10px 40px rgba(255,68,68,0.5),inset 0 3px 15px rgba(255,255,255,0.3);transition:all .3s;overflow:hidden}
-.btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.3),transparent);opacity:0;transition:opacity .3s}
-.btn:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 15px 50px rgba(255,68,68,0.7),inset 0 3px 15px rgba(255,255,255,0.4);border-color:#ff8}
-.btn:hover::before{opacity:1;animation:btnShine 1s infinite}
-@keyframes btnShine{0%{transform:translate(-100%,-100%)}100%{transform:translate(100%,100%)}}
-.btn:active{transform:translateY(0) scale(0.98)}
-.adminBtn{background:linear-gradient(135deg,#f0f,#a0a);border-color:#f0f;font-size:16px;padding:14px 25px;margin:10px;box-shadow:0 10px 40px rgba(255,0,255,0.5)}
-.shopGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:25px;max-width:95vw;margin:30px 0;padding:25px;max-height:62vh;overflow-y:auto}
-.shopGrid::-webkit-scrollbar{width:12px}
-.shopGrid::-webkit-scrollbar-track{background:rgba(0,0,0,0.3);border-radius:10px}
-.shopGrid::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#f44,#0ff);border-radius:10px;box-shadow:0 0 10px rgba(255,68,68,0.5)}
-.carCard{background:linear-gradient(135deg,rgba(30,30,80,0.98),rgba(50,50,100,0.95));padding:28px 30px;border:4px solid #666;border-radius:25px;cursor:pointer;transition:all .4s;text-align:center;box-shadow:0 15px 50px rgba(0,0,0,0.6),inset 0 2px 15px rgba(255,255,255,0.1);position:relative;overflow:hidden;min-height:240px;display:flex;flex-direction:column;justify-content:space-between}
-.carCard::before{content:'';position:absolute;inset:-100%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,0.2),transparent);opacity:0;transition:all .6s;animation:cardRotate 3s linear infinite paused}
+@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.subtitle{font-size:clamp(20px,5.5vw,32px);margin-bottom:55px;color:#0ff;letter-spacing:8px;text-transform:uppercase;text-shadow:0 0 30px #0ff,0 0 60px #0ff,0 4px 10px rgba(0,0,0,0.5);animation:subtitlePulse 2s infinite}
+@keyframes subtitlePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.02)}}
+.btn{position:relative;padding:clamp(20px,5vw,28px) clamp(45px,9vw,70px);font:bold clamp(20px,5vw,26px) 'Orbitron';background:linear-gradient(135deg,#f44,#d22);color:#fff;border:5px solid #f66;border-radius:40px;cursor:pointer;margin:18px;letter-spacing:5px;text-transform:uppercase;box-shadow:0 15px 50px rgba(255,68,68,0.6),inset 0 4px 20px rgba(255,255,255,0.4);transition:all .3s;overflow:hidden}
+.btn::before{content:'';position:absolute;inset:-50%;background:radial-gradient(circle,rgba(255,255,255,0.4),transparent);opacity:0;transition:opacity .3s}
+.btn:hover{transform:translateY(-8px) scale(1.08);box-shadow:0 20px 60px rgba(255,68,68,0.8),inset 0 4px 20px rgba(255,255,255,0.5);border-color:#ff8}
+.btn:hover::before{opacity:1;animation:btnShine 1.5s infinite}
+@keyframes btnShine{0%{transform:translate(-100%,-100%) rotate(0deg)}100%{transform:translate(100%,100%) rotate(360deg)}}
+.btn:active{transform:translateY(-2px) scale(1.02)}
+.adminBtn{background:linear-gradient(135deg,#f0f,#b0b);border-color:#f0f;font-size:18px;padding:16px 30px;margin:12px;box-shadow:0 15px 50px rgba(255,0,255,0.6)}
+.shopGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;max-width:96vw;margin:35px 0;padding:30px;max-height:65vh;overflow-y:auto}
+.shopGrid::-webkit-scrollbar{width:14px}
+.shopGrid::-webkit-scrollbar-track{background:rgba(0,0,0,0.4);border-radius:12px}
+.shopGrid::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#f44,#fa0,#0ff);border-radius:12px;box-shadow:0 0 15px rgba(255,68,68,0.6)}
+.carCard{background:linear-gradient(135deg,rgba(35,35,90,0.98),rgba(55,55,115,0.96));padding:32px 36px;border:5px solid #666;border-radius:30px;cursor:pointer;transition:all .4s;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.7),inset 0 3px 20px rgba(255,255,255,0.12);position:relative;overflow:hidden;min-height:260px;display:flex;flex-direction:column;justify-content:space-between}
+.carCard::before{content:'';position:absolute;inset:-150%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,0.25),transparent);opacity:0;transition:all .6s;animation:cardRotate 4s linear infinite paused}
 @keyframes cardRotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .carCard:hover:not(.locked)::before{opacity:1;animation-play-state:running}
-.carCard:hover:not(.locked){border-color:#0ff;transform:translateY(-8px) scale(1.05);box-shadow:0 20px 70px rgba(0,255,255,0.4),inset 0 3px 20px rgba(255,255,255,0.2)}
-.carCard.selected{border-color:#0f0;box-shadow:0 0 50px #0f0,0 0 100px rgba(0,255,0,0.3);animation:selectedGlow 2s infinite}
-@keyframes selectedGlow{0%,100%{box-shadow:0 0 50px #0f0,0 0 100px rgba(0,255,0,0.3)}50%{box-shadow:0 0 70px #0f0,0 0 140px rgba(0,255,0,0.5)}}
-.carCard.locked{opacity:0.35;cursor:not-allowed;filter:grayscale(1) brightness(0.6)}
+.carCard:hover:not(.locked){border-color:#0ff;transform:translateY(-10px) scale(1.06);box-shadow:0 25px 80px rgba(0,255,255,0.5),inset 0 4px 25px rgba(255,255,255,0.25)}
+.carCard.selected{border-color:#0f0;box-shadow:0 0 60px #0f0,0 0 120px rgba(0,255,0,0.4);animation:selectedGlow 1.5s infinite}
+@keyframes selectedGlow{0%,100%{box-shadow:0 0 60px #0f0,0 0 120px rgba(0,255,0,0.4)}50%{box-shadow:0 0 80px #0f0,0 0 160px rgba(0,255,0,0.6)}}
+.carCard.locked{opacity:0.35;cursor:not-allowed;filter:grayscale(1) brightness(0.5)}
 .carContent{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.emoji{font-size:clamp(55px,13vw,75px);margin-bottom:12px;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.7));animation:emojiFloat 2s ease-in-out infinite}
-@keyframes emojiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.carName{font-size:clamp(17px,4.5vw,24px);font-weight:900;margin-bottom:8px;text-transform:uppercase;letter-spacing:3px;text-shadow:0 2px 10px rgba(0,0,0,0.5);color:#fff}
-.carInfo{font-size:clamp(12px,3vw,14px);color:#aaa;margin-bottom:8px;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);line-height:1.4}
-.abilityText{font-size:clamp(11px,2.8vw,13px);color:#0ff;margin-top:6px;font-weight:700;text-shadow:0 0 10px #0ff}
-.speedFast{color:#0f0;text-shadow:0 0 10px #0f0}
-.speedMedium{color:#fa0;text-shadow:0 0 10px #fa0}
-.speedSlow{color:#f44;text-shadow:0 0 10px #f44}
-.carPrice{font-size:clamp(20px,5.5vw,28px);font-weight:900;color:#fa0;text-shadow:0 0 20px #fa0,0 0 40px #fa0;margin-top:8px}
-.stats{display:flex;gap:35px;margin:35px 0;flex-wrap:wrap;justify-content:center}
-.statBox{background:linear-gradient(135deg,rgba(30,30,80,0.98),rgba(50,50,100,0.95));padding:30px 40px;border-radius:25px;border:4px solid;min-width:180px;box-shadow:0 15px 50px rgba(0,0,0,0.6);transition:transform .3s}
-.statBox:hover{transform:translateY(-8px) scale(1.05)}
-.statLabel{font-size:13px;color:#aaa;letter-spacing:4px;margin-bottom:12px;text-transform:uppercase;font-weight:700}
-.statValue{font-size:clamp(32px,8vw,42px);font-weight:900;text-shadow:0 0 25px currentColor,0 0 50px currentColor}
-#controls{position:absolute;bottom:25px;right:25px;background:rgba(0,0,0,0.9);padding:20px 30px;border-radius:20px;border:3px solid #0ff;font-size:15px;color:#0ff;backdrop-filter:blur(15px);box-shadow:0 8px 40px rgba(0,255,255,0.4)}
-#controls div{margin:8px 0;letter-spacing:2px;font-weight:700}
-#abilityHint{color:#f0f;font-size:16px;margin-top:10px;text-shadow:0 0 15px #f0f}
-input{font-family:'Orbitron',monospace;padding:18px 30px;font-size:20px;border:4px solid #0ff;border-radius:20px;background:rgba(0,0,0,0.9);color:#0ff;margin:25px;text-align:center;letter-spacing:3px;box-shadow:0 5px 30px rgba(0,255,255,0.3)}
-input::placeholder{color:#066}
-.adminPanel{background:linear-gradient(135deg,rgba(60,0,80,0.98),rgba(80,0,100,0.95));padding:35px;border-radius:25px;border:4px solid #f0f;margin:25px;max-width:650px;box-shadow:0 15px 50px rgba(255,0,255,0.4)}
-.adminPanel h3{color:#f0f;margin-bottom:18px;text-shadow:0 0 25px #f0f;font-size:24px;letter-spacing:3px}
-.adminPanel button{margin:12px}
+.emoji{font-size:clamp(65px,14vw,85px);margin-bottom:14px;filter:drop-shadow(0 10px 25px rgba(0,0,0,0.8));animation:emojiFloat 2.5s ease-in-out infinite}
+@keyframes emojiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.carName{font-size:clamp(19px,5vw,26px);font-weight:900;margin-bottom:10px;text-transform:uppercase;letter-spacing:4px;text-shadow:0 3px 12px rgba(0,0,0,0.6);color:#fff}
+.carInfo{font-size:clamp(13px,3.2vw,16px);color:#bbb;margin-bottom:10px;letter-spacing:2px;text-shadow:0 2px 6px rgba(0,0,0,0.6);line-height:1.5}
+.abilityText{font-size:clamp(12px,3vw,14px);color:#0ff;margin-top:8px;font-weight:900;text-shadow:0 0 12px #0ff,0 2px 6px rgba(0,0,0,0.5)}
+.speedFast{color:#0f0;text-shadow:0 0 12px #0f0}
+.speedMedium{color:#fa0;text-shadow:0 0 12px #fa0}
+.speedSlow{color:#f44;text-shadow:0 0 12px #f44}
+.carPrice{font-size:clamp(22px,6vw,32px);font-weight:900;color:#fa0;text-shadow:0 0 25px #fa0,0 0 50px #fa0,0 3px 10px rgba(0,0,0,0.5);margin-top:10px}
+.stats{display:flex;gap:40px;margin:40px 0;flex-wrap:wrap;justify-content:center}
+.statBox{background:linear-gradient(135deg,rgba(35,35,90,0.98),rgba(55,55,115,0.96));padding:35px 45px;border-radius:30px;border:5px solid;min-width:200px;box-shadow:0 20px 60px rgba(0,0,0,0.7);transition:transform .3s}
+.statBox:hover{transform:translateY(-10px) scale(1.08)}
+.statLabel{font-size:14px;color:#bbb;letter-spacing:5px;margin-bottom:14px;text-transform:uppercase;font-weight:900}
+.statValue{font-size:clamp(36px,9vw,48px);font-weight:900;text-shadow:0 0 30px currentColor,0 0 60px currentColor,0 4px 12px rgba(0,0,0,0.6)}
+#controls{position:absolute;bottom:30px;right:30px;background:rgba(10,10,30,0.95);padding:25px 36px;border-radius:25px;border:4px solid #0ff;font-size:16px;color:#0ff;backdrop-filter:blur(20px);box-shadow:0 10px 50px rgba(0,255,255,0.5)}
+#controls div{margin:10px 0;letter-spacing:3px;font-weight:900}
+#abilityHint{color:#f0f;font-size:18px;margin-top:12px;text-shadow:0 0 18px #f0f}
+input{font-family:'Orbitron',monospace;padding:22px 36px;font-size:22px;border:5px solid #0ff;border-radius:25px;background:rgba(0,0,0,0.95);color:#0ff;margin:30px;text-align:center;letter-spacing:4px;box-shadow:0 8px 40px rgba(0,255,255,0.4)}
+input::placeholder{color:#088}
+.adminPanel{background:linear-gradient(135deg,rgba(70,0,90,0.98),rgba(90,0,110,0.96));padding:40px;border-radius:30px;border:5px solid #f0f;margin:30px;max-width:700px;box-shadow:0 20px 60px rgba(255,0,255,0.5)}
+.adminPanel h3{color:#f0f;margin-bottom:22px;text-shadow:0 0 30px #f0f;font-size:26px;letter-spacing:4px}
+.adminPanel button{margin:14px}
+#progressBar{position:absolute;bottom:30px;left:30px;background:rgba(10,10,30,0.95);padding:20px 30px;border-radius:25px;border:4px solid #f0f;backdrop-filter:blur(20px);box-shadow:0 10px 50px rgba(255,0,255,0.5);display:none;min-width:300px}
+#progressLabel{color:#f0f;font-size:16px;font-weight:900;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 15px #f0f}
+#progressBarBg{background:#222;height:20px;border-radius:12px;overflow:hidden;box-shadow:inset 0 4px 10px rgba(0,0,0,0.5)}
+#progressBarFill{background:linear-gradient(90deg,#f0f,#f44,#fa0);height:100%;width:0%;transition:width 0.3s;box-shadow:0 0 20px #f0f;border-radius:12px}
 </style>
 </head>
 <body>
@@ -99,7 +113,18 @@ input::placeholder{color:#066}
 </div>
 </div>
 <div id="stars" style="display:none">★</div>
+<div id="comboBox">
+<div id="comboText">COMBO</div>
+<div id="comboCount">x0</div>
+</div>
+<div id="streakMsg">STREAK! 🔥</div>
 <div id="jukeMsg">JUKED! 🎯</div>
+<div id="progressBar">
+<div id="progressLabel">LEVEL UP: 0%</div>
+<div id="progressBarBg">
+<div id="progressBarFill"></div>
+</div>
+</div>
 <div id="controls" style="display:none">
 <div>↑ ACCELERATE</div>
 <div>↓ BRAKE</div>
@@ -118,16 +143,16 @@ input::placeholder{color:#066}
 </div>
 
 <div id="adminLoginScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(45px,11vw,80px)">🔐 Admin Login</div>
+<div class="title" style="font-size:clamp(50px,12vw,90px)">🔐 Admin Login</div>
 <input type="password" id="adminPass" placeholder="Enter Password" onkeypress="if(event.key==='Enter')checkAdmin()">
 <button class="btn" onclick="checkAdmin()">Login</button>
 <button class="btn" onclick="backToMenu()">◀ Back</button>
-<div id="adminError" style="color:#f44;margin-top:25px;display:none;font-size:20px;text-shadow:0 0 20px #f44">❌ Wrong Password!</div>
+<div id="adminError" style="color:#f44;margin-top:30px;display:none;font-size:22px;text-shadow:0 0 25px #f44">❌ Wrong Password!</div>
 </div>
 
 <div id="adminScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(45px,11vw,80px)">👑 Admin Panel</div>
-<div style="font-size:28px;color:#f0f;margin-bottom:25px;text-shadow:0 0 25px #f0f;font-weight:900">
+<div class="title" style="font-size:clamp(50px,12vw,90px)">👑 Admin Panel</div>
+<div style="font-size:32px;color:#f0f;margin-bottom:30px;text-shadow:0 0 30px #f0f;font-weight:900">
 💰 $<span id="adminMoney">0</span>
 </div>
 <div class="adminPanel">
@@ -146,8 +171,8 @@ input::placeholder{color:#066}
 </div>
 
 <div id="shopScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(40px,10vw,75px);margin-bottom:20px">🏪 Garage</div>
-<div style="font-size:clamp(28px,6vw,36px);color:#fa0;margin-bottom:25px;font-weight:900;text-shadow:0 0 25px #fa0,0 0 50px #fa0">
+<div class="title" style="font-size:clamp(45px,11vw,85px);margin-bottom:25px">🏪 Garage</div>
+<div style="font-size:clamp(32px,7vw,40px);color:#fa0;margin-bottom:30px;font-weight:900;text-shadow:0 0 30px #fa0,0 0 60px #fa0">
 💰 $<span id="shopMoney">0</span>
 </div>
 <div class="shopGrid" id="carGrid"></div>
@@ -155,7 +180,7 @@ input::placeholder{color:#066}
 </div>
 
 <div id="overScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(45px,11vw,85px)">🚨 Busted!</div>
+<div class="title" style="font-size:clamp(50px,12vw,95px)">🚨 Busted!</div>
 <div class="subtitle">Police Caught You</div>
 <div class="stats">
 <div class="statBox" style="border-color:#0f0">
@@ -165,6 +190,10 @@ input::placeholder{color:#066}
 <div class="statBox" style="border-color:#fa0">
 <div class="statLabel">Cash Earned</div>
 <div class="statValue" style="color:#fa0" id="finalCash">$0</div>
+</div>
+<div class="statBox" style="border-color:#ff0">
+<div class="statLabel">Best Combo</div>
+<div class="statValue" style="color:#ff0" id="finalCombo">x0</div>
 </div>
 </div>
 <button class="btn" onclick="startGame()">▶ Play Again</button>
@@ -187,6 +216,8 @@ let currentCar='sedan';
 let jukeReady=true,jukeCooldown=0;
 let shootReady=true,shootCooldown=0;
 let abilityReady=true,abilityCooldown=0;
+let combo=0,maxCombo=0,comboTimer=0;
+let xp=0,level=1,xpToNext=100;
 
 let cars={
 sedan:{n:'Sedan',e:'🚗',m:10,p:0,o:true,c:'#48f',gun:false,ability:'shield',abilityName:'Shield (5s)'},
@@ -234,6 +265,44 @@ let shieldActive=false,shieldTime=0;
 function isRoad(x,y){
 let tx=Math.floor(x/TS),ty=Math.floor(y/TS);
 return map[ty]&&map[ty][tx]==1;
+}
+
+function addCombo(){
+combo++;
+if(combo>maxCombo)maxCombo=combo;
+comboTimer=180;
+document.getElementById('comboBox').style.display='block';
+document.getElementById('comboCount').textContent='x'+combo;
+if(combo%5===0){
+showStreakMsg();
+runCash+=combo*10;
+addXP(combo*2);
+}
+}
+
+function showStreakMsg(){
+let msg=document.getElementById('streakMsg');
+msg.textContent=['STREAK! 🔥','INSANE! ⚡','UNSTOPPABLE! 💥','LEGENDARY! 👑'][Math.min(Math.floor(combo/5)-1,3)];
+msg.classList.add('show');
+setTimeout(()=>msg.classList.remove('show'),1000);
+}
+
+function addXP(amount){
+xp+=amount;
+while(xp>=xpToNext){
+xp-=xpToNext;
+level++;
+xpToNext=Math.floor(xpToNext*1.5);
+money+=level*1000;
+showStreakMsg();
+}
+updateProgressBar();
+}
+
+function updateProgressBar(){
+let pct=(xp/xpToNext)*100;
+document.getElementById('progressBarFill').style.width=pct+'%';
+document.getElementById('progressLabel').textContent=`LEVEL ${level} - ${Math.floor(pct)}%`;
 }
 
 function openAdmin(){
@@ -288,6 +357,8 @@ document.getElementById('adminScreen').style.display='none';
 document.getElementById('hud').style.display='none';
 document.getElementById('stars').style.display='none';
 document.getElementById('controls').style.display='none';
+document.getElementById('comboBox').style.display='none';
+document.getElementById('progressBar').style.display='none';
 }
 
 function openShop(){
@@ -347,6 +418,7 @@ abilityReady=false;
 abilityCooldown=180;
 switch(car.ability){
 case'explode':
+let killCount=cops.length;
 cops.forEach(cop=>{
 for(let i=0;i<60;i++){
 particles.push({
@@ -359,7 +431,9 @@ size:6+Math.random()*10
 });
 }
 });
+for(let i=0;i<killCount;i++)addCombo();
 runCash+=cops.length*500;
+addXP(killCount*5);
 cops=[];
 break;
 case'shield':
@@ -423,6 +497,8 @@ if(d<minDist){minDist=d;target=cop;}
 if(target){
 cops=cops.filter(c=>c!==target);
 runCash+=300;
+addCombo();
+addXP(10);
 for(let i=0;i<50;i++){
 particles.push({
 x:target.x,y:target.y,
@@ -469,9 +545,15 @@ life:1.5,decay:0.02,
 color:'#0ff',size:12
 });
 }
+let waveKills=cops.filter(c=>Math.hypot(c.x-px,c.y-py)<250).length;
+for(let i=0;i<waveKills;i++)addCombo();
+addXP(waveKills*3);
 cops=cops.filter(c=>Math.hypot(c.x-px,c.y-py)>250);
 break;
 case'destroy':
+let destroyKills=cops.length;
+for(let i=0;i<destroyKills;i++)addCombo();
+addXP(destroyKills*5);
 cops=[];
 for(let i=0;i<150;i++){
 particles.push({
@@ -501,6 +583,8 @@ size:7+Math.random()*9
 }
 cops.splice(i,1);
 runCash+=250;
+addCombo();
+addXP(5);
 }
 });
 }
@@ -514,8 +598,10 @@ document.getElementById('overScreen').style.display='none';
 document.getElementById('hud').style.display='flex';
 document.getElementById('stars').style.display='block';
 document.getElementById('controls').style.display='block';
+document.getElementById('progressBar').style.display='block';
 document.getElementById('abilityHint').textContent='A: '+cars[currentCar].abilityName;
-runCash=0;time=0;wanted=1;cops=[];coins=[];particles=[];bullets=[];px=700;py=500;ps=0;pa=-Math.PI/2;jukeReady=true;jukeCooldown=0;shootReady=true;shootCooldown=0;abilityReady=true;abilityCooldown=0;shieldActive=false;shieldTime=0;
+runCash=0;time=0;wanted=1;cops=[];coins=[];particles=[];bullets=[];px=700;py=500;ps=0;pa=-Math.PI/2;jukeReady=true;jukeCooldown=0;shootReady=true;shootCooldown=0;abilityReady=true;abilityCooldown=0;shieldActive=false;shieldTime=0;combo=0;maxCombo=0;comboTimer=0;
+updateProgressBar();
 gameLoop();
 }
 
@@ -523,11 +609,14 @@ function endGame(){
 money+=runCash;
 document.getElementById('finalTime').textContent=Math.floor(time/60)+':'+Math.floor(time%60).toString().padStart(2,'0');
 document.getElementById('finalCash').textContent='$'+runCash;
+document.getElementById('finalCombo').textContent='x'+maxCombo;
 screen='over';
 document.getElementById('overScreen').style.display='flex';
 document.getElementById('hud').style.display='none';
 document.getElementById('stars').style.display='none';
 document.getElementById('controls').style.display='none';
+document.getElementById('comboBox').style.display='none';
+document.getElementById('progressBar').style.display='none';
 }
 
 function showJukeMsg(){
@@ -594,59 +683,64 @@ ctx.translate(x-cx,y-cy);
 ctx.rotate(angle);
 if(shieldActive&&!isPolice){
 ctx.strokeStyle='#0ff';
-ctx.lineWidth=6;
+ctx.lineWidth=8;
 ctx.shadowColor='#0ff';
-ctx.shadowBlur=30;
+ctx.shadowBlur=40;
 ctx.beginPath();
-ctx.arc(0,0,60,0,Math.PI*2);
+ctx.arc(0,0,65,0,Math.PI*2);
+ctx.stroke();
+ctx.strokeStyle='#0ff';
+ctx.lineWidth=4;
+ctx.beginPath();
+ctx.arc(0,0,75,0,Math.PI*2);
 ctx.stroke();
 }
 ctx.shadowColor=color;
-ctx.shadowBlur=30;
+ctx.shadowBlur=35;
 ctx.fillStyle=color;
-ctx.fillRect(-24,-36,48,72);
-let shineGrad=ctx.createLinearGradient(-24,-36,24,-36);
+ctx.fillRect(-26,-38,52,76);
+let shineGrad=ctx.createLinearGradient(-26,-38,26,-38);
 shineGrad.addColorStop(0,color);
-shineGrad.addColorStop(0.3,'rgba(255,255,255,0.5)');
-shineGrad.addColorStop(0.7,'rgba(255,255,255,0.3)');
+shineGrad.addColorStop(0.3,'rgba(255,255,255,0.6)');
+shineGrad.addColorStop(0.7,'rgba(255,255,255,0.4)');
 shineGrad.addColorStop(1,color);
 ctx.fillStyle=shineGrad;
-ctx.fillRect(-24,-36,48,72);
-let windGrad=ctx.createLinearGradient(-18,-32,18,-32);
+ctx.fillRect(-26,-38,52,76);
+let windGrad=ctx.createLinearGradient(-20,-34,20,-34);
 windGrad.addColorStop(0,'#4488ff');
-windGrad.addColorStop(0.5,'#88ccff');
+windGrad.addColorStop(0.5,'#aaccff');
 windGrad.addColorStop(1,'#4488ff');
 ctx.fillStyle=windGrad;
-ctx.fillRect(-18,-32,36,24);
-ctx.fillStyle='#333';
-ctx.fillRect(-16,14,32,18);
+ctx.fillRect(-20,-34,40,26);
+ctx.fillStyle='#222';
+ctx.fillRect(-18,16,36,20);
 ctx.fillStyle='#fff';
 ctx.shadowColor='#fff';
-ctx.shadowBlur=20;
-ctx.fillRect(-20,-38,14,8);
-ctx.fillRect(6,-38,14,8);
-ctx.shadowBlur=15;
-ctx.fillStyle='#f33';
-ctx.shadowColor='#f33';
-ctx.fillRect(-18,34,14,7);
-ctx.fillRect(4,34,14,7);
+ctx.shadowBlur=25;
+ctx.fillRect(-22,-40,15,9);
+ctx.fillRect(7,-40,15,9);
+ctx.shadowBlur=18;
+ctx.fillStyle='#f22';
+ctx.shadowColor='#f22';
+ctx.fillRect(-20,36,15,8);
+ctx.fillRect(5,36,15,8);
 ctx.shadowBlur=0;
 ctx.fillStyle='#111';
-ctx.strokeStyle='#444';
-ctx.lineWidth=2;
-ctx.fillRect(-28,-26,14,24);
-ctx.strokeRect(-28,-26,14,24);
-ctx.fillRect(14,-26,14,24);
-ctx.strokeRect(14,-26,14,24);
-ctx.fillRect(-28,12,14,24);
-ctx.strokeRect(-28,12,14,24);
-ctx.fillRect(14,12,14,24);
-ctx.strokeRect(14,12,14,24);
+ctx.strokeStyle='#555';
+ctx.lineWidth=3;
+ctx.fillRect(-30,-28,15,26);
+ctx.strokeRect(-30,-28,15,26);
+ctx.fillRect(15,-28,15,26);
+ctx.strokeRect(15,-28,15,26);
+ctx.fillRect(-30,14,15,26);
+ctx.strokeRect(-30,14,15,26);
+ctx.fillRect(15,14,15,26);
+ctx.strokeRect(15,14,15,26);
 if(isPolice){
 ctx.fillStyle=frame%20<10?'#f00':'#00f';
 ctx.shadowColor=frame%20<10?'#f00':'#00f';
-ctx.shadowBlur=25;
-ctx.fillRect(-14,-38,28,12);
+ctx.shadowBlur=30;
+ctx.fillRect(-16,-40,32,14);
 ctx.shadowBlur=0;
 }
 ctx.restore();
@@ -673,6 +767,13 @@ if(shieldTime>0){
 shieldTime--;
 if(shieldTime===0)shieldActive=false;
 }
+if(comboTimer>0){
+comboTimer--;
+if(comboTimer===0){
+combo=0;
+document.getElementById('comboBox').style.display='none';
+}
+}
 if(keys['ArrowUp'])ps=Math.min(ps+0.5,pmax);
 if(keys['ArrowDown'])ps=Math.max(ps-0.6,-6);
 else ps*=0.96;
@@ -682,8 +783,8 @@ px+=Math.cos(pa)*ps;
 py+=Math.sin(pa)*ps;
 cx=px-c.width/2;
 cy=py-c.height/2;
-let bgGrad=ctx.createRadialGradient(c.width/2,c.height/2,0,c.width/2,c.height/2,c.width/2);
-bgGrad.addColorStop(0,'#0d0d22');
+let bgGrad=ctx.createRadialGradient(c.width/2,c.height/2,0,c.width/2,c.height/2,c.width);
+bgGrad.addColorStop(0,'#12122a');
 bgGrad.addColorStop(1,'#000');
 ctx.fillStyle=bgGrad;
 ctx.fillRect(0,0,c.width,c.height);
@@ -693,26 +794,26 @@ let wx=x*TS,wy=y*TS,sx=wx-cx,sy=wy-cy;
 if(sx>-TS&&sx<c.width+TS&&sy>-TS&&sy<c.height+TS){
 if(map[y][x]){
 let roadGrad=ctx.createLinearGradient(sx,sy,sx+TS,sy+TS);
-roadGrad.addColorStop(0,'#4a4a7d');
-roadGrad.addColorStop(0.5,'#3a3a6d');
-roadGrad.addColorStop(1,'#2a2a5d');
+roadGrad.addColorStop(0,'#5555a0');
+roadGrad.addColorStop(0.5,'#444488');
+roadGrad.addColorStop(1,'#333377');
 ctx.fillStyle=roadGrad;
 ctx.fillRect(sx,sy,TS,TS);
-ctx.strokeStyle='#ffaa44';
-ctx.lineWidth=5;
+ctx.strokeStyle='#ffbb44';
+ctx.lineWidth=6;
 ctx.lineCap='round';
-ctx.shadowColor='#ffaa44';
-ctx.shadowBlur=12;
+ctx.shadowColor='#ffbb44';
+ctx.shadowBlur=15;
 ctx.beginPath();
 ctx.moveTo(sx+TS/2,sy+15);
 ctx.lineTo(sx+TS/2,sy+TS-15);
 ctx.stroke();
 ctx.shadowBlur=0;
 }else{
-ctx.fillStyle='#1a1a2f';
+ctx.fillStyle='#1a1a35';
 ctx.fillRect(sx,sy,TS,TS);
-ctx.fillStyle='rgba(255,255,255,0.02)';
-ctx.fillRect(sx+6,sy+6,TS-12,TS-12);
+ctx.fillStyle='rgba(255,255,255,0.03)';
+ctx.fillRect(sx+8,sy+8,TS-16,TS-16);
 }
 }
 }
@@ -721,30 +822,31 @@ for(let i=coins.length-1;i>=0;i--){
 let coin=coins[i];
 ctx.save();
 ctx.translate(coin.x-cx,coin.y-cy);
-ctx.shadowColor='#ffaa00';
-ctx.shadowBlur=30;
-let coinGrad=ctx.createRadialGradient(0,0,0,0,0,20);
-coinGrad.addColorStop(0,'#ffdd44');
-coinGrad.addColorStop(0.5,'#ffaa00');
-coinGrad.addColorStop(1,'#ff8800');
+ctx.shadowColor='#ffbb00';
+ctx.shadowBlur=35;
+let coinGrad=ctx.createRadialGradient(0,0,0,0,0,22);
+coinGrad.addColorStop(0,'#ffee44');
+coinGrad.addColorStop(0.5,'#ffbb00');
+coinGrad.addColorStop(1,'#ff9900');
 ctx.fillStyle=coinGrad;
 ctx.beginPath();
-ctx.arc(0,0,20,0,Math.PI*2);
+ctx.arc(0,0,22,0,Math.PI*2);
 ctx.fill();
-ctx.shadowBlur=18;
-ctx.strokeStyle='#ffff88';
-ctx.lineWidth=4;
+ctx.shadowBlur=20;
+ctx.strokeStyle='#ffff99';
+ctx.lineWidth=5;
 ctx.stroke();
 ctx.restore();
-if(Math.hypot(coin.x-px,coin.y-py)<42){
-runCash+=50;
-for(let j=0;j<20;j++){
+if(Math.hypot(coin.x-px,coin.y-py)<45){
+runCash+=50*(1+combo*0.1);
+addXP(2);
+for(let j=0;j<25;j++){
 particles.push({
 x:coin.x,y:coin.y,
-vx:(Math.random()-0.5)*14,
-vy:(Math.random()-0.5)*14,
-life:1,decay:0.02,
-color:'#ffaa00',size:4+Math.random()*6
+vx:(Math.random()-0.5)*16,
+vy:(Math.random()-0.5)*16,
+life:1.2,decay:0.02,
+color:'#ffbb00',size:5+Math.random()*7
 });
 }
 coins.splice(i,1);
@@ -754,8 +856,8 @@ for(let i=particles.length-1;i>=0;i--){
 let p=particles[i];
 p.x+=p.vx;
 p.y+=p.vy;
-p.vx*=0.96;
-p.vy*=0.96;
+p.vx*=0.95;
+p.vy*=0.95;
 p.life-=p.decay;
 if(p.life<=0){
 particles.splice(i,1);
@@ -765,7 +867,7 @@ ctx.save();
 ctx.globalAlpha=p.life;
 ctx.translate(p.x-cx,p.y-cy);
 ctx.shadowColor=p.color;
-ctx.shadowBlur=20;
+ctx.shadowBlur=25;
 let partGrad=ctx.createRadialGradient(0,0,0,0,0,p.size*p.life);
 partGrad.addColorStop(0,p.color);
 partGrad.addColorStop(1,'transparent');
@@ -787,63 +889,120 @@ continue;
 ctx.save();
 ctx.translate(b.x-cx,b.y-cy);
 ctx.shadowColor='#ff0';
-ctx.shadowBlur=25;
-let bulletGrad=ctx.createRadialGradient(0,0,0,0,0,10);
+ctx.shadowBlur=30;
+let bulletGrad=ctx.createRadialGradient(0,0,0,0,0,12);
 bulletGrad.addColorStop(0,'#fff');
 bulletGrad.addColorStop(0.5,'#ff0');
 bulletGrad.addColorStop(1,'#f80');
 ctx.fillStyle=bulletGrad;
 ctx.beginPath();
-ctx.arc(0,0,10,0,Math.PI*2);
+ctx.arc(0,0,12,0,Math.PI*2);
 ctx.fill();
 ctx.restore();
 }
-if(frame%260==0&&cops.length<wanted){
-for(let i=0;i<25;i++){
-let tx=1+Math.floor(Math.random()*11)*TS+50;
-let ty=1+Math.floor(Math.random()*10)*TS+50;
-if(isRoad(tx,ty)&&Math.hypot(tx-px,ty-py)>350){
-cops.push({x:tx,y:ty,health:1});
+if(frame%240==0&&cops.length<wanted*2){
+for(let attempt=0;attempt<40;attempt++){
+let spawnAngle=(Math.random()*360)*Math.PI/180;
+let spawnDist=450+Math.random()*150;
+let tx=px+Math.cos(spawnAngle)*spawnDist;
+let ty=py+Math.sin(spawnAngle)*spawnDist;
+if(isRoad(tx,ty)){
+let tooClose=false;
+cops.forEach(otherCop=>{
+if(Math.hypot(tx-otherCop.x,ty-otherCop.y)<200){
+tooClose=true;
+}
+});
+if(!tooClose){
+cops.push({
+x:tx,y:ty,
+health:1,
+targetAngle:spawnAngle+Math.PI+(Math.random()-0.5)*1.5,
+movePattern:Math.floor(Math.random()*3),
+switchTimer:Math.floor(Math.random()*180)+120
+});
 break;
+}
 }
 }
 }
 for(let i=cops.length-1;i>=0;i--){
 let cop=cops[i];
 let dx=px-cop.x,dy=py-cop.y;
+let distToPlayer=Math.hypot(dx,dy);
 cop.pa=Math.atan2(dy,dx);
-cop.x+=Math.cos(cop.pa)*(5.2+wanted*0.25);
-cop.y+=Math.sin(cop.pa)*(5.2+wanted*0.25);
+cop.switchTimer--;
+if(cop.switchTimer<=0){
+cop.movePattern=Math.floor(Math.random()*3);
+cop.switchTimer=Math.floor(Math.random()*180)+120;
+cop.targetAngle=cop.pa+(Math.random()-0.5)*2;
+}
+cops.forEach(otherCop=>{
+if(otherCop!==cop){
+let odx=otherCop.x-cop.x;
+let ody=otherCop.y-cop.y;
+let odist=Math.hypot(odx,ody);
+if(odist<100&&odist>0){
+let pushAngle=Math.atan2(-ody,-odx);
+cop.x+=Math.cos(pushAngle)*3;
+cop.y+=Math.sin(pushAngle)*3;
+}
+}
+});
+let baseSpeed=4.8+wanted*0.25;
+let moveAngle=cop.pa;
+if(cop.movePattern===0){
+if(distToPlayer>150){
+let sideAngle=cop.pa+Math.PI/2;
+moveAngle=cop.pa*0.7+sideAngle*0.3;
+}
+}else if(cop.movePattern===1){
+if(distToPlayer>150){
+let sideAngle=cop.pa-Math.PI/2;
+moveAngle=cop.pa*0.7+sideAngle*0.3;
+}
+}else{
+moveAngle=cop.pa;
+}
+if(distToPlayer<180){
+cop.x+=Math.cos(cop.pa)*baseSpeed*1.6;
+cop.y+=Math.sin(cop.pa)*baseSpeed*1.6;
+}else{
+cop.x+=Math.cos(moveAngle)*baseSpeed;
+cop.y+=Math.sin(moveAngle)*baseSpeed;
+}
 bullets.forEach((b,bi)=>{
-if(Math.hypot(b.x-cop.x,b.y-cop.y)<40){
+if(Math.hypot(b.x-cop.x,b.y-cop.y)<45){
 cop.health--;
 bullets.splice(bi,1);
-for(let j=0;j<30;j++){
+for(let j=0;j<35;j++){
 particles.push({
 x:cop.x,y:cop.y,
-vx:(Math.random()-0.5)*18,
-vy:(Math.random()-0.5)*18,
-life:1,decay:0.022,
-color:Math.random()>0.5?'#f80':'#ff0',size:6+Math.random()*8
+vx:(Math.random()-0.5)*20,
+vy:(Math.random()-0.5)*20,
+life:1.2,decay:0.022,
+color:Math.random()>0.5?'#f90':'#ff0',size:7+Math.random()*10
 });
 }
 if(cop.health<=0){
 cops.splice(i,1);
-runCash+=100;
+runCash+=100*(1+combo*0.2);
+addCombo();
+addXP(3);
 }
 }
 });
 if(cop.health>0){
 drawCar(cop.x,cop.y,cop.pa,'#fff',true);
-if(!shieldActive&&Math.hypot(cop.x-px,cop.y-py)<48){
+if(!shieldActive&&Math.hypot(cop.x-px,cop.y-py)<52){
 endGame();
 return;
 }
 }
 }
 drawCar(px,py,pa,cars[currentCar].c,false);
-if(frame%110==0&&coins.length<10){
-for(let i=0;i<20;i++){
+if(frame%100==0&&coins.length<12){
+for(let i=0;i<25;i++){
 let tx=1+Math.floor(Math.random()*11)*TS+50;
 let ty=1+Math.floor(Math.random()*10)*TS+50;
 if(isRoad(tx,ty)){
@@ -854,7 +1013,7 @@ break;
 }
 document.getElementById('timeVal').textContent=Math.floor(time/60)+':'+Math.floor(time%60).toString().padStart(2,'0');
 document.getElementById('speedVal').textContent=Math.round(Math.abs(ps)*11)+' MPH';
-document.getElementById('cashVal').textContent='$'+runCash;
+document.getElementById('cashVal').textContent='$'+Math.floor(runCash);
 document.getElementById('wantedVal').textContent='★'.repeat(wanted);
 document.getElementById('stars').textContent='★'.repeat(wanted);
 requestAnimationFrame(gameLoop);
