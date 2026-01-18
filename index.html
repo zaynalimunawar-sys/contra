@@ -49,6 +49,8 @@ canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:
 #bossHealthFill::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:healthShine 2s infinite}
 @keyframes healthShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 #bossHealthText{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:18px;font-weight:900;text-shadow:0 2px 8px #000;z-index:1}
+#abilityCooldownBox{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(10,10,30,0.95);padding:15px 30px;border-radius:20px;border:4px solid #f0f;backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(255,0,255,0.6);display:none;min-width:250px}
+#abilityCooldownText{color:#f0f;font-size:20px;font-weight:900;letter-spacing:3px;text-shadow:0 0 20px #f0f;text-align:center}
 .screen{position:absolute;inset:0;background:radial-gradient(circle,rgba(15,15,40,0.98),rgba(5,5,15,0.99));display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:999;backdrop-filter:blur(30px);overflow-y:auto}
 .title{font-size:clamp(70px,15vw,120px);font-weight:900;margin-bottom:35px;background:linear-gradient(135deg,#f44,#fa0,#ff0,#0ff,#44f,#f0f,#f44);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300% 300%;letter-spacing:10px;text-transform:uppercase;animation:titleShine 3s infinite,titleFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(255,68,68,0.6))}
 @keyframes titleShine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
@@ -141,6 +143,9 @@ input::placeholder{color:#088}
 <div id="bossHealthFill"></div>
 <div id="bossHealthText">100%</div>
 </div>
+</div>
+<div id="abilityCooldownBox">
+<div id="abilityCooldownText">ABILITY: 6s</div>
 </div>
 <div id="progressBar">
 <div id="progressLabel">LEVEL UP: 0%</div>
@@ -391,6 +396,16 @@ document.getElementById('progressBarFill').style.width=pct+'%';
 document.getElementById('progressLabel').textContent=`LEVEL ${level} - ${Math.floor(pct)}%`;
 }
 
+function updateAbilityCooldown(){
+if(abilityCooldown>0){
+let secondsLeft=Math.ceil(abilityCooldown/60);
+document.getElementById('abilityCooldownText').textContent='ABILITY: '+secondsLeft+'s';
+document.getElementById('abilityCooldownBox').style.display='block';
+}else{
+document.getElementById('abilityCooldownBox').style.display='none';
+}
+}
+
 function openAdmin(){
 screen='adminLogin';
 document.getElementById('menuScreen').style.display='none';
@@ -446,6 +461,7 @@ document.getElementById('controls').style.display='none';
 document.getElementById('comboBox').style.display='none';
 document.getElementById('progressBar').style.display='none';
 document.getElementById('bossHealth').style.display='none';
+document.getElementById('abilityCooldownBox').style.display='none';
 }
 
 function openShop(){
@@ -709,6 +725,7 @@ document.getElementById('progressBar').style.display='block';
 document.getElementById('abilityHint').textContent='A: '+cars[currentCar].abilityName;
 runCash=0;time=0;wanted=1;cops=[];coins=[];particles=[];bullets=[];px=700;py=500;ps=0;pa=-Math.PI/2;jukeReady=true;jukeCooldown=0;shootReady=true;shootCooldown=0;abilityReady=true;abilityCooldown=0;shieldActive=false;shieldTime=0;combo=0;maxCombo=0;comboTimer=0;boss=null;bossesDefeated=0;
 updateProgressBar();
+updateAbilityCooldown();
 gameLoop();
 }
 
@@ -726,6 +743,7 @@ document.getElementById('controls').style.display='none';
 document.getElementById('comboBox').style.display='none';
 document.getElementById('progressBar').style.display='none';
 document.getElementById('bossHealth').style.display='none';
+document.getElementById('abilityCooldownBox').style.display='none';
 }
 
 function showJukeMsg(){
@@ -872,6 +890,7 @@ if(shootCooldown===0)shootReady=true;
 if(abilityCooldown>0){
 abilityCooldown--;
 if(abilityCooldown===0)abilityReady=true;
+updateAbilityCooldown();
 }
 if(shieldTime>0){
 shieldTime--;
