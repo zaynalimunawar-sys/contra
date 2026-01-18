@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>ESCAPE ROAD - ULTRA PREMIUM</title>
+<title>ESCAPE ROAD - ALL GUNS 6S COOLDOWN</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -136,7 +136,7 @@ input::placeholder{color:#088}
 
 <div id="menuScreen" class="screen">
 <div class="title">ESCAPE ROAD</div>
-<div class="subtitle">Ultra Premium Edition</div>
+<div class="subtitle">All Guns - 6s Abilities</div>
 <button class="btn" onclick="startGame()">▶ Play Game</button>
 <button class="btn" onclick="openShop()">🏪 Garage</button>
 <button class="adminBtn" onclick="openAdmin()">🔐 Admin Panel</button>
@@ -220,18 +220,18 @@ let combo=0,maxCombo=0,comboTimer=0;
 let xp=0,level=1,xpToNext=100;
 
 let cars={
-sedan:{n:'Sedan',e:'🚗',m:10,p:0,o:true,c:'#48f',gun:false,ability:'shield',abilityName:'Shield (5s)'},
-van:{n:'Van',e:'🚐',m:8,p:2500,o:false,c:'#69f',gun:false,ability:'magnet',abilityName:'Coin Magnet'},
-truck:{n:'Monster',e:'🛻',m:9,p:3500,o:false,c:'#a64',gun:false,ability:'ram',abilityName:'Ram Boost'},
-suv:{n:'SUV',e:'🚙',m:11,p:4000,o:false,c:'#4a4',gun:false,ability:'shield',abilityName:'Shield (7s)'},
-compact:{n:'Compact',e:'🚕',m:13,p:5000,o:false,c:'#fc4',gun:false,ability:'dash',abilityName:'Speed Dash'},
+sedan:{n:'Sedan',e:'🚗',m:10,p:0,o:true,c:'#48f',gun:true,ability:'shield',abilityName:'Shield (5s)'},
+van:{n:'Van',e:'🚐',m:8,p:2500,o:false,c:'#69f',gun:true,ability:'magnet',abilityName:'Coin Magnet'},
+truck:{n:'Monster',e:'🛻',m:9,p:3500,o:false,c:'#a64',gun:true,ability:'ram',abilityName:'Ram Boost'},
+suv:{n:'SUV',e:'🚙',m:11,p:4000,o:false,c:'#4a4',gun:true,ability:'shield',abilityName:'Shield (7s)'},
+compact:{n:'Compact',e:'🚕',m:13,p:5000,o:false,c:'#fc4',gun:true,ability:'dash',abilityName:'Speed Dash'},
 muscle:{n:'Muscle',e:'🚘',m:14,p:6500,o:false,c:'#fa0',gun:true,ability:'burst',abilityName:'Bullet Burst'},
-limo:{n:'Limo',e:'🚐',m:10,p:7500,o:false,c:'#000',gun:false,ability:'coins',abilityName:'Rain Coins'},
+limo:{n:'Limo',e:'🚐',m:10,p:7500,o:false,c:'#000',gun:true,ability:'coins',abilityName:'Rain Coins'},
 coupe:{n:'Coupe',e:'🚙',m:15,p:9000,o:false,c:'#f6a',gun:true,ability:'snipe',abilityName:'Sniper Shot'},
 sports:{n:'Sports',e:'🏎️',m:17,p:12000,o:false,c:'#f44',gun:true,ability:'rapid',abilityName:'Rapid Fire'},
-buggy:{n:'Buggy',e:'🏜️',m:16,p:15000,o:false,c:'#fa4',gun:false,ability:'jump',abilityName:'Mega Jump'},
+buggy:{n:'Buggy',e:'🏜️',m:16,p:15000,o:false,c:'#fa4',gun:true,ability:'jump',abilityName:'Mega Jump'},
 rally:{n:'Rally',e:'🏁',m:18,p:18000,o:false,c:'#0cf',gun:true,ability:'spread',abilityName:'Spread Shot'},
-drift:{n:'Drift',e:'🚗',m:19,p:22000,o:false,c:'#f08',gun:false,ability:'drift',abilityName:'Drift Boost'},
+drift:{n:'Drift',e:'🚗',m:19,p:22000,o:false,c:'#f08',gun:true,ability:'drift',abilityName:'Drift Boost'},
 super:{n:'Supercar',e:'🏁',m:21,p:28000,o:false,c:'#f4f',gun:true,ability:'laser',abilityName:'Laser Beam'},
 racer:{n:'Racer',e:'🏎️',m:22,p:35000,o:false,c:'#0f0',gun:true,ability:'missile',abilityName:'Homing Missile'},
 hyper:{n:'Hyper',e:'🏁',m:24,p:45000,o:false,c:'#ff0',gun:true,ability:'wave',abilityName:'Shock Wave'},
@@ -388,7 +388,7 @@ card.innerHTML=`
 <div class="carContent">
 <div class="emoji">${car.e}</div>
 <div class="carName">${car.n}</div>
-<div class="carInfo">Speed: <span class="${getSpeedClass(car.m)}">${car.m}</span>${car.gun?' 🔫':''}</div>
+<div class="carInfo">Speed: <span class="${getSpeedClass(car.m)}">${car.m}</span> 🔫</div>
 <div class="abilityText">A: ${car.abilityName}</div>
 </div>
 <div class="carPrice">${car.o?(currentCar==k?'✅ SELECTED':'TAP TO SELECT'):(car.p===0?'ADMIN ONLY':'$'+car.p.toLocaleString())}</div>
@@ -415,7 +415,7 @@ function useAbility(){
 if(!abilityReady)return;
 let car=cars[currentCar];
 abilityReady=false;
-abilityCooldown=180;
+abilityCooldown=360;
 switch(car.ability){
 case'explode':
 let killCount=cops.length;
@@ -650,7 +650,7 @@ color:'#0ff',size:4+Math.random()*6
 }
 
 function shootGun(){
-if(!cars[currentCar].gun||!shootReady)return;
+if(!shootReady)return;
 shootReady=false;
 shootCooldown=currentCar==='admincar'?5:8;
 let numBullets=currentCar==='admincar'?5:3;
