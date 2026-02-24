@@ -1,1199 +1,475 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>ESCAPE ROAD - BOSS BATTLES</title>
+<meta charset="UTF-8">
+<title>Monster Arena Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Orbitron',monospace;overflow:hidden;background:#000}
-#gameBox{position:relative;width:100vw;height:100vh;background:radial-gradient(circle at center,#0a0a15,#000)}
-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:6px solid;border-image:linear-gradient(45deg,#f44,#fa0,#ff0,#0ff,#44f,#f0f,#f44) 1;box-shadow:0 0 100px rgba(255,68,68,0.8),0 0 200px rgba(0,255,255,0.5),inset 0 0 80px rgba(0,0,0,0.5);animation:borderPulse 2s infinite,borderShift 5s infinite}
-@keyframes borderPulse{0%,100%{filter:brightness(1) saturate(1.2)}50%{filter:brightness(1.4) saturate(1.5)}}
-@keyframes borderShift{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
-#hud{position:absolute;top:30px;left:30px;right:30px;display:flex;justify-content:space-between;pointer-events:none;z-index:10}
-.hudBox{background:linear-gradient(135deg,rgba(10,10,30,0.97),rgba(30,30,60,0.95));padding:22px 36px;border-radius:25px;border:4px solid;margin:0 12px;backdrop-filter:blur(20px);box-shadow:0 15px 50px rgba(0,0,0,0.8),inset 0 3px 15px rgba(255,255,255,0.15);transition:all .3s;animation:hudFloat 4s ease-in-out infinite;position:relative;overflow:hidden}
-.hudBox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1),transparent);animation:hudShine 3s infinite}
-@keyframes hudShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-@keyframes hudFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.t{border-color:#0f0;background:linear-gradient(135deg,rgba(0,255,0,0.2),rgba(0,180,0,0.15));box-shadow:0 0 30px rgba(0,255,0,0.3)}
-.s{border-color:#0ff;background:linear-gradient(135deg,rgba(0,255,255,0.2),rgba(0,180,180,0.15));box-shadow:0 0 30px rgba(0,255,255,0.3)}
-.c{border-color:#fa0;background:linear-gradient(135deg,rgba(255,170,0,0.2),rgba(200,130,0,0.15));box-shadow:0 0 30px rgba(255,170,0,0.3)}
-.w{border-color:#f44;background:linear-gradient(135deg,rgba(255,68,68,0.2),rgba(200,50,50,0.15));box-shadow:0 0 30px rgba(255,68,68,0.3)}
-.hudLabel{font-size:12px;letter-spacing:4px;opacity:0.9;margin-bottom:8px;text-transform:uppercase;font-weight:900}
-.hudValue{font-size:28px;font-weight:900;text-shadow:0 0 20px currentColor,0 0 40px currentColor,0 4px 10px rgba(0,0,0,0.5)}
-.t .hudValue{color:#0f0}
-.s .hudValue{color:#0ff}
-.c .hudValue{color:#fa0}
-.w .hudValue{color:#f44}
-#stars{position:absolute;top:140px;right:35px;font-size:42px;color:#ff4;text-shadow:0 0 30px #f00,0 0 60px #f00,0 5px 15px rgba(0,0,0,0.5);animation:starPulse 0.8s infinite}
-@keyframes starPulse{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.3) rotate(8deg)}}
-#comboBox{position:absolute;top:140px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,68,68,0.95),rgba(255,170,0,0.95));padding:20px 40px;border-radius:25px;border:4px solid #ff0;backdrop-filter:blur(20px);box-shadow:0 15px 50px rgba(255,170,0,0.8);display:none;animation:comboPopIn 0.3s ease-out}
-@keyframes comboPopIn{0%{transform:translateX(-50%) scale(0.5) rotate(-10deg)}100%{transform:translateX(-50%) scale(1) rotate(0deg)}}
-#comboText{font-size:36px;font-weight:900;color:#fff;text-shadow:0 0 30px #f44,0 4px 10px rgba(0,0,0,0.8);letter-spacing:3px}
-#comboCount{font-size:48px;font-weight:900;color:#ff0;text-shadow:0 0 40px #ff0,0 4px 10px rgba(0,0,0,0.8)}
-#streakMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:72px;font-weight:900;color:#ff0;text-shadow:0 0 50px #ff0,0 0 100px #ff0,0 8px 20px rgba(0,0,0,0.8);opacity:0;pointer-events:none;z-index:100;animation:streakBounce 0.5s ease-out}
-@keyframes streakBounce{0%{transform:translate(-50%,-50%) scale(0.4)}50%{transform:translate(-50%,-50%) scale(1.3)}100%{transform:translate(-50%,-50%) scale(1)}}
-#streakMsg.show{opacity:1}
-#jukeMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:72px;font-weight:900;color:#0ff;text-shadow:0 0 50px #0ff,0 0 100px #0ff,0 8px 20px rgba(0,0,0,0.8);opacity:0;pointer-events:none;transition:opacity .3s;z-index:100;animation:msgBounce 0.5s ease-out}
-@keyframes msgBounce{0%{transform:translate(-50%,-50%) scale(0.4) rotate(-10deg)}50%{transform:translate(-50%,-50%) scale(1.3) rotate(3deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}}
-#jukeMsg.show{opacity:1}
-#bossWarning{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(255,0,0,0.98),rgba(150,0,0,0.95));padding:40px 80px;border-radius:40px;border:8px solid #f00;backdrop-filter:blur(30px);box-shadow:0 30px 100px rgba(255,0,0,0.9);display:none;z-index:200;animation:bossAlert 0.5s ease-out}
-@keyframes bossAlert{0%{transform:translate(-50%,-50%) scale(0.3) rotate(-20deg)}50%{transform:translate(-50%,-50%) scale(1.2) rotate(5deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}}
-#bossWarning h2{font-size:64px;color:#ff0;text-shadow:0 0 40px #ff0,0 0 80px #ff0;letter-spacing:8px;margin-bottom:20px;animation:bossFlash 0.5s infinite}
-@keyframes bossFlash{0%,100%{opacity:1}50%{opacity:0.6}}
-#bossWarning p{font-size:32px;color:#fff;text-shadow:0 0 20px #f00}
-#bossHealth{position:absolute;top:100px;left:50%;transform:translateX(-50%);background:rgba(10,10,30,0.95);padding:20px 40px;border-radius:25px;border:5px solid #f00;backdrop-filter:blur(20px);box-shadow:0 15px 60px rgba(255,0,0,0.8);display:none;min-width:600px;z-index:15}
-#bossName{color:#f00;font-size:28px;font-weight:900;letter-spacing:5px;margin-bottom:12px;text-shadow:0 0 30px #f00;text-align:center}
-#bossHealthBg{background:#222;height:30px;border-radius:15px;overflow:hidden;box-shadow:inset 0 4px 15px rgba(0,0,0,0.7);position:relative}
-#bossHealthFill{background:linear-gradient(90deg,#f00,#fa0,#ff0);height:100%;width:100%;transition:width 0.3s;box-shadow:0 0 30px #f00;border-radius:15px;position:relative;overflow:hidden}
-#bossHealthFill::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:healthShine 2s infinite}
-@keyframes healthShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-#bossHealthText{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:18px;font-weight:900;text-shadow:0 2px 8px #000;z-index:1}
-#abilityCooldownBox{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(10,10,30,0.95);padding:15px 30px;border-radius:20px;border:4px solid #f0f;backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(255,0,255,0.6);display:none;min-width:250px}
-#abilityCooldownText{color:#f0f;font-size:20px;font-weight:900;letter-spacing:3px;text-shadow:0 0 20px #f0f;text-align:center}
-.screen{position:absolute;inset:0;background:radial-gradient(circle,rgba(15,15,40,0.98),rgba(5,5,15,0.99));display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:999;backdrop-filter:blur(30px);overflow-y:auto}
-.title{font-size:clamp(70px,15vw,120px);font-weight:900;margin-bottom:35px;background:linear-gradient(135deg,#f44,#fa0,#ff0,#0ff,#44f,#f0f,#f44);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300% 300%;letter-spacing:10px;text-transform:uppercase;animation:titleShine 3s infinite,titleFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(255,68,68,0.6))}
-@keyframes titleShine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.subtitle{font-size:clamp(20px,5.5vw,32px);margin-bottom:55px;color:#0ff;letter-spacing:8px;text-transform:uppercase;text-shadow:0 0 30px #0ff,0 0 60px #0ff,0 4px 10px rgba(0,0,0,0.5);animation:subtitlePulse 2s infinite}
-@keyframes subtitlePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.02)}}
-.btn{position:relative;padding:clamp(20px,5vw,28px) clamp(45px,9vw,70px);font:bold clamp(20px,5vw,26px) 'Orbitron';background:linear-gradient(135deg,#f44,#d22);color:#fff;border:5px solid #f66;border-radius:40px;cursor:pointer;margin:18px;letter-spacing:5px;text-transform:uppercase;box-shadow:0 15px 50px rgba(255,68,68,0.6),inset 0 4px 20px rgba(255,255,255,0.4);transition:all .3s;overflow:hidden}
-.btn::before{content:'';position:absolute;inset:-50%;background:radial-gradient(circle,rgba(255,255,255,0.4),transparent);opacity:0;transition:opacity .3s}
-.btn:hover{transform:translateY(-8px) scale(1.08);box-shadow:0 20px 60px rgba(255,68,68,0.8),inset 0 4px 20px rgba(255,255,255,0.5);border-color:#ff8}
-.btn:hover::before{opacity:1;animation:btnShine 1.5s infinite}
-@keyframes btnShine{0%{transform:translate(-100%,-100%) rotate(0deg)}100%{transform:translate(100%,100%) rotate(360deg)}}
-.btn:active{transform:translateY(-2px) scale(1.02)}
-.adminBtn{background:linear-gradient(135deg,#f0f,#b0b);border-color:#f0f;font-size:18px;padding:16px 30px;margin:12px;box-shadow:0 15px 50px rgba(255,0,255,0.6)}
-.shopGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;max-width:96vw;margin:35px 0;padding:30px;max-height:65vh;overflow-y:auto}
-.shopGrid::-webkit-scrollbar{width:14px}
-.shopGrid::-webkit-scrollbar-track{background:rgba(0,0,0,0.4);border-radius:12px}
-.shopGrid::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#f44,#fa0,#0ff);border-radius:12px;box-shadow:0 0 15px rgba(255,68,68,0.6)}
-.carCard{background:linear-gradient(135deg,rgba(35,35,90,0.98),rgba(55,55,115,0.96));padding:32px 36px;border:5px solid #666;border-radius:30px;cursor:pointer;transition:all .4s;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.7),inset 0 3px 20px rgba(255,255,255,0.12);position:relative;overflow:hidden;min-height:260px;display:flex;flex-direction:column;justify-content:space-between}
-.carCard::before{content:'';position:absolute;inset:-150%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,0.25),transparent);opacity:0;transition:all .6s;animation:cardRotate 4s linear infinite paused}
-@keyframes cardRotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-.carCard:hover:not(.locked)::before{opacity:1;animation-play-state:running}
-.carCard:hover:not(.locked){border-color:#0ff;transform:translateY(-10px) scale(1.06);box-shadow:0 25px 80px rgba(0,255,255,0.5),inset 0 4px 25px rgba(255,255,255,0.25)}
-.carCard.selected{border-color:#0f0;box-shadow:0 0 60px #0f0,0 0 120px rgba(0,255,0,0.4);animation:selectedGlow 1.5s infinite}
-@keyframes selectedGlow{0%,100%{box-shadow:0 0 60px #0f0,0 0 120px rgba(0,255,0,0.4)}50%{box-shadow:0 0 80px #0f0,0 0 160px rgba(0,255,0,0.6)}}
-.carCard.locked{opacity:0.35;cursor:not-allowed;filter:grayscale(1) brightness(0.5)}
-.carContent{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.emoji{font-size:clamp(65px,14vw,85px);margin-bottom:14px;filter:drop-shadow(0 10px 25px rgba(0,0,0,0.8));animation:emojiFloat 2.5s ease-in-out infinite}
-@keyframes emojiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.carName{font-size:clamp(19px,5vw,26px);font-weight:900;margin-bottom:10px;text-transform:uppercase;letter-spacing:4px;text-shadow:0 3px 12px rgba(0,0,0,0.6);color:#fff}
-.carInfo{font-size:clamp(13px,3.2vw,16px);color:#bbb;margin-bottom:10px;letter-spacing:2px;text-shadow:0 2px 6px rgba(0,0,0,0.6);line-height:1.5}
-.abilityText{font-size:clamp(12px,3vw,14px);color:#0ff;margin-top:8px;font-weight:900;text-shadow:0 0 12px #0ff,0 2px 6px rgba(0,0,0,0.5)}
-.speedFast{color:#0f0;text-shadow:0 0 12px #0f0}
-.speedMedium{color:#fa0;text-shadow:0 0 12px #fa0}
-.speedSlow{color:#f44;text-shadow:0 0 12px #f44}
-.carPrice{font-size:clamp(22px,6vw,32px);font-weight:900;color:#fa0;text-shadow:0 0 25px #fa0,0 0 50px #fa0,0 3px 10px rgba(0,0,0,0.5);margin-top:10px}
-.stats{display:flex;gap:40px;margin:40px 0;flex-wrap:wrap;justify-content:center}
-.statBox{background:linear-gradient(135deg,rgba(35,35,90,0.98),rgba(55,55,115,0.96));padding:35px 45px;border-radius:30px;border:5px solid;min-width:200px;box-shadow:0 20px 60px rgba(0,0,0,0.7);transition:transform .3s}
-.statBox:hover{transform:translateY(-10px) scale(1.08)}
-.statLabel{font-size:14px;color:#bbb;letter-spacing:5px;margin-bottom:14px;text-transform:uppercase;font-weight:900}
-.statValue{font-size:clamp(36px,9vw,48px);font-weight:900;text-shadow:0 0 30px currentColor,0 0 60px currentColor,0 4px 12px rgba(0,0,0,0.6)}
-#controls{position:absolute;bottom:30px;right:30px;background:rgba(10,10,30,0.95);padding:25px 36px;border-radius:25px;border:4px solid #0ff;font-size:16px;color:#0ff;backdrop-filter:blur(20px);box-shadow:0 10px 50px rgba(0,255,255,0.5)}
-#controls div{margin:10px 0;letter-spacing:3px;font-weight:900}
-#abilityHint{color:#f0f;font-size:18px;margin-top:12px;text-shadow:0 0 18px #f0f}
-input{font-family:'Orbitron',monospace;padding:22px 36px;font-size:22px;border:5px solid #0ff;border-radius:25px;background:rgba(0,0,0,0.95);color:#0ff;margin:30px;text-align:center;letter-spacing:4px;box-shadow:0 8px 40px rgba(0,255,255,0.4)}
-input::placeholder{color:#088}
-.adminPanel{background:linear-gradient(135deg,rgba(70,0,90,0.98),rgba(90,0,110,0.96));padding:40px;border-radius:30px;border:5px solid #f0f;margin:30px;max-width:700px;box-shadow:0 20px 60px rgba(255,0,255,0.5)}
-.adminPanel h3{color:#f0f;margin-bottom:22px;text-shadow:0 0 30px #f0f;font-size:26px;letter-spacing:4px}
-.adminPanel button{margin:14px}
-#progressBar{position:absolute;bottom:30px;left:30px;background:rgba(10,10,30,0.95);padding:20px 30px;border-radius:25px;border:4px solid #f0f;backdrop-filter:blur(20px);box-shadow:0 10px 50px rgba(255,0,255,0.5);display:none;min-width:300px}
-#progressLabel{color:#f0f;font-size:16px;font-weight:900;letter-spacing:3px;margin-bottom:10px;text-shadow:0 0 15px #f0f}
-#progressBarBg{background:#222;height:20px;border-radius:12px;overflow:hidden;box-shadow:inset 0 4px 10px rgba(0,0,0,0.5)}
-#progressBarFill{background:linear-gradient(90deg,#f0f,#f44,#fa0);height:100%;width:0%;transition:width 0.3s;box-shadow:0 0 20px #f0f;border-radius:12px}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+  body{
+    background:#050814;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    color:#fff;
+  }
+  #game-wrapper{
+    position:relative;
+  }
+  canvas{
+    background:#0b1724;
+    border-radius:16px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.7);
+    display:block;
+  }
+  #top-ui{
+    position:absolute;
+    left:0;top:0;width:100%;
+    padding:8px 10px;
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    pointer-events:none;
+  }
+  #bars{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    width:55%;
+  }
+  .bar{
+    height:10px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.12);
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background:linear-gradient(90deg,#00ff88,#00c0ff);
+    width:50%;
+  }
+  #info{
+    text-align:right;
+    font-size:11px;
+    opacity:0.8;
+  }
+  #level-up-panel{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.82);
+    display:none;
+    align-items:center;
+    justify-content:center;
+  }
+  #level-up-panel.show{
+    display:flex;
+  }
+  #level-up-box{
+    background:#101a2a;
+    padding:18px 20px;
+    border-radius:12px;
+    width:280px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.7);
+    text-align:center;
+  }
+  #level-up-box h2{
+    margin-bottom:6px;
+    font-size:18px;
+  }
+  #level-up-box p{
+    font-size:12px;
+    opacity:0.8;
+    margin-bottom:10px;
+  }
+  .choice{
+    background:#18263a;
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px;
+    padding:8px;
+    font-size:12px;
+    text-align:left;
+    margin-bottom:6px;
+    cursor:pointer;
+    transition:background 0.15s, transform 0.1s;
+  }
+  .choice:hover{
+    background:#223654;
+    transform:translateY(-1px);
+  }
+  .choice-title{
+    font-weight:bold;
+    margin-bottom:2px;
+  }
+  .choice-desc{
+    font-size:11px;
+    opacity:0.8;
+  }
+  #message{
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:11px;
+    opacity:0.7;
+    pointer-events:none;
+  }
 </style>
 </head>
 <body>
-<div id="gameBox">
-<canvas id="c"></canvas>
-<div id="hud" style="display:none">
-<div class="hudBox t">
-<div class="hudLabel">Time</div>
-<div class="hudValue" id="timeVal">0:00</div>
-</div>
-<div class="hudBox s">
-<div class="hudLabel">Speed</div>
-<div class="hudValue" id="speedVal">0</div>
-</div>
-<div class="hudBox c">
-<div class="hudLabel">Cash</div>
-<div class="hudValue" id="cashVal">$0</div>
-</div>
-<div class="hudBox w">
-<div class="hudLabel">Wanted</div>
-<div class="hudValue" id="wantedVal">★</div>
-</div>
-</div>
-<div id="stars" style="display:none">★</div>
-<div id="comboBox">
-<div id="comboText">COMBO</div>
-<div id="comboCount">x0</div>
-</div>
-<div id="streakMsg">STREAK! 🔥</div>
-<div id="jukeMsg">JUKED! 🎯</div>
-<div id="bossWarning">
-<h2>⚠️ BOSS INCOMING ⚠️</h2>
-<p id="bossWarnText">GET READY!</p>
-</div>
-<div id="bossHealth">
-<div id="bossName">BOSS</div>
-<div id="bossHealthBg">
-<div id="bossHealthFill"></div>
-<div id="bossHealthText">100%</div>
-</div>
-</div>
-<div id="abilityCooldownBox">
-<div id="abilityCooldownText">ABILITY: 6s</div>
-</div>
-<div id="progressBar">
-<div id="progressLabel">LEVEL UP: 0%</div>
-<div id="progressBarBg">
-<div id="progressBarFill"></div>
-</div>
-</div>
-<div id="controls" style="display:none">
-<div>↑ ACCELERATE</div>
-<div>↓ BRAKE</div>
-<div>← → STEER</div>
-<div><strong>L</strong> JUKE COPS</div>
-<div><strong>SPACE</strong> SHOOT</div>
-<div id="abilityHint"></div>
-</div>
+<div id="game-wrapper">
+  <canvas id="game" width="900" height="600"></canvas>
 
-<div id="menuScreen" class="screen">
-<div class="title">ESCAPE ROAD</div>
-<div class="subtitle">Boss Battles Edition</div>
-<button class="btn" onclick="startGame()">▶ Play Game</button>
-<button class="btn" onclick="openShop()">🏪 Garage</button>
-<button class="adminBtn" onclick="openAdmin()">🔐 Admin Panel</button>
-</div>
+  <div id="top-ui">
+    <div id="bars">
+      <div style="font-size:11px;margin-bottom:2px;">HP</div>
+      <div class="bar"><div id="hp-fill" class="bar-fill"></div></div>
+      <div style="font-size:11px;margin:6px 0 2px;">XP</div>
+      <div class="bar"><div id="xp-fill" class="bar-fill" style="width:0%;background:linear-gradient(90deg,#ffc400,#ff4d4d);"></div></div>
+    </div>
+    <div id="info">
+      <div>Level: <span id="lvl-text">1</span></div>
+      <div>Time: <span id="time-text">0.0</span>s</div>
+      <div>Kills: <span id="kills-text">0</span></div>
+    </div>
+  </div>
 
-<div id="adminLoginScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(50px,12vw,90px)">🔐 Admin Login</div>
-<input type="password" id="adminPass" placeholder="Enter Password" onkeypress="if(event.key==='Enter')checkAdmin()">
-<button class="btn" onclick="checkAdmin()">Login</button>
-<button class="btn" onclick="backToMenu()">◀ Back</button>
-<div id="adminError" style="color:#f44;margin-top:30px;display:none;font-size:22px;text-shadow:0 0 25px #f44">❌ Wrong Password!</div>
-</div>
+  <div id="level-up-panel">
+    <div id="level-up-box">
+      <h2>Level Up!</h2>
+      <p>Choose one upgrade:</p>
+      <div id="choices"></div>
+    </div>
+  </div>
 
-<div id="adminScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(50px,12vw,90px)">👑 Admin Panel</div>
-<div style="font-size:32px;color:#f0f;margin-bottom:30px;text-shadow:0 0 30px #f0f;font-weight:900">
-💰 $<span id="adminMoney">0</span>
-</div>
-<div class="adminPanel">
-<h3>💰 Money Controls</h3>
-<button class="btn" onclick="addMoney(5000)">+$5,000</button>
-<button class="btn" onclick="addMoney(25000)">+$25,000</button>
-<button class="btn" onclick="addMoney(100000)">+$100,000</button>
-<button class="btn" onclick="money=999999;updateAdminMoney()">MAX MONEY</button>
-</div>
-<div class="adminPanel">
-<h3>🚗 Car Controls</h3>
-<button class="btn" onclick="unlockAllCars()">🔓 Unlock All Cars</button>
-<button class="btn" onclick="unlockAdminCar()">👑 Unlock ADMIN CAR</button>
-</div>
-<button class="btn" onclick="backToMenu()">◀ Back to Menu</button>
-</div>
-
-<div id="shopScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(45px,11vw,85px);margin-bottom:25px">🏪 Garage</div>
-<div style="font-size:clamp(32px,7vw,40px);color:#fa0;margin-bottom:30px;font-weight:900;text-shadow:0 0 30px #fa0,0 0 60px #fa0">
-💰 $<span id="shopMoney">0</span>
-</div>
-<div class="shopGrid" id="carGrid"></div>
-<button class="btn" onclick="backToMenu()">◀ Back to Menu</button>
-</div>
-
-<div id="overScreen" class="screen" style="display:none">
-<div class="title" style="font-size:clamp(50px,12vw,95px)">🚨 Busted!</div>
-<div class="subtitle">Police Caught You</div>
-<div class="stats">
-<div class="statBox" style="border-color:#0f0">
-<div class="statLabel">Survival Time</div>
-<div class="statValue" style="color:#0f0" id="finalTime">0:00</div>
-</div>
-<div class="statBox" style="border-color:#fa0">
-<div class="statLabel">Cash Earned</div>
-<div class="statValue" style="color:#fa0" id="finalCash">$0</div>
-</div>
-<div class="statBox" style="border-color:#ff0">
-<div class="statLabel">Best Combo</div>
-<div class="statValue" style="color:#ff0" id="finalCombo">x0</div>
-</div>
-<div class="statBox" style="border-color:#f0f">
-<div class="statLabel">Bosses Defeated</div>
-<div class="statValue" style="color:#f0f" id="finalBosses">0</div>
-</div>
-</div>
-<button class="btn" onclick="startGame()">▶ Play Again</button>
-<button class="btn" onclick="openShop()">🏪 Garage</button>
-<button class="btn" onclick="backToMenu()">🏠 Main Menu</button>
-</div>
+  <div id="message">Move with WASD / arrows · Space to pause</div>
 </div>
 
 <script>
-c=document.getElementById('c');
-ctx=c.getContext('2d');
-c.width=1200;c.height=750;
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
 
-let screen='menu';
-let money=10000,runCash=0,time=0,wanted=1,frame=0;
-let px=700,py=500,pa=-Math.PI/2,ps=0,pmax=10;
-let cx=0,cy=0;
-let cops=[],coins=[],particles=[],bullets=[];
-let currentCar='sedan';
-let jukeReady=true,jukeCooldown=0;
-let shootReady=true,shootCooldown=0;
-let abilityReady=true,abilityCooldown=0;
-let combo=0,maxCombo=0,comboTimer=0;
-let xp=0,level=1,xpToNext=100;
-let boss=null,bossesDefeated=0;
+const hpFill = document.getElementById('hp-fill');
+const xpFill = document.getElementById('xp-fill');
+const lvlText = document.getElementById('lvl-text');
+const timeText = document.getElementById('time-text');
+const killsText = document.getElementById('kills-text');
 
-let bosses=[
-{name:'MEGA COP 🚓',health:30,maxHealth:30,speed:6,size:1.8,color:'#00f',reward:2000},
-{name:'SWAT TANK 🛡️',health:50,maxHealth:50,speed:4,size:2.2,color:'#222',reward:3500},
-{name:'HELICOPTER 🚁',health:40,maxHealth:40,speed:7,size:2,color:'#f80',reward:3000},
-{name:'ULTIMATE BOSS 👑',health:80,maxHealth:80,speed:5.5,size:2.5,color:'#f0f',reward:5000}
-];
+const levelPanel = document.getElementById('level-up-panel');
+const choicesEl = document.getElementById('choices');
 
-let cars={
-sedan:{n:'Sedan',e:'🚗',m:10,p:0,o:true,c:'#48f',gun:true,ability:'shield',abilityName:'Shield (5s)'},
-van:{n:'Van',e:'🚐',m:8,p:2500,o:false,c:'#69f',gun:true,ability:'magnet',abilityName:'Coin Magnet'},
-truck:{n:'Monster',e:'🛻',m:9,p:3500,o:false,c:'#a64',gun:true,ability:'ram',abilityName:'Ram Boost'},
-suv:{n:'SUV',e:'🚙',m:11,p:4000,o:false,c:'#4a4',gun:true,ability:'shield',abilityName:'Shield (7s)'},
-compact:{n:'Compact',e:'🚕',m:13,p:5000,o:false,c:'#fc4',gun:true,ability:'dash',abilityName:'Speed Dash'},
-muscle:{n:'Muscle',e:'🚘',m:14,p:6500,o:false,c:'#fa0',gun:true,ability:'burst',abilityName:'Bullet Burst'},
-limo:{n:'Limo',e:'🚐',m:10,p:7500,o:false,c:'#000',gun:true,ability:'coins',abilityName:'Rain Coins'},
-coupe:{n:'Coupe',e:'🚙',m:15,p:9000,o:false,c:'#f6a',gun:true,ability:'snipe',abilityName:'Sniper Shot'},
-sports:{n:'Sports',e:'🏎️',m:17,p:12000,o:false,c:'#f44',gun:true,ability:'rapid',abilityName:'Rapid Fire'},
-buggy:{n:'Buggy',e:'🏜️',m:16,p:15000,o:false,c:'#fa4',gun:true,ability:'jump',abilityName:'Mega Jump'},
-rally:{n:'Rally',e:'🏁',m:18,p:18000,o:false,c:'#0cf',gun:true,ability:'spread',abilityName:'Spread Shot'},
-drift:{n:'Drift',e:'🚗',m:19,p:22000,o:false,c:'#f08',gun:true,ability:'drift',abilityName:'Drift Boost'},
-super:{n:'Supercar',e:'🏁',m:21,p:28000,o:false,c:'#f4f',gun:true,ability:'laser',abilityName:'Laser Beam'},
-racer:{n:'Racer',e:'🏎️',m:22,p:35000,o:false,c:'#0f0',gun:true,ability:'missile',abilityName:'Homing Missile'},
-hyper:{n:'Hyper',e:'🏁',m:24,p:45000,o:false,c:'#ff0',gun:true,ability:'wave',abilityName:'Shock Wave'},
-formula:{n:'Formula',e:'🏎️',m:26,p:60000,o:false,c:'#f00',gun:true,ability:'orbital',abilityName:'Orbital Strike'},
-rocket:{n:'Rocket',e:'🚀',m:28,p:80000,o:false,c:'#0ff',gun:true,ability:'barrage',abilityName:'Missile Barrage'},
-jet:{n:'Jet Car',e:'✈️',m:30,p:110000,o:false,c:'#88f',gun:true,ability:'airstrike',abilityName:'Air Strike'},
-cyber:{n:'Cyber',e:'🤖',m:25,p:95000,o:false,c:'#0df',gun:true,ability:'emp',abilityName:'EMP Blast'},
-tank:{n:'Tank',e:'🛡️',m:7,p:75000,o:false,c:'#484',gun:true,ability:'nuke',abilityName:'Mini Nuke'},
-warcar:{n:'WAR CAR',e:'💥',m:32,p:150000,o:false,c:'#f44',gun:true,ability:'destroy',abilityName:'Mass Destruction'},
-admincar:{n:'ADMIN CAR',e:'👑',m:35,p:0,o:false,c:'#f0f',gun:true,admin:true,ability:'explode',abilityName:'Cop Exploder'}
+let keys = {};
+addEventListener('keydown', e => {
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
+  keys[e.key.toLowerCase()] = true;
+  if(e.key === ' ') paused = !paused;
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+function randRange(a,b){return a+Math.random()*(b-a);}
+
+const player = {
+  x: W/2,
+  y: H/2,
+  r: 16,
+  speed: 3.2,
+  hp: 100,
+  maxHp: 100,
+  damage: 10,
+  xp: 0,
+  level: 1,
+  xpToNext: 30,
+  spinBlades: 1,       // how many spinning blades
+  spinDamage: 10,
+  spinRadius: 55
 };
 
-let map=[
-[0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,1,1,1,1,1,1,1,1,1,1,1,0],
-[0,1,0,0,1,1,0,0,0,1,1,1,0],
-[0,1,0,0,1,1,0,0,0,1,1,1,0],
-[0,1,1,1,1,1,1,1,1,1,1,1,0],
-[0,1,0,0,0,0,0,0,0,0,1,1,0],
-[0,1,1,1,1,1,1,1,1,1,1,1,0],
-[0,1,0,0,1,1,0,0,0,1,1,1,0],
-[0,1,0,0,1,1,0,0,0,1,1,1,0],
-[0,1,1,1,1,1,1,1,1,1,1,1,0],
-[0,1,0,0,0,0,0,0,0,0,1,1,0],
-[0,1,1,1,1,1,1,1,1,1,1,1,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0]
-];
-TS=105;
-let shieldActive=false,shieldTime=0;
+let enemies = [];
+let bullets = [];  // not used yet, but you can add ranged attacks later
+let xpOrbs = [];
 
-function isRoad(x,y){
-let tx=Math.floor(x/TS),ty=Math.floor(y/TS);
-return map[ty]&&map[ty][tx]==1;
-}
+let time = 0;
+let lastFrame = performance.now();
+let spawnTimer = 0;
+let paused = false;
+let killed = 0;
 
-function spawnBoss(){
-let bossType=bosses[Math.min(bossesDefeated,bosses.length-1)];
-let spawnAngle=Math.random()*Math.PI*2;
-let spawnDist=500;
-boss={
-...bossType,
-x:px+Math.cos(spawnAngle)*spawnDist,
-y:py+Math.sin(spawnAngle)*spawnDist,
-pa:0,
-pattern:0,
-patternTimer:180
-};
-document.getElementById('bossWarning').style.display='block';
-document.getElementById('bossWarnText').textContent=boss.name;
-setTimeout(()=>{
-document.getElementById('bossWarning').style.display='none';
-document.getElementById('bossHealth').style.display='block';
-document.getElementById('bossName').textContent=boss.name;
-updateBossHealth();
-},2000);
+function spawnEnemy(){
+  const side = Math.floor(Math.random()*4);
+  let x, y;
+  if(side === 0){ x = -20; y = randRange(0,H); }
+  else if(side === 1){ x = W+20; y = randRange(0,H); }
+  else if(side === 2){ x = randRange(0,W); y = -20; }
+  else { x = randRange(0,W); y = H+20; }
+
+  enemies.push({
+    x,
+    y,
+    r: 14,
+    speed: randRange(1.4,2.0),
+    hp: 30 + time*0.5,
+    maxHp: 30 + time*0.5,
+    damage: 10
+  });
 }
 
-function updateBossHealth(){
-if(!boss)return;
-let pct=(boss.health/boss.maxHealth)*100;
-document.getElementById('bossHealthFill').style.width=pct+'%';
-document.getElementById('bossHealthText').textContent=Math.ceil(pct)+'%';
+function spawnXp(x,y,amount){
+  for(let i=0;i<amount;i++){
+    xpOrbs.push({
+      x: x + randRange(-6,6),
+      y: y + randRange(-6,6),
+      r: 4,
+      value: 4,
+      vx: randRange(-0.5,0.5),
+      vy: randRange(-0.5,0.5)
+    });
+  }
 }
 
-function defeatBoss(){
-runCash+=boss.reward;
-bossesDefeated++;
-addXP(50);
-for(let i=0;i<200;i++){
-particles.push({
-x:boss.x,y:boss.y,
-vx:(Math.random()-0.5)*30,
-vy:(Math.random()-0.5)*30,
-life:2,decay:0.015,
-color:['#ff0','#fa0','#f44','#f0f'][Math.floor(Math.random()*4)],
-size:12+Math.random()*20
-});
-}
-let msg=document.getElementById('streakMsg');
-msg.textContent='BOSS DEFEATED! 💰+$'+boss.reward;
-msg.classList.add('show');
-setTimeout(()=>msg.classList.remove('show'),2000);
-document.getElementById('bossHealth').style.display='none';
-boss=null;
+function update(dt){
+  if(paused) return;
+
+  time += dt;
+  spawnTimer += dt;
+  // spawn faster over time
+  const interval = Math.max(0.35, 1.2 - time*0.01);
+  if(spawnTimer >= interval){
+    spawnTimer = 0;
+    spawnEnemy();
+  }
+
+  // player movement
+  let mx = 0, my = 0;
+  if(keys['w'] || keys['arrowup']) my -= 1;
+  if(keys['s'] || keys['arrowdown']) my += 1;
+  if(keys['a'] || keys['arrowleft']) mx -= 1;
+  if(keys['d'] || keys['arrowright']) mx += 1;
+  const mag = Math.hypot(mx,my);
+  if(mag>0){
+    mx /= mag; my /= mag;
+    player.x += mx * player.speed;
+    player.y += my * player.speed;
+  }
+  player.x = Math.max(player.r, Math.min(W-player.r, player.x));
+  player.y = Math.max(player.r, Math.min(H-player.r, player.y));
+
+  // enemies chase player
+  enemies.forEach(e=>{
+    const dx = player.x - e.x;
+    const dy = player.y - e.y;
+    const d = Math.hypot(dx,dy) || 1;
+    const vx = dx / d * e.speed;
+    const vy = dy / d * e.speed;
+    e.x += vx;
+    e.y += vy;
+
+    // touch player
+    if(d < player.r + e.r){
+      player.hp -= e.damage * dt * 0.5; // damage over time when overlapping
+    }
+  });
+  if(player.hp < 0) player.hp = 0;
+
+  // spinning blades damage
+  const blades = [];
+  for(let i=0;i<player.spinBlades;i++){
+    const angle = time*2 + i * (Math.PI*2/player.spinBlades);
+    blades.push({
+      x: player.x + Math.cos(angle)*player.spinRadius,
+      y: player.y + Math.sin(angle)*player.spinRadius,
+      r: 10
+    });
+  }
+
+  enemies.forEach(e=>{
+    blades.forEach(b=>{
+      const d = Math.hypot(e.x-b.x,e.y-b.y);
+      if(d < e.r + b.r){
+        e.hp -= player.spinDamage * dt * 4; // continuous damage
+      }
+    });
+  });
+
+  // xp orbs
+  xpOrbs.forEach(o=>{
+    // little drift
+    o.x += o.vx;
+    o.y += o.vy;
+    o.vx *= 0.96;
+    o.vy *= 0.96;
+
+    const dx = player.x - o.x;
+    const dy = player.y - o.y;
+    const d = Math.hypot(dx,dy) || 1;
+
+    // if close, pull towards player strongly
+    if(d < 120){
+      const pull = (120 - d)/120 * 0.6;
+      o.x += dx/d * pull * 7;
+      o.y += dy/d * pull * 7;
+    }
+
+    if(d < player.r + o.r + 2){
+      player.xp += o.value;
+      o.collected = true;
+    }
+  });
+  xpOrbs = xpOrbs.filter(o=>!o.collected);
+
+  // enemy death
+  enemies = enemies.filter(e=>{
+    if(e.hp <= 0){
+      spawnXp(e.x,e.y,3);
+      killed++;
+      return false;
+    }
+    return true;
+  });
+
+  // level up
+  while(player.xp >= player.xpToNext){
+    player.xp -= player.xpToNext;
+    player.level++;
+    player.xpToNext = Math.floor(player.xpToNext * 1.4);
+    showLevelUp();
+  }
+
+  // update UI
+  hpFill.style.width = (player.hp/player.maxHp*100) + '%';
+  xpFill.style.width = (player.xp/player.xpToNext*100) + '%';
+  lvlText.textContent = player.level;
+  timeText.textContent = time.toFixed(1);
+  killsText.textContent = killed;
+
+  // game over (simple)
+  if(player.hp <= 0){
+    paused = true;
+    document.getElementById('message').textContent = 'You died! Refresh to restart.';
+  }
 }
 
-function addCombo(){
-combo++;
-if(combo>maxCombo)maxCombo=combo;
-comboTimer=180;
-document.getElementById('comboBox').style.display='block';
-document.getElementById('comboCount').textContent='x'+combo;
-if(combo%5===0){
-showStreakMsg();
-runCash+=combo*10;
-addXP(combo*2);
-}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // background grid
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  const grid = 40;
+  for(let x=0;x<=W;x+=grid){
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+  }
+  for(let y=0;y<=H;y+=grid){
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+  ctx.restore();
+
+  // xp orbs
+  xpOrbs.forEach(o=>{
+    ctx.beginPath();
+    ctx.arc(o.x,o.y,o.r,0,Math.PI*2);
+    ctx.fillStyle = '#ffc83d';
+    ctx.fill();
+  });
+
+  // enemies
+  enemies.forEach(e=>{
+    ctx.beginPath();
+    ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+    ctx.fillStyle = '#ff3d7d';
+    ctx.fill();
+    // hp bar
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(e.x-e.r, e.y-e.r-8, e.r*2,3);
+    ctx.fillStyle = '#ff8080';
+    ctx.fillRect(e.x-e.r, e.y-e.r-8, e.r*2*(e.hp/e.maxHp),3);
+  });
+
+  // spinning blades
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2;
+  for(let i=0;i<player.spinBlades;i++){
+    const angle = time*2 + i*(Math.PI*2/player.spinBlades);
+    const bx = player.x + Math.cos(angle)*player.spinRadius;
+    const by = player.y + Math.sin(angle)*player.spinRadius;
+    ctx.beginPath();
+    ctx.arc(bx,by,10,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  // player
+  ctx.beginPath();
+  ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
+  ctx.fillStyle = '#00ffcc';
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#ffffff';
+  ctx.stroke();
 }
 
-function showStreakMsg(){
-let msg=document.getElementById('streakMsg');
-msg.textContent=['STREAK! 🔥','INSANE! ⚡','UNSTOPPABLE! 💥','LEGENDARY! 👑'][Math.min(Math.floor(combo/5)-1,3)];
-msg.classList.add('show');
-setTimeout(()=>msg.classList.remove('show'),1000);
+function loop(now){
+  const dt = (now - lastFrame)/1000;
+  lastFrame = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* level up panel */
+
+function showLevelUp(){
+  paused = true;
+  levelPanel.classList.add('show');
+  choicesEl.innerHTML = '';
+
+  const options = [
+    {
+      title:'+20% Damage',
+      desc:'Your spinning blades deal more damage.',
+      apply:()=>{player.spinDamage *= 1.2;}
+    },
+    {
+      title:'+20% Speed',
+      desc:'Move faster to dodge monsters.',
+      apply:()=>{player.speed *= 1.2;}
+    },
+    {
+      title:'+1 Blade',
+      desc:'Gain an extra spinning blade.',
+      apply:()=>{player.spinBlades += 1;}
+    },
+    {
+      title:'+20% HP',
+      desc:'Increase max HP and heal a bit.',
+      apply:()=>{
+        player.maxHp = Math.round(player.maxHp*1.2);
+        player.hp = Math.min(player.maxHp, player.hp + 20);
+      }
+    }
+  ];
+
+  // pick 3 random distinct choices
+  const shuffled = options.sort(()=>Math.random()-0.5).slice(0,3);
+
+  shuffled.forEach(opt=>{
+    const div = document.createElement('div');
+    div.className = 'choice';
+    div.innerHTML = `<div class="choice-title">${opt.title}</div>
+                     <div class="choice-desc">${opt.desc}</div>`;
+    div.onclick = () => {
+      opt.apply();
+      levelPanel.classList.remove('show');
+      paused = false;
+    };
+    choicesEl.appendChild(div);
+  });
 }
 
-function addXP(amount){
-xp+=amount;
-while(xp>=xpToNext){
-xp-=xpToNext;
-level++;
-xpToNext=Math.floor(xpToNext*1.5);
-money+=level*1000;
-showStreakMsg();
-}
-updateProgressBar();
-}
-
-function updateProgressBar(){
-let pct=(xp/xpToNext)*100;
-document.getElementById('progressBarFill').style.width=pct+'%';
-document.getElementById('progressLabel').textContent=`LEVEL ${level} - ${Math.floor(pct)}%`;
-}
-
-function updateAbilityCooldown(){
-if(abilityCooldown>0){
-let secondsLeft=Math.ceil(abilityCooldown/60);
-document.getElementById('abilityCooldownText').textContent='ABILITY: '+secondsLeft+'s';
-document.getElementById('abilityCooldownBox').style.display='block';
-}else{
-document.getElementById('abilityCooldownBox').style.display='none';
-}
-}
-
-function openAdmin(){
-screen='adminLogin';
-document.getElementById('menuScreen').style.display='none';
-document.getElementById('adminLoginScreen').style.display='flex';
-document.getElementById('adminPass').value='';
-document.getElementById('adminError').style.display='none';
-}
-
-function checkAdmin(){
-let pass=document.getElementById('adminPass').value;
-if(pass==='zayn2015'){
-screen='admin';
-document.getElementById('adminLoginScreen').style.display='none';
-document.getElementById('adminScreen').style.display='flex';
-updateAdminMoney();
-}else{
-document.getElementById('adminError').style.display='block';
-setTimeout(()=>document.getElementById('adminError').style.display='none',2000);
-}
-}
-
-function updateAdminMoney(){
-document.getElementById('adminMoney').textContent=money;
-}
-
-function addMoney(amount){
-money+=amount;
-updateAdminMoney();
-}
-
-function unlockAllCars(){
-Object.keys(cars).forEach(k=>{
-if(k!=='admincar')cars[k].o=true;
-});
-alert('🔓 All cars unlocked!');
-}
-
-function unlockAdminCar(){
-cars.admincar.o=true;
-alert('👑 ADMIN CAR UNLOCKED!');
-}
-
-function backToMenu(){
-screen='menu';
-document.getElementById('menuScreen').style.display='flex';
-document.getElementById('shopScreen').style.display='none';
-document.getElementById('overScreen').style.display='none';
-document.getElementById('adminLoginScreen').style.display='none';
-document.getElementById('adminScreen').style.display='none';
-document.getElementById('hud').style.display='none';
-document.getElementById('stars').style.display='none';
-document.getElementById('controls').style.display='none';
-document.getElementById('comboBox').style.display='none';
-document.getElementById('progressBar').style.display='none';
-document.getElementById('bossHealth').style.display='none';
-document.getElementById('abilityCooldownBox').style.display='none';
-}
-
-function openShop(){
-screen='shop';
-document.getElementById('menuScreen').style.display='none';
-document.getElementById('shopScreen').style.display='flex';
-document.getElementById('overScreen').style.display='none';
-document.getElementById('adminScreen').style.display='none';
-document.getElementById('shopMoney').textContent=money;
-renderShop();
-}
-
-function getSpeedClass(speed){
-if(speed>=20)return 'speedFast';
-if(speed>=12)return 'speedMedium';
-return 'speedSlow';
-}
-
-function renderShop(){
-let grid=document.getElementById('carGrid');
-grid.innerHTML='';
-Object.keys(cars).forEach(k=>{
-let car=cars[k];
-let card=document.createElement('div');
-card.className=`carCard ${car.o?'':'locked'} ${currentCar==k?'selected':''}`;
-card.innerHTML=`
-<div class="carContent">
-<div class="emoji">${car.e}</div>
-<div class="carName">${car.n}</div>
-<div class="carInfo">Speed: <span class="${getSpeedClass(car.m)}">${car.m}</span> 🔫</div>
-<div class="abilityText">A: ${car.abilityName}</div>
-</div>
-<div class="carPrice">${car.o?(currentCar==k?'✅ SELECTED':'TAP TO SELECT'):(car.p===0?'ADMIN ONLY':'$'+car.p.toLocaleString())}</div>
-`;
-card.onclick=function(){
-if(car.o){
-currentCar=k;
-pmax=car.m;
-renderShop();
-}else if(money>=car.p&&car.p>0){
-money-=car.p;
-car.o=true;
-currentCar=k;
-pmax=car.m;
-document.getElementById('shopMoney').textContent=money;
-renderShop();
-}
-};
-grid.appendChild(card);
-});
-}
-
-function useAbility(){
-if(!abilityReady)return;
-let car=cars[currentCar];
-abilityReady=false;
-abilityCooldown=360;
-switch(car.ability){
-case'explode':
-let killCount=cops.length;
-cops.forEach(cop=>{
-for(let i=0;i<60;i++){
-particles.push({
-x:cop.x,y:cop.y,
-vx:(Math.random()-0.5)*20,
-vy:(Math.random()-0.5)*20,
-life:1.2,decay:0.018,
-color:['#f44','#fa0','#ff0','#f0f'][Math.floor(Math.random()*4)],
-size:6+Math.random()*10
-});
-}
-});
-for(let i=0;i<killCount;i++)addCombo();
-runCash+=cops.length*500;
-addXP(killCount*5);
-cops=[];
-if(boss){
-boss.health-=20;
-if(boss.health<=0)defeatBoss();
-else updateBossHealth();
-}
-break;
-case'shield':
-shieldActive=true;
-shieldTime=car.n==='SUV'?420:300;
-break;
-case'magnet':
-coins.forEach(coin=>{
-let angle=Math.atan2(py-coin.y,px-coin.x);
-coin.x+=Math.cos(angle)*30;
-coin.y+=Math.sin(angle)*30;
-});
-break;
-case'ram':
-ps=pmax*2;
-cops.forEach(cop=>{
-if(Math.hypot(cop.x-px,cop.y-py)<150){
-let angle=Math.atan2(cop.y-py,cop.x-px);
-cop.x+=Math.cos(angle)*300;
-cop.y+=Math.sin(angle)*300;
-}
-});
-if(boss&&Math.hypot(boss.x-px,boss.y-py)<200){
-boss.health-=5;
-if(boss.health<=0)defeatBoss();
-else updateBossHealth();
-}
-break;
-case'dash':
-let dashDist=400;
-px+=Math.cos(pa)*dashDist;
-py+=Math.sin(pa)*dashDist;
-for(let i=0;i<30;i++){
-particles.push({
-x:px-Math.cos(pa)*i*15,y:py-Math.sin(pa)*i*15,
-vx:0,vy:0,life:0.8,decay:0.04,
-color:'#0ff',size:8
-});
-}
-break;
-case'burst':
-for(let i=0;i<20;i++){
-let angle=pa+(Math.random()-0.5)*1;
-bullets.push({
-x:px,y:py,
-vx:Math.cos(angle)*22,
-vy:Math.sin(angle)*22,
-life:60
-});
-}
-break;
-case'coins':
-for(let i=0;i<10;i++){
-coins.push({
-x:px+(Math.random()-0.5)*400,
-y:py+(Math.random()-0.5)*400
-});
-}
-break;
-case'snipe':
-let target=null,minDist=Infinity;
-cops.forEach(cop=>{
-let d=Math.hypot(cop.x-px,cop.y-py);
-if(d<minDist){minDist=d;target=cop;}
-});
-if(target){
-cops=cops.filter(c=>c!==target);
-runCash+=300;
-addCombo();
-addXP(10);
-for(let i=0;i<50;i++){
-particles.push({
-x:target.x,y:target.y,
-vx:(Math.random()-0.5)*15,
-vy:(Math.random()-0.5)*15,
-life:1,decay:0.025,
-color:'#ff0',size:8
-});
-}
-}
-break;
-case'rapid':
-for(let j=0;j<8;j++){
-setTimeout(()=>{
-for(let i=0;i<3;i++){
-bullets.push({
-x:px,y:py,
-vx:Math.cos(pa+(Math.random()-0.5)*0.3)*28,
-vy:Math.sin(pa+(Math.random()-0.5)*0.3)*28,
-life:70
-});
-}
-},j*50);
-}
-break;
-case'spread':
-for(let i=-4;i<=4;i++){
-bullets.push({
-x:px,y:py,
-vx:Math.cos(pa+i*0.2)*25,
-vy:Math.sin(pa+i*0.2)*25,
-life:60
-});
-}
-break;
-case'wave':
-for(let i=0;i<360;i+=15){
-let angle=i*Math.PI/180;
-particles.push({
-x:px,y:py,
-vx:Math.cos(angle)*20,
-vy:Math.sin(angle)*20,
-life:1.5,decay:0.02,
-color:'#0ff',size:12
-});
-}
-let waveKills=cops.filter(c=>Math.hypot(c.x-px,c.y-py)<250).length;
-for(let i=0;i<waveKills;i++)addCombo();
-addXP(waveKills*3);
-cops=cops.filter(c=>Math.hypot(c.x-px,c.y-py)>250);
-if(boss&&Math.hypot(boss.x-px,boss.y-py)<250){
-boss.health-=15;
-if(boss.health<=0)defeatBoss();
-else updateBossHealth();
-}
-break;
-case'destroy':
-let destroyKills=cops.length;
-for(let i=0;i<destroyKills;i++)addCombo();
-addXP(destroyKills*5);
-cops=[];
-for(let i=0;i<150;i++){
-particles.push({
-x:px+(Math.random()-0.5)*600,
-y:py+(Math.random()-0.5)*600,
-vx:(Math.random()-0.5)*25,
-vy:(Math.random()-0.5)*25,
-life:1.5,decay:0.015,
-color:['#f44','#fa0','#ff0'][Math.floor(Math.random()*3)],
-size:10+Math.random()*15
-});
-}
-runCash+=2000;
-if(boss){
-boss.health-=30;
-if(boss.health<=0)defeatBoss();
-else updateBossHealth();
-}
-break;
-default:
-cops.forEach((cop,i)=>{
-if(Math.hypot(cop.x-px,cop.y-py)<400){
-for(let j=0;j<40;j++){
-particles.push({
-x:cop.x,y:cop.y,
-vx:(Math.random()-0.5)*18,
-vy:(Math.random()-0.5)*18,
-life:1,decay:0.025,
-color:['#f44','#fa0','#ff0'][Math.floor(Math.random()*3)],
-size:7+Math.random()*9
-});
-}
-cops.splice(i,1);
-runCash+=250;
-addCombo();
-addXP(5);
-}
-});
-}
-}
-
-function startGame(){
-screen='game';
-document.getElementById('menuScreen').style.display='none';
-document.getElementById('shopScreen').style.display='none';
-document.getElementById('overScreen').style.display='none';
-document.getElementById('hud').style.display='flex';
-document.getElementById('stars').style.display='block';
-document.getElementById('controls').style.display='block';
-document.getElementById('progressBar').style.display='block';
-document.getElementById('abilityHint').textContent='A: '+cars[currentCar].abilityName;
-runCash=0;time=0;wanted=1;cops=[];coins=[];particles=[];bullets=[];px=700;py=500;ps=0;pa=-Math.PI/2;jukeReady=true;jukeCooldown=0;shootReady=true;shootCooldown=0;abilityReady=true;abilityCooldown=0;shieldActive=false;shieldTime=0;combo=0;maxCombo=0;comboTimer=0;boss=null;bossesDefeated=0;
-updateProgressBar();
-updateAbilityCooldown();
-gameLoop();
-}
-
-function endGame(){
-money+=runCash;
-document.getElementById('finalTime').textContent=Math.floor(time/60)+':'+Math.floor(time%60).toString().padStart(2,'0');
-document.getElementById('finalCash').textContent='$'+runCash;
-document.getElementById('finalCombo').textContent='x'+maxCombo;
-document.getElementById('finalBosses').textContent=bossesDefeated;
-screen='over';
-document.getElementById('overScreen').style.display='flex';
-document.getElementById('hud').style.display='none';
-document.getElementById('stars').style.display='none';
-document.getElementById('controls').style.display='none';
-document.getElementById('comboBox').style.display='none';
-document.getElementById('progressBar').style.display='none';
-document.getElementById('bossHealth').style.display='none';
-document.getElementById('abilityCooldownBox').style.display='none';
-}
-
-function showJukeMsg(){
-let msg=document.getElementById('jukeMsg');
-msg.classList.add('show');
-setTimeout(()=>msg.classList.remove('show'),800);
-}
-
-function jukeCops(){
-if(!jukeReady)return;
-jukeReady=false;
-jukeCooldown=180;
-showJukeMsg();
-cops.forEach(cop=>{
-let dist=Math.hypot(cop.x-px,cop.y-py);
-if(dist<400){
-let angle=Math.atan2(cop.y-py,cop.x-px);
-cop.x+=Math.cos(angle)*200;
-cop.y+=Math.sin(angle)*200;
-for(let i=0;i<20;i++){
-particles.push({
-x:cop.x,y:cop.y,
-vx:(Math.random()-0.5)*15,
-vy:(Math.random()-0.5)*15,
-life:1,decay:0.03,
-color:'#0ff',size:4+Math.random()*6
-});
-}
-}
-});
-}
-
-function shootGun(){
-if(!shootReady)return;
-shootReady=false;
-shootCooldown=currentCar==='admincar'?5:8;
-let numBullets=currentCar==='admincar'?5:3;
-for(let i=0;i<numBullets;i++){
-let spreadAngle=pa+(Math.random()-0.5)*0.4;
-bullets.push({
-x:px,y:py,
-vx:Math.cos(spreadAngle)*25,
-vy:Math.sin(spreadAngle)*25,
-life:70
-});
-}
-}
-
-let keys={};
-document.addEventListener('keydown',e=>{
-keys[e.code]=true;
-if(e.code==='KeyL'&&screen==='game')jukeCops();
-if(e.code==='KeyA'&&screen==='game')useAbility();
-if(e.code==='Space'&&screen==='game'){
-e.preventDefault();
-shootGun();
-}
-});
-document.addEventListener('keyup',e=>keys[e.code]=false);
-
-function drawCar(x,y,angle,color,isPolice,scale=1){
-ctx.save();
-ctx.translate(x-cx,y-cy);
-ctx.rotate(angle);
-ctx.scale(scale,scale);
-if(shieldActive&&!isPolice){
-ctx.strokeStyle='#0ff';
-ctx.lineWidth=8;
-ctx.shadowColor='#0ff';
-ctx.shadowBlur=40;
-ctx.beginPath();
-ctx.arc(0,0,65,0,Math.PI*2);
-ctx.stroke();
-ctx.strokeStyle='#0ff';
-ctx.lineWidth=4;
-ctx.beginPath();
-ctx.arc(0,0,75,0,Math.PI*2);
-ctx.stroke();
-}
-ctx.shadowColor=color;
-ctx.shadowBlur=35;
-ctx.fillStyle=color;
-ctx.fillRect(-26,-38,52,76);
-let shineGrad=ctx.createLinearGradient(-26,-38,26,-38);
-shineGrad.addColorStop(0,color);
-shineGrad.addColorStop(0.3,'rgba(255,255,255,0.6)');
-shineGrad.addColorStop(0.7,'rgba(255,255,255,0.4)');
-shineGrad.addColorStop(1,color);
-ctx.fillStyle=shineGrad;
-ctx.fillRect(-26,-38,52,76);
-let windGrad=ctx.createLinearGradient(-20,-34,20,-34);
-windGrad.addColorStop(0,'#4488ff');
-windGrad.addColorStop(0.5,'#aaccff');
-windGrad.addColorStop(1,'#4488ff');
-ctx.fillStyle=windGrad;
-ctx.fillRect(-20,-34,40,26);
-ctx.fillStyle='#222';
-ctx.fillRect(-18,16,36,20);
-ctx.fillStyle='#fff';
-ctx.shadowColor='#fff';
-ctx.shadowBlur=25;
-ctx.fillRect(-22,-40,15,9);
-ctx.fillRect(7,-40,15,9);
-ctx.shadowBlur=18;
-ctx.fillStyle='#f22';
-ctx.shadowColor='#f22';
-ctx.fillRect(-20,36,15,8);
-ctx.fillRect(5,36,15,8);
-ctx.shadowBlur=0;
-ctx.fillStyle='#111';
-ctx.strokeStyle='#555';
-ctx.lineWidth=3;
-ctx.fillRect(-30,-28,15,26);
-ctx.strokeRect(-30,-28,15,26);
-ctx.fillRect(15,-28,15,26);
-ctx.strokeRect(15,-28,15,26);
-ctx.fillRect(-30,14,15,26);
-ctx.strokeRect(-30,14,15,26);
-ctx.fillRect(15,14,15,26);
-ctx.strokeRect(15,14,15,26);
-if(isPolice){
-ctx.fillStyle=frame%20<10?'#f00':'#00f';
-ctx.shadowColor=frame%20<10?'#f00':'#00f';
-ctx.shadowBlur=30;
-ctx.fillRect(-16,-40,32,14);
-ctx.shadowBlur=0;
-}
-ctx.restore();
-}
-
-function gameLoop(){
-if(screen!=='game')return;
-frame++;
-time+=1/60;
-wanted=Math.min(5,1+Math.floor(time/15));
-if(jukeCooldown>0){
-jukeCooldown--;
-if(jukeCooldown===0)jukeReady=true;
-}
-if(shootCooldown>0){
-shootCooldown--;
-if(shootCooldown===0)shootReady=true;
-}
-if(abilityCooldown>0){
-abilityCooldown--;
-if(abilityCooldown===0)abilityReady=true;
-updateAbilityCooldown();
-}
-if(shieldTime>0){
-shieldTime--;
-if(shieldTime===0)shieldActive=false;
-}
-if(comboTimer>0){
-comboTimer--;
-if(comboTimer===0){
-combo=0;
-document.getElementById('comboBox').style.display='none';
-}
-}
-if(frame%(60*30)==0&&!boss){
-spawnBoss();
-}
-if(keys['ArrowUp'])ps=Math.min(ps+0.5,pmax);
-if(keys['ArrowDown'])ps=Math.max(ps-0.6,-6);
-else ps*=0.96;
-if(keys['ArrowLeft'])pa-=0.075;
-if(keys['ArrowRight'])pa+=0.075;
-px+=Math.cos(pa)*ps;
-py+=Math.sin(pa)*ps;
-cx=px-c.width/2;
-cy=py-c.height/2;
-let bgGrad=ctx.createRadialGradient(c.width/2,c.height/2,0,c.width/2,c.height/2,c.width);
-bgGrad.addColorStop(0,'#12122a');
-bgGrad.addColorStop(1,'#000');
-ctx.fillStyle=bgGrad;
-ctx.fillRect(0,0,c.width,c.height);
-for(let y=0;y<map.length;y++){
-for(let x=0;x<map[y].length;x++){
-let wx=x*TS,wy=y*TS,sx=wx-cx,sy=wy-cy;
-if(sx>-TS&&sx<c.width+TS&&sy>-TS&&sy<c.height+TS){
-if(map[y][x]){
-let roadGrad=ctx.createLinearGradient(sx,sy,sx+TS,sy+TS);
-roadGrad.addColorStop(0,'#5555a0');
-roadGrad.addColorStop(0.5,'#444488');
-roadGrad.addColorStop(1,'#333377');
-ctx.fillStyle=roadGrad;
-ctx.fillRect(sx,sy,TS,TS);
-ctx.strokeStyle='#ffbb44';
-ctx.lineWidth=6;
-ctx.lineCap='round';
-ctx.shadowColor='#ffbb44';
-ctx.shadowBlur=15;
-ctx.beginPath();
-ctx.moveTo(sx+TS/2,sy+15);
-ctx.lineTo(sx+TS/2,sy+TS-15);
-ctx.stroke();
-ctx.shadowBlur=0;
-}else{
-ctx.fillStyle='#1a1a35';
-ctx.fillRect(sx,sy,TS,TS);
-ctx.fillStyle='rgba(255,255,255,0.03)';
-ctx.fillRect(sx+8,sy+8,TS-16,TS-16);
-}
-}
-}
-}
-for(let i=coins.length-1;i>=0;i--){
-let coin=coins[i];
-ctx.save();
-ctx.translate(coin.x-cx,coin.y-cy);
-ctx.shadowColor='#ffbb00';
-ctx.shadowBlur=35;
-let coinGrad=ctx.createRadialGradient(0,0,0,0,0,22);
-coinGrad.addColorStop(0,'#ffee44');
-coinGrad.addColorStop(0.5,'#ffbb00');
-coinGrad.addColorStop(1,'#ff9900');
-ctx.fillStyle=coinGrad;
-ctx.beginPath();
-ctx.arc(0,0,22,0,Math.PI*2);
-ctx.fill();
-ctx.shadowBlur=20;
-ctx.strokeStyle='#ffff99';
-ctx.lineWidth=5;
-ctx.stroke();
-ctx.restore();
-if(Math.hypot(coin.x-px,coin.y-py)<45){
-runCash+=50*(1+combo*0.1);
-addXP(2);
-for(let j=0;j<25;j++){
-particles.push({
-x:coin.x,y:coin.y,
-vx:(Math.random()-0.5)*16,
-vy:(Math.random()-0.5)*16,
-life:1.2,decay:0.02,
-color:'#ffbb00',size:5+Math.random()*7
-});
-}
-coins.splice(i,1);
-}
-}
-for(let i=particles.length-1;i>=0;i--){
-let p=particles[i];
-p.x+=p.vx;
-p.y+=p.vy;
-p.vx*=0.95;
-p.vy*=0.95;
-p.life-=p.decay;
-if(p.life<=0){
-particles.splice(i,1);
-continue;
-}
-ctx.save();
-ctx.globalAlpha=p.life;
-ctx.translate(p.x-cx,p.y-cy);
-ctx.shadowColor=p.color;
-ctx.shadowBlur=25;
-let partGrad=ctx.createRadialGradient(0,0,0,0,0,p.size*p.life);
-partGrad.addColorStop(0,p.color);
-partGrad.addColorStop(1,'transparent');
-ctx.fillStyle=partGrad;
-ctx.beginPath();
-ctx.arc(0,0,p.size*p.life,0,Math.PI*2);
-ctx.fill();
-ctx.restore();
-}
-for(let i=bullets.length-1;i>=0;i--){
-let b=bullets[i];
-b.x+=b.vx;
-b.y+=b.vy;
-b.life--;
-if(b.life<=0){
-bullets.splice(i,1);
-continue;
-}
-ctx.save();
-ctx.translate(b.x-cx,b.y-cy);
-ctx.shadowColor='#ff0';
-ctx.shadowBlur=30;
-let bulletGrad=ctx.createRadialGradient(0,0,0,0,0,12);
-bulletGrad.addColorStop(0,'#fff');
-bulletGrad.addColorStop(0.5,'#ff0');
-bulletGrad.addColorStop(1,'#f80');
-ctx.fillStyle=bulletGrad;
-ctx.beginPath();
-ctx.arc(0,0,12,0,Math.PI*2);
-ctx.fill();
-ctx.restore();
-}
-if(boss){
-let dx=px-boss.x,dy=py-boss.y;
-let dist=Math.hypot(dx,dy);
-boss.pa=Math.atan2(dy,dx);
-boss.patternTimer--;
-if(boss.patternTimer<=0){
-boss.pattern=(boss.pattern+1)%3;
-boss.patternTimer=180;
-}
-let moveAngle=boss.pa;
-if(boss.pattern===1)moveAngle+=Math.PI/3;
-else if(boss.pattern===2)moveAngle-=Math.PI/3;
-if(dist>200){
-boss.x+=Math.cos(moveAngle)*boss.speed;
-boss.y+=Math.sin(moveAngle)*boss.speed;
-}else{
-boss.x+=Math.cos(boss.pa)*boss.speed*1.5;
-boss.y+=Math.sin(boss.pa)*boss.speed*1.5;
-}
-bullets.forEach((b,bi)=>{
-if(Math.hypot(b.x-boss.x,b.y-boss.y)<60*boss.size){
-boss.health--;
-bullets.splice(bi,1);
-for(let j=0;j<20;j++){
-particles.push({
-x:boss.x,y:boss.y,
-vx:(Math.random()-0.5)*15,
-vy:(Math.random()-0.5)*15,
-life:1,decay:0.03,
-color:boss.color,size:8+Math.random()*12
-});
-}
-updateBossHealth();
-if(boss.health<=0){
-defeatBoss();
-}
-}
-});
-drawCar(boss.x,boss.y,boss.pa,boss.color,true,boss.size);
-if(!shieldActive&&Math.hypot(boss.x-px,boss.y-py)<70*boss.size){
-endGame();
-return;
-}
-}
-if(frame%240==0&&cops.length<wanted*2&&!boss){
-for(let attempt=0;attempt<40;attempt++){
-let spawnAngle=(Math.random()*360)*Math.PI/180;
-let spawnDist=450+Math.random()*150;
-let tx=px+Math.cos(spawnAngle)*spawnDist;
-let ty=py+Math.sin(spawnAngle)*spawnDist;
-if(isRoad(tx,ty)){
-let tooClose=false;
-cops.forEach(otherCop=>{
-if(Math.hypot(tx-otherCop.x,ty-otherCop.y)<200){
-tooClose=true;
-}
-});
-if(!tooClose){
-cops.push({
-x:tx,y:ty,
-health:1,
-targetAngle:spawnAngle+Math.PI+(Math.random()-0.5)*1.5,
-movePattern:Math.floor(Math.random()*3),
-switchTimer:Math.floor(Math.random()*180)+120
-});
-break;
-}
-}
-}
-}
-for(let i=cops.length-1;i>=0;i--){
-let cop=cops[i];
-let dx=px-cop.x,dy=py-cop.y;
-let distToPlayer=Math.hypot(dx,dy);
-cop.pa=Math.atan2(dy,dx);
-cop.switchTimer--;
-if(cop.switchTimer<=0){
-cop.movePattern=Math.floor(Math.random()*3);
-cop.switchTimer=Math.floor(Math.random()*180)+120;
-cop.targetAngle=cop.pa+(Math.random()-0.5)*2;
-}
-cops.forEach(otherCop=>{
-if(otherCop!==cop){
-let odx=otherCop.x-cop.x;
-let ody=otherCop.y-cop.y;
-let odist=Math.hypot(odx,ody);
-if(odist<100&&odist>0){
-let pushAngle=Math.atan2(-ody,-odx);
-cop.x+=Math.cos(pushAngle)*3;
-cop.y+=Math.sin(pushAngle)*3;
-}
-}
-});
-let baseSpeed=4.8+wanted*0.25;
-let moveAngle=cop.pa;
-if(cop.movePattern===0){
-if(distToPlayer>150){
-let sideAngle=cop.pa+Math.PI/2;
-moveAngle=cop.pa*0.7+sideAngle*0.3;
-}
-}else if(cop.movePattern===1){
-if(distToPlayer>150){
-let sideAngle=cop.pa-Math.PI/2;
-moveAngle=cop.pa*0.7+sideAngle*0.3;
-}
-}else{
-moveAngle=cop.pa;
-}
-if(distToPlayer<180){
-cop.x+=Math.cos(cop.pa)*baseSpeed*1.6;
-cop.y+=Math.sin(cop.pa)*baseSpeed*1.6;
-}else{
-cop.x+=Math.cos(moveAngle)*baseSpeed;
-cop.y+=Math.sin(moveAngle)*baseSpeed;
-}
-bullets.forEach((b,bi)=>{
-if(Math.hypot(b.x-cop.x,b.y-cop.y)<45){
-cop.health--;
-bullets.splice(bi,1);
-for(let j=0;j<35;j++){
-particles.push({
-x:cop.x,y:cop.y,
-vx:(Math.random()-0.5)*20,
-vy:(Math.random()-0.5)*20,
-life:1.2,decay:0.022,
-color:Math.random()>0.5?'#f90':'#ff0',size:7+Math.random()*10
-});
-}
-if(cop.health<=0){
-cops.splice(i,1);
-runCash+=100*(1+combo*0.2);
-addCombo();
-addXP(3);
-}
-}
-});
-if(cop.health>0){
-drawCar(cop.x,cop.y,cop.pa,'#fff',true);
-if(!shieldActive&&Math.hypot(cop.x-px,cop.y-py)<52){
-endGame();
-return;
-}
-}
-}
-drawCar(px,py,pa,cars[currentCar].c,false);
-if(frame%100==0&&coins.length<12){
-for(let i=0;i<25;i++){
-let tx=1+Math.floor(Math.random()*11)*TS+50;
-let ty=1+Math.floor(Math.random()*10)*TS+50;
-if(isRoad(tx,ty)){
-coins.push({x:tx,y:ty});
-break;
-}
-}
-}
-document.getElementById('timeVal').textContent=Math.floor(time/60)+':'+Math.floor(time%60).toString().padStart(2,'0');
-document.getElementById('speedVal').textContent=Math.round(Math.abs(ps)*11)+' MPH';
-document.getElementById('cashVal').textContent='$'+Math.floor(runCash);
-document.getElementById('wantedVal').textContent='★'.repeat(wanted);
-document.getElementById('stars').textContent='★'.repeat(wanted);
-requestAnimationFrame(gameLoop);
-}
+/* init home stats */
+document.getElementById('home-par')?.remove(); // ignore leftover elements if any
 </script>
 </body>
 </html>
