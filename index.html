@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Racer</title>
+    <title>Tower TD</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: monospace; color: #0ff; }
-        canvas { display: block; background: radial-gradient(circle, #001122 0%, #000011 100%); }
-        #ui { position: absolute; top: 10px; left: 10px; z-index: 10; }
-        #score, #speed { font-size: 24px; text-shadow: 0 0 10px #0ff; }
-        #upgrade { font-size: 18px; margin-top: 10px; cursor: pointer; opacity: 0.7; }
-        #upgrade:hover { opacity: 1; text-shadow: 0 0 20px #f0f; }
+        body { margin: 0; overflow: hidden; background: #222; font-family: monospace; color: #fff; }
+        canvas { display: block; background: #228822; cursor: crosshair; }
+        #ui { position: absolute; bottom: 10px; left: 10px; font-size: 18px; }
+        #xp { color: #ff0; font-weight: bold; }
+        #wave { color: #f00; }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
     <div id="ui">
-        <div id="score">Score: 0</div>
-        <div id="speed">Speed: 0</div>
-        <div id="xp">XP: 0/100</div>
-        <div id="upgrade" onclick="upgradeSpeed()">Upgrade Speed (100 XP)</div>
+        <div>XP: <span id="xp">0</span>/50</div>
+        <div id="wave">Wave: 1 | Lives: 20</div>
+        <div>Click green grass to place tower (50 XP)</div>
     </div>
     <script>
         const canvas = document.getElementById('canvas');
@@ -27,230 +25,207 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        const TILE = 32;
+        const MAP_W = 25, MAP_H = 20;
+        let cam = { x: 0, y: 0 };
+
         let game = {
-            score: 0, xp: 0, baseSpeed: 100, speedLevel: 0, maxSpeed: 300,
-            player: { x: 0, lane: 1, w: 40, h: 80 },
-            segments: [], roadLength: 2000, segmentLen: 100, camH: 1000, fov: 200,
-            traffic: [], boosts: [], particles: [],
-            keys: {}, touchStartX: 0, gameOver: false, cx: 0 // curve offset
+            xp: 0, wave: 1, lives: 20, waveTimer: 0,
+            towers: [], enemies: [], projectiles: [],
+            placing: false
         };
 
-        // Neon colors
-        const COLORS = {
-            GRASS: '#001100', ROAD: '#0a0a33', RUMBLE: '#440044', LANE: '#aa00ff',
-            PLAYER: '#00ffff', TRAFFIC: '#ff4400', BOOST: '#ffff00', SPARK: '#ffffff'
-        };
+        // Simple path: enemies follow these points
+        const PATH = [
+            {x: 1, y: 0}, {x: 12, y: 0}, {x: 12, y: 8}, {x: 24, y: 8},
+            {x: 24, y: 19} // base at end
+        ];
 
-        // Init road segments (looping endless)
-        function resetRoad() {
-            game.segments = [];
-            for (let i = 0; i < game.roadLength; i++) {
-                game.segments.push({
-                    index: i, p1: { world: { z: i * game.segmentLen }, screen: {} },
-                    p2: { world: { z: (i + 1) * game.segmentLen }, screen: {} },
-                    color: Math.floor(i / 3) % 2 ? COLORS.ROAD : COLORS.RUMBLE,
-                    cars: []
-                });
+        // Map: 0=grass (build), 1=path (no build)
+        const MAP = Array(MAP_H).fill().map(() => Array(MAP_W).fill(0));
+        PATH.forEach(p => { MAP[p.y][p.x] = 1; });
+
+        class Tower {
+            constructor(x, y) {
+                this.x = x; this.y = y; this.range = 120; this.damage = 25;
+                this.cooldown = 0; this.target = null;
+            }
+            update() {
+                if (this.cooldown > 0) this.cooldown--;
+                if (this.cooldown === 0) {
+                    this.target = game.enemies.find(e => 
+                        dist(this.x, this.y, e.x, e.y) < this.range && e.health > 0
+                    );
+                    if (this.target) {
+                        game.projectiles.push(new Projectile(this.x, this.y, this.target, this.damage));
+                        this.cooldown = 60; // 1s at 60fps
+                    }
+                }
+            }
+            draw() {
+                ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(this.x - cam.x, this.y - cam.y, this.range, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillStyle = '#cd853f'; // brown tower
+                ctx.fillRect(this.x - cam.x - 12, this.y - cam.y - 20, 24, 40);
+                ctx.fillStyle = '#daa520'; ctx.fillRect(this.x - cam.x - 8, this.y - cam.y - 25, 16, 10);
             }
         }
 
-        // Project 3D point to 2D screen
-        function project(p, camX, camY, camZ, dist) {
-            const scale = dist / (p.world.z - camZ);
-            p.screen.x = Math.round(canvas.width / 2 + scale * camX * 0.5);
-            p.screen.y = Math.round(canvas.height / 2 - scale * camY * 0.5);
-            p.screen.w = Math.round(scale * 1000); // road half-width
+        class Enemy {
+            constructor(health, speed) {
+                this.pathIdx = 0; this.x = PATH[0].x * TILE + TILE/2; this.y = PATH[0].y * TILE + TILE/2;
+                this.health = health; this.maxHealth = health; this.speed = speed;
+            }
+            update(dt) {
+                const target = PATH[this.pathIdx + 1];
+                if (!target) { game.lives--; game.enemies.splice(game.enemies.indexOf(this), 1); return; }
+                const dx = target.x * TILE + TILE/2 - this.x;
+                const dy = target.y * TILE + TILE/2 - this.y;
+                const distToTarget = Math.sqrt(dx*dx + dy*dy);
+                if (distToTarget < this.speed * dt) {
+                    this.pathIdx++;
+                } else {
+                    this.x += (dx / distToTarget) * this.speed * dt;
+                    this.y += (dy / distToTarget) * this.speed * dt;
+                }
+            }
+            draw() {
+                ctx.fillStyle = '#8b0000'; ctx.fillRect(this.x - cam.x - 12, this.y - cam.y - 12, 24, 24);
+                // Health bar
+                ctx.fillStyle = '#ff0000'; ctx.fillRect(this.x - cam.x - 15, this.y - cam.y - 20, 30, 4);
+                ctx.fillStyle = '#00ff00'; ctx.fillRect(this.x - cam.x - 15, this.y - cam.y - 20, 30 * (this.health / this.maxHealth), 4);
+            }
         }
 
-        // Update game logic
+        class Projectile {
+            constructor(sx, sy, target, damage) {
+                this.x = sx; this.y = sy; this.target = target; this.damage = damage;
+                this.speed = 300;
+            }
+            update(dt) {
+                if (!this.target || this.target.health <= 0) return false;
+                const dx = this.target.x - this.x; const dy = this.target.y - this.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 5) {
+                    this.target.health -= this.damage;
+                    if (this.target.health <= 0) game.xp += 10;
+                    return false;
+                }
+                this.x += (dx / dist) * this.speed * dt;
+                this.y += (dy / dist) * this.speed * dt;
+                return true;
+            }
+            draw() {
+                ctx.fillStyle = '#ffff00'; ctx.beginPath();
+                ctx.arc(this.x - cam.x, this.y - cam.y, 4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        function dist(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2)**2 + (y1 - y2)**2);
+        }
+
+        function spawnWave() {
+            const enemies = Math.floor(3 + game.wave * 2);
+            for (let i = 0; i < enemies; i++) {
+                setTimeout(() => game.enemies.push(new Enemy(50 + game.wave * 20, 30)), i * 1000);
+            }
+            game.wave++;
+        }
+
         function update(dt) {
-            if (game.gameOver) return;
+            // Towers
+            game.towers.forEach(t => t.update());
 
-            game.score += game.baseSpeed * dt * 0.01;
-            game.cx += dt * 0.1 * (Math.sin(game.score * 0.001) * 0.1); // gentle curves
+            // Enemies
+            game.enemies.forEach(e => e.update(dt));
+            game.enemies = game.enemies.filter(e => e.health > 0);
 
-            // Player input
-            if (game.keys['ArrowLeft'] || game.keys['a'] || game.keys['A']) game.player.lane = Math.max(0, game.player.lane - 1);
-            if (game.keys['ArrowRight'] || game.keys['d'] || game.keys['D']) game.player.lane = Math.min(2, game.player.lane + 1);
-            game.player.x = (game.player.lane - 1) * 150 + game.cx * 100;
+            // Projectiles
+            game.projectiles = game.projectiles.filter(p => p.update(dt));
 
-            // Speed
-            let speed = game.baseSpeed + game.speedLevel * 50;
-            speed *= 0.5 + Math.min(1, game.score / 10000); // ramp up
+            // Wave timer
+            if (game.enemies.length === 0) {
+                game.waveTimer += dt;
+                if (game.waveTimer > 5) spawnWave(); // next wave every 5s
+            }
 
-            // Spawn traffic/boosts periodically
-            if (Math.random() < 0.02 * dt) game.traffic.push({ z: 0, lane: Math.floor(Math.random() * 3), speed: speed * 0.8 });
-            if (Math.random() < 0.01 * dt) game.boosts.push({ z: 0, lane: Math.floor(Math.random() * 3), collected: false });
-
-            // Update traffic/boosts
-            game.traffic.forEach(car => {
-                car.z += speed * dt;
-                if (car.z > game.roadLength) car.z -= game.roadLength;
-                // Collision
-                if (Math.abs(car.z - game.player.z) < 50 && Math.abs(car.lane - game.player.lane) < 0.5) {
-                    gameOver();
-                }
-            });
-            game.boosts.forEach(boost => {
-                boost.z += speed * dt;
-                if (boost.z > game.roadLength) boost.z -= game.roadLength;
-                if (!boost.collected && Math.abs(boost.z - game.player.z) < 50 && Math.abs(boost.lane - game.player.lane) < 0.5) {
-                    game.xp += 25; boost.collected = true;
-                    spawnParticles(boost.lane * 150, canvas.height * 0.7, COLORS.BOOST);
-                }
-            });
-            game.traffic = game.traffic.filter(c => c.z > -500);
-            game.boosts = game.boosts.filter(b => !b.collected && b.z > -500);
-
-            // XP upgrade
-            document.getElementById('xp').textContent = `XP: ${game.xp}/100`;
-            game.player.z = game.score * 0.1; // advance
+            if (game.lives <= 0) alert('Game Over! Wave: ' + (game.wave - 1) + ' Refresh to restart.');
 
             updateUI();
-            updateParticles(dt);
         }
 
-        function spawnParticles(x, y, color) {
-            for (let i = 0; i < 10; i++) {
-                game.particles.push({
-                    x, y, vx: (Math.random() - 0.5) * 200, vy: (Math.random() - 0.5) * 200,
-                    life: 1, color
-                });
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Map tiles
+            for (let y = 0; y < MAP_H; y++) {
+                for (let x = 0; x < MAP_W; x++) {
+                    const screenX = x * TILE - cam.x;
+                    const screenY = y * TILE - cam.y;
+                    if (screenX + TILE < 0 || screenX > canvas.width || screenY + TILE < 0 || screenY > canvas.height) continue;
+                    ctx.fillStyle = MAP[y][x] === 1 ? '#654321' : '#228b22'; // path vs grass
+                    ctx.fillRect(screenX, screenY, TILE, TILE);
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(screenX, screenY, TILE, TILE);
+                }
             }
-        }
 
-        function updateParticles(dt) {
-            game.particles = game.particles.filter(p => {
-                p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
-                p.vx *= 0.95; p.vy *= 0.95;
-                return p.life > 0;
+            // Path highlight
+            PATH.forEach(p => {
+                ctx.fillStyle = 'rgba(255,255,0,0.3)'; ctx.fillRect(p.x * TILE - cam.x, p.y * TILE - cam.y, TILE, TILE);
             });
-        }
 
-        function upgradeSpeed() {
-            if (game.xp >= 100) {
-                game.xp -= 100;
-                game.speedLevel++;
-                document.getElementById('upgrade').textContent = `Speed Lvl ${game.speedLevel + 1} (100 XP)`;
-            }
+            // Game objects
+            game.towers.forEach(t => t.draw());
+            game.enemies.forEach(e => e.draw());
+            game.projectiles.forEach(p => p.draw());
+
+            // Base
+            ctx.fillStyle = '#ffd700'; ctx.fillRect((MAP_W - 1) * TILE - cam.x, (MAP_H - 1) * TILE - cam.y, TILE * 2, TILE * 2);
         }
 
         function updateUI() {
-            document.getElementById('score').textContent = `Score: ${Math.floor(game.score)}`;
-            document.getElementById('speed').textContent = `Speed: ${Math.floor(game.baseSpeed + game.speedLevel * 50)}`;
+            document.getElementById('xp').textContent = game.xp;
+            document.getElementById('wave').textContent = `Wave: ${game.wave} | Lives: ${game.lives}`;
         }
 
-        function gameOver() {
-            game.gameOver = true;
-            alert(`Game Over! Score: ${Math.floor(game.score)}\nRefresh to restart.`);
-        }
+        // Input
+        const keys = {};
+        window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+        window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-        // Render
-        function render() {
-            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Background gradient
-            const grad = ctx.createRadialGradient(canvas.width/2, 0, 0, canvas.width/2, canvas.height, canvas.width);
-            grad.addColorStop(0, '#112244'); grad.addColorStop(1, '#000011');
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const base = Math.floor(game.player.z / game.segmentLen) % game.roadLength;
-            let maxy = canvas.height;
-
-            // Road segments
-            for (let n = 0; n < 200; n++) {
-                const seg = game.segments[(base + n) % game.roadLength];
-                const camZ = game.player.z + game.fov;
-                project(seg.p1, game.player.x * 0.1, game.camH, camZ, game.fov);
-                project(seg.p2, game.player.x * 0.1, game.camH, camZ + game.segmentLen, game.fov);
-
-                if (seg.p1.screen.y >= maxy) continue;
-                maxy = seg.p2.screen.y;
-
-                // Grass
-                ctx.fillStyle = COLORS.GRASS;
-                ctx.fillRect(0, seg.p1.screen.y, canvas.width, seg.p2.screen.y - seg.p1.screen.y);
-
-                // Road
-                ctx.fillStyle = seg.color;
-                ctx.fillRect(seg.p1.screen.x - seg.p1.screen.w, seg.p1.screen.y,
-                             seg.p1.screen.w * 2, seg.p2.screen.y - seg.p1.screen.y);
-
-                // Lane markers
-                ctx.fillStyle = COLORS.LANE;
-                ctx.fillRect(canvas.width / 2 - 5, seg.p1.screen.y, 10, seg.p2.screen.y - seg.p1.screen.y);
+        canvas.addEventListener('click', e => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left + cam.x) / TILE | 0;
+            const y = (e.clientY - rect.top + cam.y) / TILE | 0;
+            if (x >= 0 && x < MAP_W && y >= 0 && y < MAP_H && MAP[y][x] === 0 && game.xp >= 50) {
+                game.towers.push(new Tower(x * TILE + TILE/2, y * TILE + TILE/2));
+                game.xp -= 50;
             }
+        });
 
-            // Traffic
-            game.traffic.forEach(car => {
-                const dz = car.z - game.player.z;
-                const scale = game.fov / dz;
-                const sy = canvas.height / 2 - scale * game.camH;
-                const sw = scale * 60;
-                ctx.fillStyle = COLORS.TRAFFIC;
-                ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 20;
-                ctx.fillRect(canvas.width / 2 + (car.lane - 1) * 150 - sw / 2, sy - sw, sw, sw * 2);
-                ctx.shadowBlur = 0;
-            });
-
-            // Boosts
-            game.boosts.forEach(boost => {
-                if (boost.collected) return;
-                const dz = boost.z - game.player.z;
-                const scale = game.fov / dz;
-                const sy = canvas.height / 2 - scale * game.camH;
-                ctx.fillStyle = COLORS.BOOST;
-                ctx.shadowColor = '#ffff00'; ctx.shadowBlur = 30;
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2 + (boost.lane - 1) * 150, sy, scale * 15, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-
-            // Player car (always bottom)
-            ctx.save();
-            ctx.translate(canvas.width / 2 + game.player.x, canvas.height - 100);
-            ctx.fillStyle = COLORS.PLAYER;
-            ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 40;
-            ctx.fillRect(-game.player.w / 2, -game.player.h, game.player.w, game.player.h);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-
-            // Sparks (near misses)
-            if (Math.random() < 0.3) spawnParticles(game.player.x + canvas.width / 2 + (Math.random() - 0.5) * 200, canvas.height - 150, COLORS.SPARK);
-
-            // Particles
-            game.particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.life;
-                ctx.shadowColor = p.color; ctx.shadowBlur = 20;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 4, 4);
-                ctx.restore();
-            });
+        // Cam pan
+        function handleInput(dt) {
+            const speed = 200 * dt;
+            if (keys['w'] || keys['arrowup']) cam.y = Math.max(0, cam.y - speed);
+            if (keys['s'] || keys['arrowdown']) cam.y = Math.min(MAP_H * TILE - canvas.height, cam.y + speed);
+            if (keys['a'] || keys['arrowleft']) cam.x = Math.max(0, cam.x - speed);
+            if (keys['d'] || keys['arrowright']) cam.x = Math.min(MAP_W * TILE - canvas.width, cam.x + speed);
         }
 
-        // Game loop
-        let last = 0;
-        function loop(time) {
-            const dt = Math.min(1 / 60, (time - last) / 1000);
-            last = time;
-            update(dt);
-            render();
-            requestAnimationFrame(loop);
-        }
-
-        // Events
-        window.addEventListener('keydown', e => game.keys[e.key] = true);
-        window.addEventListener('keyup', e => game.keys[e.key] = false);
+        // Touch pan
+        let touchStart = { x: 0, y: 0 };
         canvas.addEventListener('touchstart', e => {
-            game.touchStartX = e.touches[0].clientX;
+            touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         });
         canvas.addEventListener('touchmove', e => {
-            const dx = e.touches[0].clientX - game.touchStartX;
-            if (dx > 50) { game.player.lane = Math.min(2, game.player.lane + 1); }
-            if (dx < -50) { game.player.lane = Math.max(0, game.player.lane - 1); }
-            game.touchStartX = e.touches[0].clientX;
+            const dx = e.touches[0].clientX - touchStart.x;
+            const dy = e.touches[0].clientY - touchStart.y;
+            cam.x -= dx * 0.5; cam.y -= dy * 0.5;
+            cam.x = Math.max(0, Math.min(MAP_W * TILE - canvas.width, cam.x));
+            cam.y = Math.max(0, Math.min(MAP_H * TILE - canvas.height, cam.y));
+            touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         });
 
         // Resize
@@ -259,8 +234,19 @@
             canvas.height = window.innerHeight;
         });
 
-        // Start
-        resetRoad();
+        // Loop
+        let lastTime = 0;
+        function loop(time) {
+            const dt = Math.min(1/30, (time - lastTime) / 1000);
+            lastTime = time;
+            handleInput(dt);
+            update(dt);
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Start first wave
+        setTimeout(spawnWave, 3000);
         requestAnimationFrame(loop);
     </script>
 </body>
