@@ -4,513 +4,608 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>🍉 Fruit Ninja</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background: #0a0a0a;
-      overflow: hidden;
-      touch-action: none;
-      font-family: 'Fredoka One', cursive;
-      user-select: none;
+      background:#000;
+      overflow:hidden;
+      touch-action:none;
+      font-family:'Fredoka One',cursive;
+      user-select:none;
     }
+    canvas { display:block; position:absolute; top:0; left:0; cursor:none; }
 
-    canvas {
-      display: block;
-      position: absolute;
-      top: 0; left: 0;
-      cursor: none;
-    }
-
-    /* ── HUD ── */
+    /* ══════════ HUD ══════════ */
     #hud {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      z-index: 50;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 16px 20px 0;
-      pointer-events: none;
+      position:absolute; top:0; left:0; right:0;
+      z-index:50; display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      padding:14px 18px 0;
+      pointer-events:none;
     }
-
-    .hud-box {
-      background: rgba(0,0,0,0.55);
-      border: 2px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 8px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      backdrop-filter: blur(8px);
+    .hud-pill {
+      background:rgba(0,0,0,0.6);
+      border:2px solid rgba(255,255,255,0.15);
+      border-radius:30px;
+      padding:8px 22px;
+      display:flex; flex-direction:column; align-items:center;
+      backdrop-filter:blur(12px);
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);
     }
+    .hud-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.45); text-transform:uppercase; }
+    .hud-val   { font-size:30px; color:#fff; line-height:1; text-shadow:0 0 20px rgba(255,220,0,.8); }
+    #livesVal  { font-size:18px; letter-spacing:5px; }
+    #comboVal  { color:#ffcc00; text-shadow:0 0 25px #ff8800; }
 
-    .hud-label {
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: rgba(255,255,255,0.5);
-      text-transform: uppercase;
-    }
-
-    .hud-value {
-      font-size: 28px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 0 20px rgba(255,200,0,0.8);
-      line-height: 1;
-    }
-
-    #livesBox .hud-value { font-size: 20px; letter-spacing: 4px; }
-    #comboBox .hud-value { color: #ffcc00; text-shadow: 0 0 20px #ff8800; }
-
-    /* ── Overlay Screens ── */
+    /* ══════════ SCREENS ══════════ */
     .screen {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.4s;
+      position:absolute; inset:0; z-index:200;
+      display:flex; flex-direction:column;
+      justify-content:center; align-items:center;
+    }
+    .screen.hide { display:none !important; }
+
+    /* ── Home Screen ── */
+    #homeScreen {
+      background:radial-gradient(ellipse at 50% 30%, #2a0060 0%, #0d0020 60%, #000 100%);
+      overflow:hidden;
+    }
+    #homeBg {
+      position:absolute; inset:0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(255,60,0,.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(100,0,255,.2) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255,150,0,.08) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .dojo-line {
+      position:absolute; bottom:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,transparent,#ff6600,#ffcc00,#ff6600,transparent);
+      box-shadow:0 0 30px #ff6600, 0 0 60px #ff3300;
     }
 
-    .screen.hide { display: none; }
-
-    /* Start Screen */
-    #startScreen {
-      background: radial-gradient(ellipse at center, #1a0533 0%, #0a0010 100%);
+    .home-logo {
+      position:relative; text-align:center; z-index:5;
+    }
+    .logo-sub {
+      font-family:'Bangers',cursive;
+      font-size:clamp(14px,3.5vw,22px);
+      color:#ff8800;
+      letter-spacing:10px;
+      text-shadow:0 0 20px #ff4400;
+      margin-bottom:6px;
+    }
+    .logo-main {
+      font-family:'Bangers',cursive;
+      font-size:clamp(72px,18vw,140px);
+      letter-spacing:4px;
+      line-height:0.9;
+      background:linear-gradient(180deg,#fff 0%,#ffdd00 35%,#ff6600 65%,#cc2200 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+      filter:drop-shadow(0 0 40px rgba(255,100,0,.9));
+      animation:logoPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%,100%{filter:drop-shadow(0 0 30px rgba(255,100,0,.8));}
+      50%{filter:drop-shadow(0 0 70px rgba(255,200,0,1));}
+    }
+    .logo-fruits {
+      font-size:clamp(28px,6vw,46px);
+      margin:14px 0 0;
+      letter-spacing:10px;
+      animation:floatFruits 2s ease-in-out infinite;
+    }
+    @keyframes floatFruits {
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-8px);}
     }
 
-    .game-title {
-      font-family: 'Bangers', cursive;
-      font-size: clamp(60px, 15vw, 120px);
-      letter-spacing: 6px;
-      background: linear-gradient(180deg, #fff 0%, #ffcc00 40%, #ff6600 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: none;
-      filter: drop-shadow(0 0 30px #ff6600);
-      animation: titlePulse 2s ease-in-out infinite;
+    /* Mode buttons */
+    .mode-grid {
+      display:flex; gap:16px; margin:36px 0 0; flex-wrap:wrap; justify-content:center;
+      padding:0 20px;
+    }
+    .mode-btn {
+      display:flex; flex-direction:column; align-items:center;
+      padding:18px 28px;
+      border:none; border-radius:24px; cursor:pointer;
+      transition:all .2s; min-width:130px;
+      position:relative; overflow:hidden;
+    }
+    .mode-btn::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+    }
+    .mode-btn .mode-icon { font-size:36px; margin-bottom:6px; }
+    .mode-btn .mode-name {
+      font-family:'Fredoka One',cursive;
+      font-size:18px; color:#fff; font-weight:bold;
+      text-shadow:0 2px 4px rgba(0,0,0,.5);
+    }
+    .mode-btn .mode-desc { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
+    .mode-btn:hover, .mode-btn:active { transform:scale(1.07) translateY(-3px); }
+    .mode-classic {
+      background:linear-gradient(135deg,#e65c00,#f9d423);
+      box-shadow:0 8px 30px rgba(230,90,0,.5);
+    }
+    .mode-zen {
+      background:linear-gradient(135deg,#1a78c2,#00d2ff);
+      box-shadow:0 8px 30px rgba(0,150,255,.4);
+    }
+    .mode-arcade {
+      background:linear-gradient(135deg,#6a0dad,#d63aff);
+      box-shadow:0 8px 30px rgba(180,0,255,.4);
     }
 
-    @keyframes titlePulse {
-      0%, 100% { filter: drop-shadow(0 0 20px #ff6600); }
-      50%       { filter: drop-shadow(0 0 50px #ffcc00); }
+    .best-row {
+      margin-top:24px;
+      font-size:16px; color:rgba(255,255,255,.4);
+      letter-spacing:1px; z-index:5;
+    }
+    .best-row span { color:#ffcc00; font-size:18px; }
+
+    /* ── Pause/Mode banner ── */
+    #modeBanner {
+      position:absolute; top:80px; left:50%; transform:translateX(-50%);
+      z-index:50; pointer-events:none;
+      font-size:14px; color:rgba(255,255,255,.5);
+      letter-spacing:3px; text-transform:uppercase;
     }
 
-    .fruit-row {
-      font-size: clamp(30px, 8vw, 60px);
-      margin: 20px 0 40px;
-      letter-spacing: 8px;
-      animation: bounce 1.5s ease-in-out infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-8px); }
-    }
-
-    .big-btn {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(20px, 4vw, 28px);
-      padding: 16px 60px;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 2px;
-    }
-
-    .big-btn.orange {
-      background: linear-gradient(135deg, #ff8c00, #ff4500);
-      color: #fff;
-      box-shadow: 0 10px 40px rgba(255,100,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-
-    .big-btn.orange:hover, .big-btn.orange:active {
-      transform: scale(1.07);
-      box-shadow: 0 15px 50px rgba(255,100,0,0.8);
-    }
-
-    .best-score-label {
-      margin-top: 20px;
-      font-size: 16px;
-      color: rgba(255,255,255,0.4);
-    }
-
-    .best-score-label span {
-      color: #ffcc00;
-    }
-
-    /* Game Over Screen */
+    /* ── Game Over ── */
     #gameOverScreen {
-      background: radial-gradient(ellipse at center, #200000 0%, #080000 100%);
+      background:radial-gradient(ellipse at center, #1a0000 0%, #050000 100%);
     }
-
     .go-title {
-      font-family: 'Bangers', cursive;
-      font-size: clamp(50px, 12vw, 100px);
-      letter-spacing: 4px;
-      color: #ff2200;
-      text-shadow: 0 0 40px #ff0000, 0 0 80px #ff0000;
-      animation: flicker 0.5s infinite alternate;
+      font-family:'Bangers',cursive;
+      font-size:clamp(56px,14vw,110px);
+      color:#ff1a00;
+      text-shadow:0 0 50px #ff0000, 0 0 100px #ff2200;
+      letter-spacing:4px;
+      animation:shake .08s infinite alternate;
     }
-
-    @keyframes flicker {
-      0%  { opacity: 1; }
-      100%{ opacity: 0.85; }
+    @keyframes shake {
+      0%{transform:translateX(-2px);}100%{transform:translateX(2px);}
     }
-
-    .go-score {
-      font-size: clamp(22px, 5vw, 36px);
-      color: #fff;
-      margin: 20px 0 10px;
+    .go-mode  { font-size:16px; color:rgba(255,255,255,.4); letter-spacing:4px; margin:8px 0; text-transform:uppercase; }
+    .go-score { font-size:clamp(24px,5vw,40px); color:#fff; margin:10px 0 4px; }
+    .go-best  { font-size:20px; color:#ffcc00; margin-bottom:36px; }
+    .btn-row  { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+    .go-btn {
+      font-family:'Fredoka One',cursive;
+      font-size:20px; padding:14px 36px;
+      border:none; border-radius:40px; cursor:pointer;
+      transition:all .2s;
     }
-
-    .go-best {
-      font-size: 18px;
-      color: #ffcc00;
-      margin-bottom: 40px;
+    .go-btn.primary {
+      background:linear-gradient(135deg,#ff6600,#ff2200);
+      color:#fff;
+      box-shadow:0 8px 30px rgba(255,60,0,.5);
     }
+    .go-btn.secondary {
+      background:rgba(255,255,255,.1);
+      color:#fff; border:2px solid rgba(255,255,255,.2);
+    }
+    .go-btn:hover { transform:scale(1.06); }
 
-    /* Floating score popups */
+    /* ── Popups ── */
     .popup {
-      position: absolute;
-      font-family: 'Bangers', cursive;
-      font-size: 36px;
-      color: #ffcc00;
-      text-shadow: 0 0 20px #ff8800, 2px 2px 0 #000;
-      pointer-events: none;
-      z-index: 60;
-      animation: floatUp 0.9s forwards;
+      position:absolute; pointer-events:none; z-index:90;
+      font-family:'Bangers',cursive;
+      font-size:34px; color:#ffdd00;
+      text-shadow:0 0 20px #ff8800, 2px 2px 0 #000;
+      animation:popFloat 0.9s ease-out forwards;
+    }
+    .popup.big { font-size:52px; color:#ff4400; }
+    @keyframes popFloat {
+      0%  {opacity:1; transform:translateY(0) scale(.8);}
+      30% {opacity:1; transform:translateY(-40px) scale(1.2);}
+      100%{opacity:0; transform:translateY(-90px) scale(.9);}
     }
 
-    .popup.combo {
-      font-size: 48px;
-      color: #ff4400;
+    /* ── Countdown ── */
+    #countdown {
+      position:absolute; inset:0; z-index:150;
+      display:flex; align-items:center; justify-content:center;
+      pointer-events:none;
+    }
+    #countNum {
+      font-family:'Bangers',cursive;
+      font-size:200px; color:#fff;
+      text-shadow:0 0 80px rgba(255,150,0,1);
+      opacity:0;
+      transition:opacity .1s;
     }
 
-    @keyframes floatUp {
-      0%   { opacity: 1; transform: translateY(0) scale(1); }
-      60%  { opacity: 1; transform: translateY(-60px) scale(1.2); }
-      100% { opacity: 0; transform: translateY(-100px) scale(0.8); }
+    /* ── Timer bar (Arcade mode) ── */
+    #timerBar {
+      position:absolute; bottom:0; left:0; right:0; height:6px;
+      background:rgba(255,255,255,.1); z-index:60;
+    }
+    #timerFill {
+      height:100%; width:100%;
+      background:linear-gradient(90deg,#ff2200,#ffcc00,#00ff88);
+      transition:width .1s linear;
+      box-shadow:0 0 12px #ffcc00;
     }
   </style>
 </head>
 <body>
+<canvas id="canvas"></canvas>
 
-  <!-- Canvas -->
-  <canvas id="canvas"></canvas>
-
-  <!-- HUD -->
-  <div id="hud">
-    <div class="hud-box">
-      <div class="hud-label">Score</div>
-      <div class="hud-value" id="score">0</div>
-    </div>
-    <div class="hud-box" id="livesBox">
-      <div class="hud-label">Lives</div>
-      <div class="hud-value" id="lives">❤️❤️❤️</div>
-    </div>
-    <div class="hud-box" id="comboBox">
-      <div class="hud-label">Combo</div>
-      <div class="hud-value" id="combo">0x</div>
-    </div>
+<!-- HUD -->
+<div id="hud" class="hide">
+  <div class="hud-pill">
+    <div class="hud-label">Score</div>
+    <div class="hud-val" id="scoreVal">0</div>
   </div>
-
-  <!-- Start Screen -->
-  <div class="screen" id="startScreen">
-    <div class="game-title">FRUIT NINJA</div>
-    <div class="fruit-row">🍎 🍊 🍉 🍓 🥝</div>
-    <button class="big-btn orange" id="startBtn">▶ PLAY</button>
-    <div class="best-score-label">Best: <span id="bestDisplay">0</span></div>
+  <div class="hud-pill">
+    <div class="hud-label">Lives</div>
+    <div class="hud-val" id="livesVal">❤️❤️❤️</div>
   </div>
-
-  <!-- Game Over Screen -->
-  <div class="screen hide" id="gameOverScreen">
-    <div class="go-title">GAME OVER</div>
-    <div class="go-score">Score: <strong id="finalScore">0</strong></div>
-    <div class="go-best" id="newBestLabel"></div>
-    <button class="big-btn orange" id="restartBtn">↩ PLAY AGAIN</button>
+  <div class="hud-pill">
+    <div class="hud-label">Combo</div>
+    <div class="hud-val" id="comboVal">0x</div>
   </div>
+</div>
+<div id="modeBanner"></div>
+<div id="timerBar" class="hide"><div id="timerFill"></div></div>
+
+<!-- Countdown -->
+<div id="countdown"><div id="countNum"></div></div>
+
+<!-- HOME SCREEN -->
+<div class="screen" id="homeScreen">
+  <div id="homeBg"></div>
+  <div class="dojo-line"></div>
+  <div class="home-logo">
+    <div class="logo-sub">⚔ SLICE EVERYTHING ⚔</div>
+    <div class="logo-main">FRUIT<br>NINJA</div>
+    <div class="logo-fruits">🍎 🍊 🍉 🍓 🥝</div>
+  </div>
+  <div class="mode-grid">
+    <button class="mode-btn mode-classic" onclick="startGame('classic')">
+      <span class="mode-icon">⚔️</span>
+      <span class="mode-name">CLASSIC</span>
+      <span class="mode-desc">3 lives · slice all</span>
+    </button>
+    <button class="mode-btn mode-zen" onclick="startGame('zen')">
+      <span class="mode-icon">🧘</span>
+      <span class="mode-name">ZEN</span>
+      <span class="mode-desc">60s · no bombs</span>
+    </button>
+    <button class="mode-btn mode-arcade" onclick="startGame('arcade')">
+      <span class="mode-icon">⚡</span>
+      <span class="mode-name">ARCADE</span>
+      <span class="mode-desc">Bananas = +time</span>
+    </button>
+  </div>
+  <div class="best-row">Best: <span id="bestHome">0</span></div>
+</div>
+
+<!-- GAME OVER -->
+<div class="screen hide" id="gameOverScreen">
+  <div class="go-title">GAME OVER</div>
+  <div class="go-mode" id="goMode">CLASSIC</div>
+  <div class="go-score">Score: <strong id="goScore">0</strong></div>
+  <div class="go-best" id="goBest"></div>
+  <div class="btn-row">
+    <button class="go-btn primary" id="goReplay">↩ RETRY</button>
+    <button class="go-btn secondary" onclick="goHome()">🏠 HOME</button>
+  </div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════
-//   🍉 FRUIT NINJA — FULL GAME ENGINE
-// ═══════════════════════════════════════════
-
+// ════════════════════════════════════════════════
+//   🍉 FRUIT NINJA — FULL REWRITE v3
+// ════════════════════════════════════════════════
 const canvas = document.getElementById('canvas');
-const ctx    = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 let W, H;
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
+function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; makeBG(); }
 window.addEventListener('resize', resize);
+resize();
 
-// ── State ──────────────────────────────────
-let score = 0, lives = 3, combo = 0, best = 0;
-let playing = false;
-let comboTimer = null;
-let spawnTimer = null;
-let baseInterval = 800;
+// ── Persistent state ──
+let bests = {classic:0, zen:0, arcade:0};
+try { bests = JSON.parse(localStorage.getItem('fnBests')) || bests; } catch(e){}
+function saveBests(){ localStorage.setItem('fnBests', JSON.stringify(bests)); }
 
-// ── Collections ───────────────────────────
-let fruits = [], parts = [], bladePoints = [], scorePopups = [];
+// ── Game state ──
+let mode = 'classic';
+let score = 0, lives = 3, combo = 0, playing = false;
+let arcadeTime = 60, zenTime = 60;
+let comboTimer = null, spawnTimer = null;
+let fruits = [], parts = [], blade = [], popups = [];
+let bgGrad, bgGrad2;
 
-// ── Fruit types ───────────────────────────
-const FRUITS = [
-  { e:'🍎', c:'#ff3333', j:'#ff6666' },
-  { e:'🍊', c:'#ff8c00', j:'#ffaa44' },
-  { e:'🍌', c:'#ffe135', j:'#fff176' },
-  { e:'🍇', c:'#8b008b', j:'#cc44cc' },
-  { e:'🍉', c:'#2eb82e', j:'#ff6666' },
-  { e:'🍓', c:'#cc0000', j:'#ff4466' },
-  { e:'🥝', c:'#5c8a00', j:'#9dc832' },
-  { e:'🍍', c:'#e8c000', j:'#ffe066' },
-  { e:'🍒', c:'#990000', j:'#ff3333' },
-  { e:'🍑', c:'#ff8060', j:'#ffb090' },
+const HEART = ['','❤️','❤️❤️','❤️❤️❤️'];
+const FDATA = [
+  {e:'🍎',j:'#ff5555'},{e:'🍊',j:'#ffaa33'},{e:'🍌',j:'#ffe566'},
+  {e:'🍇',j:'#cc55cc'},{e:'🍉',j:'#ff6677'},{e:'🍓',j:'#ff3366'},
+  {e:'🥝',j:'#aedd22'},{e:'🍍',j:'#ffe033'},{e:'🍒',j:'#ff2244'},
+  {e:'🍑',j:'#ffaa88'},{e:'🥭',j:'#ffaa00'},{e:'🍋',j:'#ffee22'},
 ];
 
-// ── Background ────────────────────────────
-let bgGrad;
-function makeBG() {
-  bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-  bgGrad.addColorStop(0,   '#120025');
-  bgGrad.addColorStop(0.5, '#1a0040');
-  bgGrad.addColorStop(1,   '#0a001a');
+// ── Background ──
+function makeBG(){
+  bgGrad = ctx.createLinearGradient(0,0,0,H);
+  if(mode==='zen'){
+    bgGrad.addColorStop(0,'#001a33');
+    bgGrad.addColorStop(1,'#002244');
+  } else if(mode==='arcade'){
+    bgGrad.addColorStop(0,'#1a0030');
+    bgGrad.addColorStop(1,'#2d0050');
+  } else {
+    bgGrad.addColorStop(0,'#0d0020');
+    bgGrad.addColorStop(0.6,'#1a003a');
+    bgGrad.addColorStop(1,'#060010');
+  }
 }
 
-// ── Fruit Object ─────────────────────────
-function spawnFruit() {
-  if (!playing) return;
+// ── Spawn system ──
+function scheduleSpawn(){
+  if(!playing) return;
+  let base = mode==='arcade' ? 500 : mode==='zen' ? 900 : 750;
+  let fast = Math.min(score/50, 400);
+  let delay = Math.max(250, base - fast + Math.random()*300);
 
-  const isBomb  = Math.random() < 0.1;
-  const info    = FRUITS[Math.floor(Math.random() * FRUITS.length)];
-  const startX  = Math.random() * (W * 0.7) + W * 0.15;
-  const gravity = 0.38;
-  const speedY  = -(H * 0.022 + Math.random() * H * 0.008);
-  const speedX  = (Math.random() - 0.5) * 8;
-  const size    = 38 + Math.random() * 22;
+  spawnTimer = setTimeout(()=>{
+    if(!playing) return;
+    let count = score > 200 && Math.random()<0.3 ? 2 : 1;
+    for(let i=0;i<count;i++) spawnOne();
+    scheduleSpawn();
+  }, delay);
+}
+
+function spawnOne(){
+  const isBomb = mode==='zen' ? false : Math.random() < 0.1;
+  const fd = FDATA[Math.floor(Math.random()*FDATA.length)];
+  const isBonus = mode==='arcade' && !isBomb && Math.random()<0.08; // banana time bonus
+
+  // Multiple spawn lanes
+  const lane = Math.floor(Math.random()*3);
+  let sx, svx;
+  if(lane===0){ sx=W*0.2; svx=2+Math.random()*4; }
+  else if(lane===2){ sx=W*0.8; svx=-(2+Math.random()*4); }
+  else { sx=W*0.35+Math.random()*W*0.3; svx=(Math.random()-.5)*8; }
+
+  const speedY = -(H*(0.02+Math.random()*0.009));
 
   fruits.push({
-    x: startX, y: H + 80,
-    vx: speedX, vy: speedY,
-    gravity,
-    size,
-    isBomb,
-    emoji : isBomb ? '💣' : info.e,
-    juice : isBomb ? '#ff2200' : info.j,
-    sliced: false,
-    alpha : 1,
-    rotation: Math.random() * Math.PI * 2,
-    rotSpeed: (Math.random() - 0.5) * 0.08,
+    x:sx, y:H+80,
+    vx:svx, vy:speedY, gravity:0.38,
+    size:36+Math.random()*22,
+    isBomb, isBonus,
+    emoji: isBonus ? '🍌' : (isBomb ? '💣' : fd.e),
+    juice: isBomb ? '#ff3300' : fd.j,
+    sliced:false, alpha:1,
+    rot:Math.random()*Math.PI*2,
+    rotV:(Math.random()-.5)*0.1,
+    wobble:0, wobbleV:(Math.random()-.5)*0.05,
+    trail:[],
   });
-
-  // Schedule next spawn
-  const nextDelay = Math.max(300, baseInterval - score * 0.5);
-  spawnTimer = setTimeout(spawnFruit, nextDelay + Math.random() * 400);
 }
 
-// ── Particle ──────────────────────────────
-function burst(x, y, color, count = 18) {
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 2 + Math.random() * 7;
+// ── Particles ──
+function burst(x,y,col,n=20){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=2+Math.random()*9;
     parts.push({
-      x, y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 3,
-      gravity: 0.25,
-      size: 3 + Math.random() * 4,
-      color,
-      alpha: 1,
-      life: 0.6 + Math.random() * 0.4,
-      decay: 0.025 + Math.random() * 0.02,
+      x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,
+      g:0.28, sz:2+Math.random()*5,
+      col, alpha:1, decay:0.022+Math.random()*0.018,
     });
   }
 }
 
-// ── Score popup ───────────────────────────
-function showPopup(x, y, text, isCombo = false) {
-  const div = document.createElement('div');
-  div.className = 'popup' + (isCombo ? ' combo' : '');
-  div.textContent = text;
-  div.style.left = (x - 30) + 'px';
-  div.style.top  = (y - 40) + 'px';
-  document.body.appendChild(div);
-  setTimeout(() => div.remove(), 950);
+// ── Score popup ──
+function popup(x,y,txt,big=false){
+  const d=document.createElement('div');
+  d.className='popup'+(big?' big':'');
+  d.textContent=txt;
+  d.style.left=(x-40)+'px';
+  d.style.top=(y-50)+'px';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),950);
 }
 
-// ── HUD ───────────────────────────────────
-const heartMap = ['', '❤️', '❤️❤️', '❤️❤️❤️'];
-
-function updateHUD() {
-  document.getElementById('score').textContent = score;
-  document.getElementById('lives').textContent = heartMap[lives] || '';
-  document.getElementById('combo').textContent = combo + 'x';
-  document.getElementById('comboBox').style.opacity = combo >= 2 ? '1' : '0.45';
+// ── HUD update ──
+function updateHUD(){
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('livesVal').textContent=HEART[Math.max(0,lives)]||'💀';
+  const cv=document.getElementById('comboVal');
+  cv.textContent=combo+'x';
+  cv.style.opacity=combo>=2?'1':'0.4';
+  if(mode==='arcade'){
+    document.getElementById('timerFill').style.width=(arcadeTime/60*100)+'%';
+  } else if(mode==='zen'){
+    document.getElementById('timerFill').style.width=(zenTime/60*100)+'%';
+  }
 }
 
-// ── Hit detection ─────────────────────────
-function checkSliceAt(x, y) {
-  for (let i = fruits.length - 1; i >= 0; i--) {
-    const f = fruits[i];
-    if (f.sliced) continue;
-    const dx = x - f.x, dy = y - f.y;
-    if (Math.hypot(dx, dy) < f.size * 0.75) {
-      f.sliced = true;
-      f.vy    -= 2;
-      burst(f.x, f.y, f.juice, f.isBomb ? 40 : 20);
+// ── Slice check ──
+function trySlice(x,y){
+  for(let i=fruits.length-1;i>=0;i--){
+    const f=fruits[i];
+    if(f.sliced) continue;
+    if(Math.hypot(x-f.x,y-f.y)<f.size*0.72){
+      f.sliced=true;
+      burst(f.x,f.y,f.juice,f.isBomb?55:22);
 
-      if (f.isBomb) {
-        // Bomb explosion effect
-        burst(f.x, f.y, '#ff2200', 60);
-        burst(f.x, f.y, '#ffaa00', 40);
-        endGame();
+      if(f.isBomb){
+        burst(f.x,f.y,'#ff2200',60);
+        burst(f.x,f.y,'#ffaa00',40);
+        if(mode==='classic'){
+          triggerGameOver();
+        } else if(mode==='arcade'){
+          arcadeTime=Math.max(0,arcadeTime-10);
+        }
         return;
       }
 
-      // Combo
       clearTimeout(comboTimer);
       combo++;
-      comboTimer = setTimeout(() => { combo = 0; updateHUD(); }, 1500);
+      comboTimer=setTimeout(()=>{ combo=0; updateHUD(); },1500);
 
-      const pts = 10 * Math.max(1, combo);
-      score += pts;
-      showPopup(f.x, f.y, '+' + pts, combo >= 3);
-      if (combo >= 3) showPopup(f.x, f.y - 50, combo + 'x COMBO!', true);
+      const mult=Math.max(1,combo);
+      const pts=10*mult;
+      score+=pts;
+
+      if(f.isBonus && mode==='arcade'){
+        arcadeTime=Math.min(60,arcadeTime+5);
+        popup(f.x,f.y,'⏱ +5s',true);
+      } else {
+        popup(f.x,f.y,'+'+pts, combo>=3);
+        if(combo>=3) popup(f.x,f.y-60,combo+'x COMBO!',true);
+      }
       updateHUD();
     }
   }
 }
 
-// ── Blade drawing ─────────────────────────
-function drawBlade() {
-  if (bladePoints.length < 2) return;
+// ── Blade drawing ──
+function drawBlade(){
+  if(blade.length<2) return;
   ctx.save();
-  for (let i = 1; i < bladePoints.length; i++) {
-    const t    = i / bladePoints.length;
-    const p0   = bladePoints[i - 1];
-    const p1   = bladePoints[i];
-    const width= 12 * t;
-    ctx.strokeStyle = `rgba(255,255,255,${t * 0.85})`;
-    ctx.shadowColor = 'rgba(200,220,255,0.9)';
-    ctx.shadowBlur  = 20 * t;
-    ctx.lineWidth   = width;
-    ctx.lineCap     = 'round';
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  for(let i=1;i<blade.length;i++){
+    const t=i/blade.length;
+    ctx.strokeStyle=`rgba(255,255,255,${t*0.9})`;
+    ctx.shadowColor='rgba(180,220,255,1)';
+    ctx.shadowBlur=30*t;
+    ctx.lineWidth=14*t;
     ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-    ctx.lineTo(p1.x, p1.y);
+    ctx.moveTo(blade[i-1].x,blade[i-1].y);
+    ctx.lineTo(blade[i].x,blade[i].y);
     ctx.stroke();
   }
+  // Tip glow
+  const tip=blade[blade.length-1];
+  ctx.shadowBlur=40;
+  ctx.shadowColor='#fff';
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  ctx.beginPath();
+  ctx.arc(tip.x,tip.y,5,0,Math.PI*2);
+  ctx.fill();
   ctx.restore();
 }
 
-// ── Main loop ─────────────────────────────
-function loop() {
+// ── Main loop ──
+let lastTime=0, arcadeInterval, zenInterval;
+
+function loop(ts){
   requestAnimationFrame(loop);
+  const dt=Math.min((ts-lastTime)/16.67,3); lastTime=ts;
 
-  // Background
-  if (!bgGrad) makeBG();
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, W, H);
+  // Draw BG
+  ctx.fillStyle=bgGrad||'#0d0020';
+  ctx.fillRect(0,0,W,H);
 
-  // Subtle grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < W; i += 80) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
-  }
-  for (let j = 0; j < H; j += 80) {
-    ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(W, j); ctx.stroke();
-  }
+  // Subtle glow orbs
+  const orb=ctx.createRadialGradient(W*.5,H*.3,0,W*.5,H*.3,W*.6);
+  orb.addColorStop(0,mode==='zen'?'rgba(0,80,180,.07)':mode==='arcade'?'rgba(140,0,220,.07)':'rgba(100,0,180,.07)');
+  orb.addColorStop(1,'transparent');
+  ctx.fillStyle=orb;
+  ctx.fillRect(0,0,W,H);
 
-  if (!playing) { drawBlade(); return; }
+  // Ground glow
+  const gGrad=ctx.createLinearGradient(0,H-80,0,H);
+  gGrad.addColorStop(0,'transparent');
+  gGrad.addColorStop(1,'rgba(255,100,0,.08)');
+  ctx.fillStyle=gGrad;
+  ctx.fillRect(0,H-80,W,80);
 
-  // ── Update & draw fruits ──
-  for (let i = fruits.length - 1; i >= 0; i--) {
-    const f = fruits[i];
-    f.vy       += f.gravity;
-    f.x        += f.vx;
-    f.y        += f.vy;
-    f.rotation += f.rotSpeed;
+  if(!playing){ drawBlade(); return; }
 
-    if (f.sliced) {
-      f.alpha -= 0.035;
-      if (f.alpha <= 0) { fruits.splice(i, 1); continue; }
-    }
+  // ── Fruits ──
+  for(let i=fruits.length-1;i>=0;i--){
+    const f=fruits[i];
+    f.vy+=f.gravity*dt;
+    f.x+=f.vx*dt; f.y+=f.vy*dt;
+    f.rot+=f.rotV*dt;
+    f.wobble+=f.wobbleV;
 
-    // Missed
-    if (f.y > H + 100 && !f.sliced) {
-      fruits.splice(i, 1);
-      if (!f.isBomb) {
-        lives--;
-        combo = 0;
+    if(f.sliced){ f.alpha-=0.04*dt; }
+
+    if(f.y>H+120&&!f.sliced){
+      fruits.splice(i,1);
+      if(!f.isBomb){
+        if(mode==='classic'){
+          lives--;
+          // Miss flash
+          const flash=document.createElement('div');
+          flash.style.cssText='position:fixed;inset:0;background:rgba(255,0,0,.25);z-index:999;pointer-events:none;';
+          document.body.appendChild(flash);
+          setTimeout(()=>flash.remove(),200);
+        }
         updateHUD();
-        if (lives <= 0) { endGame(); return; }
+        if(mode==='classic'&&lives<=0) triggerGameOver();
       }
       continue;
     }
+    if(f.alpha<=0){ fruits.splice(i,1); continue; }
 
-    // Draw fruit
+    // Draw
     ctx.save();
-    ctx.globalAlpha = f.sliced ? f.alpha : 1;
-    ctx.translate(f.x, f.y);
-    ctx.rotate(f.rotation);
+    ctx.translate(f.x,f.y);
+    ctx.rotate(f.rot);
 
-    if (f.sliced) {
-      // Glow slice flash
-      ctx.shadowColor = f.juice;
-      ctx.shadowBlur  = 40;
+    if(!f.sliced){
+      ctx.shadowColor='rgba(0,0,0,.5)';
+      ctx.shadowBlur=20;
+      ctx.shadowOffsetY=10;
     } else {
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur  = 15;
-      ctx.shadowOffsetY = 8;
+      ctx.shadowColor=f.juice;
+      ctx.shadowBlur=50;
+      ctx.scale(1+f.alpha*.15,1+f.alpha*.15);
     }
 
-    ctx.font         = `${f.size}px Arial`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(f.emoji, 0, 0);
+    ctx.globalAlpha=f.sliced?f.alpha:1;
+    ctx.font=f.size+'px Arial';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(f.emoji,0,0);
 
-    // Slice crack line
-    if (f.sliced) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.lineWidth   = 2;
-      ctx.shadowBlur  = 0;
+    if(f.sliced){
+      ctx.strokeStyle='rgba(255,255,255,.85)';
+      ctx.lineWidth=2;
+      ctx.shadowBlur=0;
       ctx.beginPath();
-      ctx.moveTo(-f.size * 0.5,  f.size * 0.4);
-      ctx.lineTo( f.size * 0.5, -f.size * 0.4);
+      ctx.moveTo(-f.size*.5,f.size*.4);
+      ctx.lineTo(f.size*.5,-f.size*.4);
       ctx.stroke();
+      // juice drops
+      ctx.fillStyle=f.juice;
+      for(let d=0;d<6;d++){
+        const a=(d/6)*Math.PI*2+(1-f.alpha)*4;
+        const r=f.size*.6*(1-f.alpha);
+        ctx.globalAlpha=f.alpha*.7;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a)*r,Math.sin(a)*r,3,0,Math.PI*2);
+        ctx.fill();
+      }
     }
-
     ctx.restore();
   }
 
   // ── Particles ──
-  for (let i = parts.length - 1; i >= 0; i--) {
-    const p = parts[i];
-    p.vx     *= 0.96;
-    p.vy     += p.gravity;
-    p.x      += p.vx;
-    p.y      += p.vy;
-    p.alpha  -= p.decay;
-    if (p.alpha <= 0) { parts.splice(i, 1); continue; }
-
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i];
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    p.vy+=p.g*dt; p.vx*=0.97;
+    p.alpha-=p.decay*dt;
+    if(p.alpha<=0){parts.splice(i,1);continue;}
     ctx.save();
-    ctx.globalAlpha = p.alpha;
-    ctx.fillStyle   = p.color;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur  = 10;
+    ctx.globalAlpha=p.alpha;
+    ctx.fillStyle=p.col;
+    ctx.shadowColor=p.col; ctx.shadowBlur=10;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
@@ -518,67 +613,139 @@ function loop() {
   drawBlade();
 }
 
-// ── Input ────────────────────────────────
-let pointerDown = false;
+// ── Input ──
+let pDown=false;
+function onMove(x,y){
+  if(!pDown) return;
+  blade.push({x,y});
+  if(blade.length>18) blade.shift();
+  if(playing) trySlice(x,y);
+}
+canvas.addEventListener('mousemove',e=>onMove(e.clientX,e.clientY));
+canvas.addEventListener('mousedown',e=>{pDown=true;onMove(e.clientX,e.clientY);});
+canvas.addEventListener('mouseup',()=>{pDown=false;blade=[];});
+canvas.addEventListener('mouseleave',()=>{pDown=false;blade=[];});
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault(); pDown=true;
+  const t=e.touches[0]; onMove(t.clientX,t.clientY);
+},{passive:false});
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const t=e.touches[0]; onMove(t.clientX,t.clientY);
+},{passive:false});
+canvas.addEventListener('touchend',()=>{pDown=false;blade=[];});
 
-function onMove(x, y) {
-  if (!pointerDown) return;
-  bladePoints.push({ x, y });
-  if (bladePoints.length > 14) bladePoints.shift();
-  if (playing) checkSliceAt(x, y);
+// ── Countdown then start ──
+function countdown(cb){
+  const el=document.getElementById('countNum');
+  let n=3;
+  function tick(){
+    el.style.opacity='1';
+    el.textContent=n;
+    el.style.animation='none';
+    void el.offsetWidth;
+    el.style.animation='popFloat .9s ease-out forwards';
+    setTimeout(()=>{ el.style.opacity='0'; },700);
+    n--;
+    if(n>0) setTimeout(tick,1000);
+    else setTimeout(cb,1000);
+  }
+  tick();
 }
 
-canvas.addEventListener('mousemove',  e => onMove(e.clientX, e.clientY));
-canvas.addEventListener('mousedown',  e => { pointerDown = true; onMove(e.clientX, e.clientY); });
-canvas.addEventListener('mouseup',    ()=> { pointerDown = false; bladePoints = []; });
-canvas.addEventListener('mouseleave', ()=> { pointerDown = false; bladePoints = []; });
-
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  pointerDown = true;
-  const t = e.touches[0];
-  onMove(t.clientX, t.clientY);
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const t = e.touches[0];
-  onMove(t.clientX, t.clientY);
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => { pointerDown = false; bladePoints = []; });
-
-// ── Start / End ──────────────────────────
-function startGame() {
-  score = 0; lives = 3; combo = 0;
-  playing = true;
-  fruits = []; parts = []; bladePoints = [];
-  baseInterval = 800;
-  clearTimeout(spawnTimer);
-  document.getElementById('startScreen').classList.add('hide');
+// ── Start game ──
+function startGame(m){
+  mode=m||mode;
+  document.getElementById('homeScreen').classList.add('hide');
   document.getElementById('gameOverScreen').classList.add('hide');
-  makeBG();
-  updateHUD();
-  spawnFruit();
+  document.getElementById('hud').classList.add('hide');
+
+  countdown(()=>{
+    score=0; lives=3; combo=0;
+    arcadeTime=60; zenTime=60;
+    fruits=[]; parts=[]; blade=[];
+    playing=true;
+    makeBG();
+    updateHUD();
+    document.getElementById('hud').classList.remove('hide');
+
+    // Mode banner
+    const banner=document.getElementById('modeBanner');
+    const modeNames={classic:'⚔️ CLASSIC',zen:'🧘 ZEN MODE',arcade:'⚡ ARCADE'};
+    banner.textContent=modeNames[mode];
+    setTimeout(()=>banner.textContent='',3000);
+
+    // Timer bar
+    const tb=document.getElementById('timerBar');
+    if(mode==='arcade'||mode==='zen'){
+      tb.classList.remove('hide');
+    } else {
+      tb.classList.add('hide');
+    }
+
+    clearInterval(arcadeInterval);
+    clearInterval(zenInterval);
+    clearTimeout(spawnTimer);
+    scheduleSpawn();
+
+    if(mode==='arcade'){
+      arcadeInterval=setInterval(()=>{
+        if(!playing) return;
+        arcadeTime=Math.max(0,arcadeTime-.1);
+        updateHUD();
+        if(arcadeTime<=0) triggerGameOver();
+      },100);
+    }
+    if(mode==='zen'){
+      zenInterval=setInterval(()=>{
+        if(!playing) return;
+        zenTime=Math.max(0,zenTime-.1);
+        updateHUD();
+        if(zenTime<=0) triggerGameOver();
+      },100);
+    }
+  });
 }
 
-function endGame() {
-  playing = false;
+// ── Game Over ──
+function triggerGameOver(){
+  playing=false;
   clearTimeout(spawnTimer);
-  const isNew = score > best;
-  if (isNew) best = score;
-  document.getElementById('finalScore').textContent = score;
-  document.getElementById('newBestLabel').textContent = isNew ? '🏆 NEW BEST SCORE!' : 'Best: ' + best;
-  document.getElementById('bestDisplay').textContent  = best;
-  setTimeout(() => {
+  clearInterval(arcadeInterval);
+  clearInterval(zenInterval);
+  document.getElementById('hud').classList.add('hide');
+  document.getElementById('timerBar').classList.add('hide');
+
+  const isNew=score>bests[mode];
+  if(isNew){ bests[mode]=score; saveBests(); }
+
+  setTimeout(()=>{
+    document.getElementById('goMode').textContent=mode.toUpperCase()+' MODE';
+    document.getElementById('goScore').textContent=score;
+    document.getElementById('goBest').textContent=isNew?'🏆 NEW BEST!':'Best: '+bests[mode];
+    document.getElementById('goReplay').onclick=()=>startGame(mode);
     document.getElementById('gameOverScreen').classList.remove('hide');
-  }, 600);
+    document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
+  },700);
 }
 
-document.getElementById('startBtn').onclick   = startGame;
-document.getElementById('restartBtn').onclick  = startGame;
+function goHome(){
+  playing=false;
+  clearTimeout(spawnTimer);
+  clearInterval(arcadeInterval);
+  clearInterval(zenInterval);
+  fruits=[]; parts=[];
+  document.getElementById('gameOverScreen').classList.add('hide');
+  document.getElementById('hud').classList.add('hide');
+  document.getElementById('timerBar').classList.add('hide');
+  document.getElementById('homeScreen').classList.remove('hide');
+  document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
+  makeBG();
+}
 
-loop();
+// Start loop
+document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
