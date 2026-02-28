@@ -64,11 +64,19 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 
 /* SHOP */
 #sShop{background:radial-gradient(ellipse at 50% 0%,#001a44 0%,#000a22 60%,#000 100%);overflow-y:auto;justify-content:flex-start;padding-top:20px;}
-.shop-header{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 18px;margin-bottom:16px;}
-.shop-title{font-family:'Bangers',cursive;font-size:clamp(38px,9vw,68px);color:#fff;letter-spacing:4px;text-shadow:0 0 30px #00aaff;}
-.shop-coins{display:flex;align-items:center;gap:8px;background:rgba(255,200,0,.15);border:2px solid rgba(255,200,0,.4);border-radius:30px;padding:8px 18px;font-size:20px;color:#ffdd00;}
-.shop-back{font-family:'Fredoka One',cursive;font-size:17px;padding:10px 22px;border:none;border-radius:30px;background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.shop-header{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 18px;margin-bottom:10px;gap:8px;flex-wrap:wrap;}
+.shop-title{font-family:'Bangers',cursive;font-size:clamp(32px,8vw,60px);color:#fff;letter-spacing:4px;text-shadow:0 0 30px #00aaff;}
+.shop-coins{display:flex;align-items:center;gap:8px;background:rgba(255,200,0,.15);border:2px solid rgba(255,200,0,.4);border-radius:30px;padding:8px 18px;font-size:18px;color:#ffdd00;}
+.shop-back{font-family:'Fredoka One',cursive;font-size:16px;padding:9px 20px;border:none;border-radius:30px;background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .shop-back:active{transform:scale(.94);}
+
+/* Shop tabs */
+.shop-tabs{display:flex;gap:8px;width:100%;padding:0 18px 10px;}
+.stab{font-family:'Fredoka One',cursive;font-size:15px;padding:9px 20px;border:none;border-radius:30px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;flex:1;}
+.stab.active{background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;box-shadow:0 4px 16px rgba(255,120,0,.4);}
+.stab:not(.active){background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:2px solid rgba(255,255,255,.1);}
+.stab:active{transform:scale(.95);}
+
 .trail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;width:100%;padding:0 16px 30px;}
 .tcard{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:20px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s,border-color .15s;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;}
 .tcard:active{transform:scale(.95);}
@@ -81,76 +89,99 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 .badge-owned{background:#00ff96;color:#000;}
 .badge-equipped{background:#ffcc00;color:#000;}
 
-/* ══════════════════════════════
-   GAME OVER — FULLY REDESIGNED
-══════════════════════════════ */
-#sOver{
-  background:radial-gradient(ellipse at 50% 0%,#1a0000 0%,#050005 60%,#000 100%);
-  overflow:hidden;
-  justify-content:flex-start;
-  padding-top: clamp(10px,3vh,30px);
-}
-/* Falling debris particles behind GO screen */
+/* ── LOOT BOXES ── */
+.boxes-section{width:100%;padding:0 16px 30px;}
+.boxes-title{font-family:'Bangers',cursive;font-size:22px;color:rgba(255,255,255,.5);letter-spacing:3px;margin-bottom:12px;text-align:center;}
+.boxes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;}
+
+.bbox{border-radius:22px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;transition:transform .15s;}
+.bbox:hover{transform:scale(1.05) translateY(-4px);}
+.bbox:active{transform:scale(.94);}
+.bbox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent);pointer-events:none;}
+
+.bbox-common{background:linear-gradient(135deg,#1a1a3a,#2a1a4a);border:2px solid rgba(100,80,200,.5);box-shadow:0 6px 20px rgba(80,0,180,.3);}
+.bbox-rare{background:linear-gradient(135deg,#002244,#003366);border:2px solid rgba(0,150,255,.5);box-shadow:0 6px 20px rgba(0,100,255,.3);}
+.bbox-epic{background:linear-gradient(135deg,#2a0040,#4a0060);border:2px solid rgba(180,0,255,.5);box-shadow:0 6px 24px rgba(150,0,255,.4);}
+.bbox-legendary{background:linear-gradient(135deg,#2a1800,#3a2200);border:2px solid rgba(255,200,0,.6);box-shadow:0 6px 28px rgba(255,160,0,.5);animation:legendGlow 2s ease-in-out infinite alternate;}
+@keyframes legendGlow{0%{box-shadow:0 6px 28px rgba(255,160,0,.5);}100%{box-shadow:0 6px 40px rgba(255,200,0,.9),0 0 60px rgba(255,100,0,.3);}}
+
+.bbox-icon{font-size:48px;filter:drop-shadow(0 4px 12px rgba(255,200,0,.5));animation:boxFloat 2s ease-in-out infinite;}
+@keyframes boxFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.bbox:nth-child(2) .bbox-icon{animation-delay:.3s;}
+.bbox:nth-child(3) .bbox-icon{animation-delay:.6s;}
+.bbox:nth-child(4) .bbox-icon{animation-delay:.9s;}
+
+.bbox-name{font-family:'Bangers',cursive;font-size:20px;color:#fff;letter-spacing:2px;text-align:center;}
+.bbox-rarity{font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:-4px;}
+.bbox-common .bbox-rarity{color:#9988ff;}
+.bbox-rare .bbox-rarity{color:#44aaff;}
+.bbox-epic .bbox-rarity{color:#cc44ff;}
+.bbox-legendary .bbox-rarity{color:#ffcc00;}
+.bbox-contains{font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.4;}
+.bbox-action{width:100%;padding:10px;border:none;border-radius:30px;font-family:'Fredoka One',cursive;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s;}
+.bbox-action:active{transform:scale(.94);}
+.bbox-common .bbox-action{background:linear-gradient(135deg,#7755ff,#5533cc);color:#fff;}
+.bbox-rare .bbox-action{background:linear-gradient(135deg,#0077cc,#0055aa);color:#fff;}
+.bbox-epic .bbox-action{background:linear-gradient(135deg,#aa00ff,#7700cc);color:#fff;}
+.bbox-legendary .bbox-action{background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;}
+
+/* ── AD OVERLAY ── */
+#adOverlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:60;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+#adOverlay.show{display:flex;}
+.ad-box{background:#111;border:3px solid rgba(255,255,255,.15);border-radius:24px;width:min(340px,90vw);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
+.ad-label{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;}
+.ad-icon{font-size:56px;}
+.ad-title{font-family:'Bangers',cursive;font-size:30px;color:#fff;letter-spacing:2px;}
+.ad-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.5;}
+.ad-bar-wrap{width:100%;height:8px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
+.ad-bar{height:100%;width:0%;background:linear-gradient(90deg,#ff6600,#ffcc00);border-radius:8px;transition:width .1s linear;}
+.ad-timer{font-family:'Bangers',cursive;font-size:36px;color:#ffdd00;text-shadow:0 0 20px #ff8800;}
+.ad-skip{font-family:'Fredoka One',cursive;font-size:15px;padding:10px 28px;border:none;border-radius:30px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);cursor:not-allowed;border:2px solid rgba(255,255,255,.1);}
+.ad-skip.ready{background:linear-gradient(135deg,#00cc66,#008844);color:#fff;cursor:pointer;border-color:transparent;box-shadow:0 4px 16px rgba(0,200,80,.4);}
+.ad-skip.ready:active{transform:scale(.94);}
+.ad-cancel{font-family:'Fredoka One',cursive;font-size:13px;padding:8px 20px;border:none;border-radius:30px;background:transparent;color:rgba(255,255,255,.25);cursor:pointer;margin-top:-6px;}
+.ad-cancel:hover{color:rgba(255,255,255,.5);}
+
+/* ── BOX OPEN OVERLAY ── */
+#boxOpenOverlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:65;display:none;align-items:center;justify-content:center;}
+#boxOpenOverlay.show{display:flex;}
+.box-open-inner{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;padding:20px;}
+.bo-question{font-size:clamp(70px,18vw,120px);animation:boSpin 1s ease-out forwards;}
+@keyframes boSpin{0%{transform:rotate(-20deg) scale(0.3);opacity:0;}60%{transform:rotate(10deg) scale(1.2);}100%{transform:rotate(0deg) scale(1);opacity:1;}}
+.bo-reveal{font-size:clamp(60px,14vw,100px);display:none;animation:boReveal .6s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes boReveal{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.bo-label{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;}
+.bo-val{font-family:'Bangers',cursive;font-size:clamp(32px,8vw,56px);color:#ffdd00;text-shadow:0 0 30px #ffaa00;letter-spacing:2px;}
+.bo-sub{font-size:14px;color:rgba(255,255,255,.4);}
+.bo-close{font-family:'Fredoka One',cursive;font-size:19px;padding:13px 40px;border:none;border-radius:40px;background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;cursor:pointer;margin-top:6px;box-shadow:0 6px 20px rgba(255,120,0,.5);}
+.bo-close:active{transform:scale(.94);}
+.bo-rays{position:absolute;inset:0;pointer-events:none;}
+
+/* GAME OVER */
+#sOver{background:radial-gradient(ellipse at 50% 0%,#1a0000 0%,#050005 60%,#000 100%);overflow:hidden;justify-content:flex-start;padding-top:clamp(10px,3vh,30px);}
 #goParticles{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .gop{position:absolute;font-size:clamp(16px,4vw,28px);animation:goFall linear infinite;opacity:0;}
 @keyframes goFall{0%{opacity:0;transform:translateY(-60px) rotate(0deg);}10%{opacity:.7;}90%{opacity:.4;}100%{opacity:0;transform:translateY(110vh) rotate(720deg);}}
-
 .go-inner{display:flex;flex-direction:column;align-items:center;z-index:2;width:100%;padding:0 16px;}
-
-/* Title */
 .go-title-wrap{position:relative;margin-bottom:10px;}
 .go-title{font-family:'Bangers',cursive;font-size:clamp(64px,15vw,120px);color:#ff1a00;letter-spacing:6px;line-height:1;animation:goShake .08s infinite alternate;text-align:center;}
 @keyframes goShake{0%{transform:translateX(-3px) skewX(-1deg);}100%{transform:translateX(3px) skewX(1deg);}}
 .go-subtitle{font-size:clamp(12px,2.5vw,16px);color:rgba(255,100,100,.6);letter-spacing:4px;text-transform:uppercase;text-align:center;margin-bottom:16px;}
-
-/* Stats row */
 .go-stats{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;justify-content:center;width:100%;}
 .go-stat{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:18px;padding:12px 18px;text-align:center;flex:1;min-width:90px;max-width:130px;}
 .go-stat-icon{font-size:24px;}
 .go-stat-label{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin:4px 0 2px;}
 .go-stat-val{font-family:'Bangers',cursive;font-size:28px;color:#fff;line-height:1;}
 .go-stat-val.gold{color:#ffdd00;text-shadow:0 0 14px #ffaa00;}
-.go-stat-val.green{color:#00ff88;text-shadow:0 0 14px #00cc66;}
-
-/* Big score card */
-.go-score-card{
-  background:linear-gradient(135deg,rgba(255,50,0,.12),rgba(180,0,0,.18));
-  border:2px solid rgba(255,80,0,.35);
-  border-radius:28px;padding:18px 36px;text-align:center;
-  margin-bottom:16px;width:100%;max-width:360px;
-  box-shadow:0 0 40px rgba(255,40,0,.2),inset 0 0 30px rgba(255,0,0,.06);
-  position:relative;overflow:hidden;
-}
-.go-score-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);
-}
+.go-score-card{background:linear-gradient(135deg,rgba(255,50,0,.12),rgba(180,0,0,.18));border:2px solid rgba(255,80,0,.35);border-radius:28px;padding:18px 36px;text-align:center;margin-bottom:16px;width:100%;max-width:360px;box-shadow:0 0 40px rgba(255,40,0,.2);}
 .go-sc-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:4px;text-transform:uppercase;}
-.go-sc-num{font-family:'Bangers',cursive;font-size:clamp(80px,18vw,130px);color:#fff;line-height:1;text-shadow:0 0 50px rgba(255,150,0,1),0 0 100px rgba(255,80,0,.6);}
+.go-sc-num{font-family:'Bangers',cursive;font-size:clamp(80px,18vw,130px);color:#fff;line-height:1;text-shadow:0 0 50px rgba(255,150,0,1);}
 .go-sc-mode{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:4px;margin-top:2px;}
-.go-new-best{
-  display:none;font-family:'Bangers',cursive;font-size:28px;
-  color:#ffdd00;letter-spacing:3px;
-  text-shadow:0 0 20px #ffaa00;
-  animation:bestPulse .6s ease-in-out infinite alternate;
-  margin-top:6px;
-}
+.go-new-best{display:none;font-family:'Bangers',cursive;font-size:28px;color:#ffdd00;letter-spacing:3px;text-shadow:0 0 20px #ffaa00;animation:bestPulse .6s ease-in-out infinite alternate;margin-top:6px;}
 .go-new-best.show{display:block;}
 @keyframes bestPulse{0%{transform:scale(1);}100%{transform:scale(1.08);}}
-
-/* Coins earned banner */
-.go-coins-banner{
-  background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,140,0,.1));
-  border:2px solid rgba(255,200,0,.3);
-  border-radius:40px;padding:10px 28px;
-  font-size:20px;color:#ffdd00;
-  margin-bottom:18px;
-  text-shadow:0 0 12px #ffaa00;
-  animation:coinsBounce .5s ease-out;
-}
+.go-coins-banner{background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,140,0,.1));border:2px solid rgba(255,200,0,.3);border-radius:40px;padding:10px 28px;font-size:20px;color:#ffdd00;margin-bottom:18px;text-shadow:0 0 12px #ffaa00;animation:coinsBounce .5s ease-out;}
 @keyframes coinsBounce{0%{transform:scale(0.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
-
-/* Buttons */
 .go-btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;}
 .gbtn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 24px;border:none;border-radius:40px;cursor:pointer;transition:transform .15s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:8px;}
 .gbtn:hover{transform:scale(1.07);}
@@ -160,7 +191,6 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 .gbshare{background:linear-gradient(135deg,#1da1f2,#0d7abf);color:#fff;}
 .gbcopy{background:linear-gradient(135deg,#25d366,#128c4e);color:#fff;}
 .gbshop{background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;}
-
 #copyToast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 28px;border-radius:30px;font-size:16px;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;border:1px solid rgba(255,255,255,.2);}
 #copyToast.show{opacity:1;}
 #countdown{position:absolute;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:25;pointer-events:none;}
@@ -179,6 +209,33 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 <body>
 <canvas id="canvas"></canvas>
 <div id="bombFlash"></div>
+
+<!-- AD OVERLAY (simulated) -->
+<div id="adOverlay">
+  <div class="ad-box">
+    <div class="ad-label">📺 Advertisement</div>
+    <div class="ad-icon" id="adIcon">📦</div>
+    <div class="ad-title" id="adTitle">WATCH TO OPEN!</div>
+    <div class="ad-desc" id="adDesc">Watch a short ad to open your free box</div>
+    <div class="ad-bar-wrap"><div class="ad-bar" id="adBar"></div></div>
+    <div class="ad-timer" id="adTimer">5</div>
+    <button class="ad-skip" id="adSkip">CLAIM REWARD ✓</button>
+    <button class="ad-cancel" id="adCancel">✕ Cancel</button>
+  </div>
+</div>
+
+<!-- BOX OPEN OVERLAY -->
+<div id="boxOpenOverlay">
+  <div class="box-open-inner">
+    <div id="boQuestion" class="bo-question">📦</div>
+    <div id="boReveal" class="bo-reveal" style="display:none;font-size:72px;"></div>
+    <div class="bo-label" id="boLabel">OPENING...</div>
+    <div class="bo-val"  id="boVal">?</div>
+    <div class="bo-sub"  id="boSub"></div>
+    <button class="bo-close" id="boClose" style="display:none;">SWEET! 🎉</button>
+  </div>
+</div>
+
 <div id="ui">
   <div id="hud">
     <div class="pill"><div class="plabel">Score</div><div class="pval" id="scoreVal">0</div></div>
@@ -221,55 +278,41 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
       <div class="shop-coins">🪙 <span id="shopCoins">0</span></div>
       <button class="shop-back" id="btnShopBack">✕ BACK</button>
     </div>
-    <div class="trail-grid" id="trailGrid"></div>
+    <div class="shop-tabs">
+      <button class="stab active" id="tabTrails" onclick="switchTab('trails')">⚔️ Trails</button>
+      <button class="stab" id="tabBoxes" onclick="switchTab('boxes')">📦 Boxes</button>
+    </div>
+    <div id="trailSection">
+      <div class="trail-grid" id="trailGrid"></div>
+    </div>
+    <div id="boxSection" style="display:none;">
+      <div class="boxes-section">
+        <div class="boxes-grid" id="boxesGrid"></div>
+      </div>
+    </div>
   </div>
 
   <!-- GAME OVER -->
   <div class="screen" id="sOver">
     <div id="goParticles"></div>
     <div class="go-inner">
-
       <div class="go-title-wrap">
         <div class="go-title">GAME OVER</div>
         <div class="go-subtitle">better luck next time</div>
       </div>
-
-      <!-- Big score -->
       <div class="go-score-card">
         <div class="go-sc-label">Final Score</div>
         <div class="go-sc-num" id="goScore">0</div>
         <div class="go-sc-mode" id="goMode">CLASSIC MODE</div>
         <div class="go-new-best" id="goNewBest">🏆 NEW BEST!</div>
       </div>
-
-      <!-- Stats row -->
       <div class="go-stats">
-        <div class="go-stat">
-          <div class="go-stat-icon">🏆</div>
-          <div class="go-stat-label">Best</div>
-          <div class="go-stat-val gold" id="goBestNum">0</div>
-        </div>
-        <div class="go-stat">
-          <div class="go-stat-icon">🍉</div>
-          <div class="go-stat-label">Sliced</div>
-          <div class="go-stat-val" id="goSliced">0</div>
-        </div>
-        <div class="go-stat">
-          <div class="go-stat-icon">⚡</div>
-          <div class="go-stat-label">Best Combo</div>
-          <div class="go-stat-val" id="goBestCombo">0x</div>
-        </div>
-        <div class="go-stat">
-          <div class="go-stat-icon">💀</div>
-          <div class="go-stat-label">Missed</div>
-          <div class="go-stat-val" id="goMissed">0</div>
-        </div>
+        <div class="go-stat"><div class="go-stat-icon">🏆</div><div class="go-stat-label">Best</div><div class="go-stat-val gold" id="goBestNum">0</div></div>
+        <div class="go-stat"><div class="go-stat-icon">🍉</div><div class="go-stat-label">Sliced</div><div class="go-stat-val" id="goSliced">0</div></div>
+        <div class="go-stat"><div class="go-stat-icon">⚡</div><div class="go-stat-label">Best Combo</div><div class="go-stat-val" id="goBestCombo">0x</div></div>
+        <div class="go-stat"><div class="go-stat-icon">💀</div><div class="go-stat-label">Missed</div><div class="go-stat-val" id="goMissed">0</div></div>
       </div>
-
-      <!-- Coins earned -->
       <div class="go-coins-banner" id="goCoinsBanner">+0 🪙 earned this round</div>
-
-      <!-- Buttons -->
       <div class="go-btn-row">
         <button class="gbtn gbp"     id="btnRetry">↩ RETRY</button>
         <button class="gbtn gbshop" id="btnGoShop">🛒 SHOP</button>
@@ -277,7 +320,6 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
         <button class="gbtn gbshare" id="btnShare">🔗 SHARE</button>
         <button class="gbtn gbs"     id="btnHome">🏠 HOME</button>
       </div>
-
     </div>
   </div>
 </div>
@@ -306,7 +348,10 @@ function loadSave(){
 function save(){try{localStorage.setItem('ns_save',JSON.stringify({bests,coins,ownedTrails,equippedTrail}));}catch(e){}}
 loadSave();
 function topBest(){return Math.max(bests.classic,bests.zen,bests.arcade);}
-function updateCoinUI(){document.getElementById('homeCoins').textContent=coins;document.getElementById('shopCoins').textContent=coins;}
+function updateCoinUI(){
+  document.getElementById('homeCoins').textContent=coins.toLocaleString();
+  document.getElementById('shopCoins').textContent=coins.toLocaleString();
+}
 
 // ── Stars ──
 function buildStars(){
@@ -320,7 +365,7 @@ function buildStars(){
 }
 buildStars();
 
-// ── GO screen falling debris ──
+// ── GO particles ──
 const GO_EMOJIS=['🍎','🍊','🍉','🍓','💣','⭐','🔥','💥','🥝','🍋'];
 function buildGOParticles(){
   const c=document.getElementById('goParticles');c.innerHTML='';
@@ -332,69 +377,231 @@ function buildGOParticles(){
   }
 }
 
-// ── Trails (MORE EXPENSIVE) ──
+// ── Trails ──
 const TRAILS=[
-  {id:'classic',  name:'Classic',   price:0,     colors:['rgba(255,255,255,{a})'],                                    desc:'Clean white'},
-  {id:'fire',     name:'Fire',      price:350,   colors:['rgba(255,60,0,{a})','rgba(255,180,0,{a})'],                 desc:'Blazing hot'},
-  {id:'ice',      name:'Ice',       price:350,   colors:['rgba(100,220,255,{a})','rgba(200,240,255,{a})'],            desc:'Frosty cool'},
-  {id:'toxic',    name:'Toxic',     price:500,   colors:['rgba(0,255,80,{a})','rgba(180,255,0,{a})'],                 desc:'Radioactive'},
-  {id:'galaxy',   name:'Galaxy',    price:800,   colors:['rgba(180,0,255,{a})','rgba(0,150,255,{a})','rgba(255,0,180,{a})'], desc:'Cosmic'},
-  {id:'gold',     name:'Gold',      price:1000,  colors:['rgba(255,215,0,{a})','rgba(255,160,0,{a})'],                desc:'Pure gold'},
-  {id:'blood',    name:'Blood',     price:600,   colors:['rgba(200,0,0,{a})','rgba(255,50,50,{a})'],                  desc:'Dark red'},
-  {id:'electric', name:'Electric',  price:750,   colors:['rgba(0,200,255,{a})','rgba(255,255,100,{a})'],              desc:'Zap!'},
-  {id:'rainbow',  name:'Rainbow',   price:1500,  colors:['rgba(255,0,0,{a})','rgba(255,165,0,{a})','rgba(0,255,0,{a})','rgba(0,0,255,{a})','rgba(238,130,238,{a})'], desc:'All colors'},
-  {id:'ghost',    name:'Ghost',     price:450,   colors:['rgba(200,200,255,{a})'],                                    desc:'Phantom'},
-  {id:'lava',     name:'Lava',      price:700,   colors:['rgba(255,80,0,{a})','rgba(255,220,0,{a})','rgba(180,0,0,{a})'], desc:'Molten'},
-  {id:'candy',    name:'Candy',     price:550,   colors:['rgba(255,100,200,{a})','rgba(100,200,255,{a})'],            desc:'Sweet'},
-  {id:'void',     name:'Void',      price:1200,  colors:['rgba(80,0,120,{a})','rgba(20,0,40,{a})'],                  desc:'Dark matter'},
-  {id:'neon',     name:'Neon',      price:900,   colors:['rgba(0,255,200,{a})','rgba(255,0,255,{a})'],               desc:'Cyberpunk'},
+  {id:'classic',  name:'Classic',   price:0,    colors:['rgba(255,255,255,{a})']},
+  {id:'fire',     name:'Fire',      price:350,  colors:['rgba(255,60,0,{a})','rgba(255,180,0,{a})']},
+  {id:'ice',      name:'Ice',       price:350,  colors:['rgba(100,220,255,{a})','rgba(200,240,255,{a})']},
+  {id:'toxic',    name:'Toxic',     price:500,  colors:['rgba(0,255,80,{a})','rgba(180,255,0,{a})']},
+  {id:'galaxy',   name:'Galaxy',    price:800,  colors:['rgba(180,0,255,{a})','rgba(0,150,255,{a})','rgba(255,0,180,{a})']},
+  {id:'gold',     name:'Gold',      price:1000, colors:['rgba(255,215,0,{a})','rgba(255,160,0,{a})']},
+  {id:'blood',    name:'Blood',     price:600,  colors:['rgba(200,0,0,{a})','rgba(255,50,50,{a})']},
+  {id:'electric', name:'Electric',  price:750,  colors:['rgba(0,200,255,{a})','rgba(255,255,100,{a})']},
+  {id:'rainbow',  name:'Rainbow',   price:1500, colors:['rgba(255,0,0,{a})','rgba(255,165,0,{a})','rgba(0,255,0,{a})','rgba(0,0,255,{a})','rgba(238,130,238,{a})']},
+  {id:'ghost',    name:'Ghost',     price:450,  colors:['rgba(200,200,255,{a})']},
+  {id:'lava',     name:'Lava',      price:700,  colors:['rgba(255,80,0,{a})','rgba(255,220,0,{a})','rgba(180,0,0,{a})']},
+  {id:'candy',    name:'Candy',     price:550,  colors:['rgba(255,100,200,{a})','rgba(100,200,255,{a})']},
+  {id:'void',     name:'Void',      price:1200, colors:['rgba(80,0,120,{a})','rgba(20,0,40,{a})']},
+  {id:'neon',     name:'Neon',      price:900,  colors:['rgba(0,255,200,{a})','rgba(255,0,255,{a})']},
 ];
-
 const TRAIL_BG={
-  classic:'linear-gradient(90deg,#555,#fff)',
-  fire:'linear-gradient(90deg,#ff2200,#ffaa00)',
-  ice:'linear-gradient(90deg,#00aaff,#ccf5ff)',
-  toxic:'linear-gradient(90deg,#00cc44,#aaff00)',
-  galaxy:'linear-gradient(90deg,#8800ff,#0088ff,#ff00cc)',
-  gold:'linear-gradient(90deg,#aa7700,#ffdd00)',
-  blood:'linear-gradient(90deg,#660000,#ff3333)',
-  electric:'linear-gradient(90deg,#0088ff,#ffff44)',
-  rainbow:'linear-gradient(90deg,#f00,#ff8800,#0f0,#00f,#ee82ee)',
-  ghost:'linear-gradient(90deg,#aaaacc,#ddddf8)',
-  lava:'linear-gradient(90deg,#ff3300,#ffcc00,#880000)',
-  candy:'linear-gradient(90deg,#ff66cc,#66ccff)',
-  void:'linear-gradient(90deg,#1a0030,#6600aa)',
-  neon:'linear-gradient(90deg,#00ffcc,#ff00ff)',
+  classic:'linear-gradient(90deg,#555,#fff)',fire:'linear-gradient(90deg,#ff2200,#ffaa00)',
+  ice:'linear-gradient(90deg,#00aaff,#ccf5ff)',toxic:'linear-gradient(90deg,#00cc44,#aaff00)',
+  galaxy:'linear-gradient(90deg,#8800ff,#0088ff,#ff00cc)',gold:'linear-gradient(90deg,#aa7700,#ffdd00)',
+  blood:'linear-gradient(90deg,#660000,#ff3333)',electric:'linear-gradient(90deg,#0088ff,#ffff44)',
+  rainbow:'linear-gradient(90deg,#f00,#ff8800,#0f0,#00f,#ee82ee)',ghost:'linear-gradient(90deg,#aaaacc,#ddddf8)',
+  lava:'linear-gradient(90deg,#ff3300,#ffcc00,#880000)',candy:'linear-gradient(90deg,#ff66cc,#66ccff)',
+  void:'linear-gradient(90deg,#1a0030,#6600aa)',neon:'linear-gradient(90deg,#00ffcc,#ff00ff)',
 };
 
 function buildShop(){
   const grid=document.getElementById('trailGrid');grid.innerHTML='';
   TRAILS.forEach(tr=>{
-    const owned=ownedTrails.includes(tr.id);
-    const equipped=equippedTrail===tr.id;
+    const owned=ownedTrails.includes(tr.id),equipped=equippedTrail===tr.id;
     const card=document.createElement('div');
     card.className='tcard'+(owned?' owned':'')+(equipped?' equipped':'');
-    card.innerHTML=`
-      <div class="tcard-preview" style="background:${TRAIL_BG[tr.id]}"></div>
+    card.innerHTML=`<div class="tcard-preview" style="background:${TRAIL_BG[tr.id]}"></div>
       <div class="tcard-name">${tr.name}</div>
       <div class="tcard-price">${tr.price===0?'FREE':'🪙 '+tr.price.toLocaleString()}</div>
-      ${equipped?'<div class="tcard-badge badge-equipped">ON</div>':owned?'<div class="tcard-badge badge-owned">✓</div>':''}
-    `;
+      ${equipped?'<div class="tcard-badge badge-equipped">ON</div>':owned?'<div class="tcard-badge badge-owned">✓</div>':''}`;
     card.addEventListener('click',()=>onTrailClick(tr));
     grid.appendChild(card);
   });
 }
-
 function onTrailClick(tr){
   const owned=ownedTrails.includes(tr.id);
   if(owned){equippedTrail=tr.id;save();buildShop();sndBeep(false);}
-  else if(coins>=tr.price){
-    coins-=tr.price;ownedTrails.push(tr.id);equippedTrail=tr.id;
-    save();updateCoinUI();buildShop();sndCombo(3);
-    showToast('✅ '+tr.name+' trail unlocked!');
-  } else {
-    showToast('❌ Need '+(tr.price-coins)+' more 🪙');
-  }
+  else if(coins>=tr.price){coins-=tr.price;ownedTrails.push(tr.id);equippedTrail=tr.id;save();updateCoinUI();buildShop();sndCombo(3);showToast('✅ '+tr.name+' trail unlocked!');}
+  else{showToast('❌ Need '+(tr.price-coins)+' more 🪙');}
+}
+
+// ── LOOT BOXES ──
+const BOXES=[
+  {
+    id:'common', name:'Common Box', rarity:'COMMON', icon:'📦', cls:'bbox-common',
+    adSeconds:5, coinCost:0, // free with ad
+    contains:'Coins (50–200) or Common Trail',
+    pool:[
+      {type:'coins',val:50,w:30},{type:'coins',val:100,w:25},{type:'coins',val:150,w:15},{type:'coins',val:200,w:10},
+      {type:'trail',val:'fire',w:8},{type:'trail',val:'ice',w:8},{type:'trail',val:'ghost',w:4},
+    ]
+  },
+  {
+    id:'rare', name:'Rare Box', rarity:'RARE', icon:'💙', cls:'bbox-rare',
+    adSeconds:10, coinCost:300,
+    contains:'Coins (150–500) or Rare Trail',
+    pool:[
+      {type:'coins',val:150,w:20},{type:'coins',val:250,w:18},{type:'coins',val:400,w:10},{type:'coins',val:500,w:6},
+      {type:'trail',val:'toxic',w:10},{type:'trail',val:'blood',w:10},{type:'trail',val:'candy',w:8},{type:'trail',val:'electric',w:8},{type:'trail',val:'lava',w:6},{type:'trail',val:'galaxy',w:4},
+    ]
+  },
+  {
+    id:'epic', name:'Epic Box', rarity:'EPIC', icon:'💜', cls:'bbox-epic',
+    adSeconds:15, coinCost:600,
+    contains:'Coins (300–800) or Epic Trail',
+    pool:[
+      {type:'coins',val:300,w:15},{type:'coins',val:500,w:12},{type:'coins',val:700,w:8},{type:'coins',val:800,w:5},
+      {type:'trail',val:'galaxy',w:12},{type:'trail',val:'void',w:10},{type:'trail',val:'neon',w:10},{type:'trail',val:'gold',w:8},{type:'trail',val:'electric',w:7},{type:'trail',val:'rainbow',w:5},{type:'trail',val:'lava',w:8},
+    ]
+  },
+  {
+    id:'legendary', name:'Legendary Box', rarity:'LEGENDARY', icon:'🌟', cls:'bbox-legendary',
+    adSeconds:20, coinCost:1200,
+    contains:'Coins (500–2000) or Legendary Trail',
+    pool:[
+      {type:'coins',val:500,w:10},{type:'coins',val:800,w:10},{type:'coins',val:1200,w:7},{type:'coins',val:1500,w:5},{type:'coins',val:2000,w:3},
+      {type:'trail',val:'rainbow',w:15},{type:'trail',val:'gold',w:14},{type:'trail',val:'void',w:12},{type:'trail',val:'neon',w:12},{type:'trail',val:'galaxy',w:10},{type:'trail',val:'electric',w:8},
+    ]
+  },
+];
+
+function weightedPick(pool){
+  const total=pool.reduce((s,p)=>s+p.w,0);
+  let r=Math.random()*total;
+  for(const p of pool){r-=p.w;if(r<=0)return p;}
+  return pool[pool.length-1];
+}
+
+function buildBoxes(){
+  const grid=document.getElementById('boxesGrid');grid.innerHTML='';
+  BOXES.forEach(box=>{
+    const card=document.createElement('div');
+    card.className='bbox '+box.cls;
+    card.innerHTML=`
+      <div class="bbox-icon">${box.icon}</div>
+      <div class="bbox-name">${box.name}</div>
+      <div class="bbox-rarity">${box.rarity}</div>
+      <div class="bbox-contains">${box.contains}</div>
+      <button class="bbox-action" data-id="${box.id}">📺 Watch Ad · FREE</button>
+    `;
+    // Also add a coin option button
+    if(box.coinCost>0){
+      const btn2=document.createElement('button');
+      btn2.className='bbox-action';btn2.style.background='rgba(255,200,0,.15)';
+      btn2.style.border='2px solid rgba(255,200,0,.3)';btn2.style.color='#ffdd00';
+      btn2.style.marginTop='4px';
+      btn2.innerHTML=`🪙 Buy Key · ${box.coinCost.toLocaleString()}`;
+      btn2.addEventListener('click',e=>{e.stopPropagation();openBoxCoins(box);});
+      card.appendChild(btn2);
+    }
+    card.querySelector('[data-id]').addEventListener('click',e=>{e.stopPropagation();openBoxAd(box);});
+    grid.appendChild(card);
+  });
+}
+
+// ── Ad simulation ──
+let adCallback=null;
+function openBoxAd(box){
+  const overlay=document.getElementById('adOverlay');
+  document.getElementById('adIcon').textContent=box.icon;
+  document.getElementById('adTitle').textContent='WATCH TO OPEN!';
+  document.getElementById('adDesc').textContent=`Watch a ${box.adSeconds}s ad to open your ${box.rarity} box`;
+  const skipBtn=document.getElementById('adSkip');
+  skipBtn.textContent='CLAIM REWARD ✓';
+  skipBtn.className='ad-skip';
+  skipBtn.onclick=null;
+  overlay.classList.add('show');
+  let t=box.adSeconds;
+  document.getElementById('adTimer').textContent=t;
+  document.getElementById('adBar').style.width='0%';
+  const iv=setInterval(()=>{
+    t--;
+    const pct=((box.adSeconds-t)/box.adSeconds)*100;
+    document.getElementById('adTimer').textContent=Math.max(0,t);
+    document.getElementById('adBar').style.width=pct+'%';
+    if(t<=0){
+      clearInterval(iv);
+      skipBtn.textContent='CLAIM REWARD ✓';
+      skipBtn.className='ad-skip ready';
+      skipBtn.onclick=()=>{overlay.classList.remove('show');doOpenBox(box);};
+    }
+  },1000);
+  document.getElementById('adCancel').onclick=()=>{clearInterval(iv);overlay.classList.remove('show');};
+}
+
+function openBoxCoins(box){
+  if(coins<box.coinCost){showToast('❌ Need '+(box.coinCost-coins)+' more 🪙');return;}
+  coins-=box.coinCost;save();updateCoinUI();
+  buildBoxes();
+  doOpenBox(box);
+}
+
+// ── Box opening animation ──
+function doOpenBox(box){
+  const overlay=document.getElementById('boxOpenOverlay');
+  const qEl=document.getElementById('boQuestion');
+  const rEl=document.getElementById('boReveal');
+  const label=document.getElementById('boLabel');
+  const val=document.getElementById('boVal');
+  const sub=document.getElementById('boSub');
+  const closeBtn=document.getElementById('boClose');
+
+  // Reset
+  qEl.style.display='block';qEl.textContent=box.icon;
+  qEl.style.animation='none';void qEl.offsetWidth;qEl.style.animation='boSpin 1s ease-out forwards';
+  rEl.style.display='none';
+  label.textContent='OPENING...';val.textContent='?';sub.textContent='';
+  closeBtn.style.display='none';
+  overlay.classList.add('show');
+  sndCombo(3);
+
+  // After 1.4s reveal prize
+  setTimeout(()=>{
+    const prize=weightedPick(box.pool);
+    sndCombo(5);
+    qEl.style.display='none';
+    rEl.style.display='block';
+    rEl.style.animation='none';void rEl.offsetWidth;rEl.style.animation='boReveal .6s cubic-bezier(.34,1.56,.64,1) forwards';
+
+    if(prize.type==='coins'){
+      rEl.textContent='🪙';
+      label.textContent='YOU GOT';
+      val.textContent='+'+prize.val.toLocaleString()+' coins!';
+      val.style.color='#ffdd00';
+      sub.textContent='Added to your wallet 💰';
+      coins+=prize.val;save();updateCoinUI();
+    } else {
+      const tr=TRAILS.find(t=>t.id===prize.val);
+      const alreadyOwned=ownedTrails.includes(prize.val);
+      if(alreadyOwned){
+        const bonus=Math.floor(tr.price*0.3);
+        rEl.textContent='🪙';
+        label.textContent='ALREADY OWNED!';
+        val.textContent='+'+bonus+' coins!';
+        val.style.color='#ffdd00';
+        sub.textContent=tr.name+' trail → 30% coin refund';
+        coins+=bonus;save();updateCoinUI();
+      } else {
+        rEl.textContent='✨';
+        label.textContent='TRAIL UNLOCKED!';
+        val.textContent=tr.name+' Trail!';
+        val.style.color='#cc88ff';
+        sub.textContent='Auto-equipped! Head to Trails to check it out 🎨';
+        ownedTrails.push(prize.val);equippedTrail=prize.val;save();buildShop();
+      }
+    }
+    closeBtn.style.display='block';
+  },1400);
+
+  closeBtn.onclick=()=>{overlay.classList.remove('show');buildBoxes();updateCoinUI();};
+}
+
+// ── Shop tabs ──
+function switchTab(tab){
+  document.getElementById('trailSection').style.display=tab==='trails'?'block':'none';
+  document.getElementById('boxSection').style.display=tab==='boxes'?'block':'none';
+  document.getElementById('tabTrails').className='stab'+(tab==='trails'?' active':'');
+  document.getElementById('tabBoxes').className='stab'+(tab==='boxes'?' active':'');
 }
 
 // ── Audio ──
@@ -413,7 +620,6 @@ let fruits=[],halves=[],rings=[],blade=[];
 let spawnTO=null,tickIV=null,comboTO=null;
 let lastPX=0,lastPY=0,pDown=false;
 let coinsEarned=0,totalSliced=0,totalMissed=0,bestCombo=0;
-
 const FDATA=[
   {e:'🍎',flesh:'#ffcccc',juice:'#ff3333'},{e:'🍊',flesh:'#ffe0aa',juice:'#ff8800'},
   {e:'🍌',flesh:'#fffff0',juice:'#ffe135'},{e:'🍇',flesh:'#ddaaff',juice:'#9900cc'},
@@ -423,7 +629,6 @@ const FDATA=[
   {e:'🥭',flesh:'#ffeeaa',juice:'#ff9900'},{e:'🍋',flesh:'#fffff0',juice:'#ffee00'},
 ];
 const HEARTS=['💀','❤️','❤️❤️','❤️❤️❤️'];
-
 const POOL_SIZE=300;
 const pool=[];
 for(let i=0;i<POOL_SIZE;i++)pool.push({alive:false});
@@ -436,7 +641,6 @@ function burstJuice(x,y,col,n){
     p.g=0.3;p.sz=2+Math.random()*4;p.col=col;p.alpha=1;p.dec=0.025+Math.random()*0.02;
   }
 }
-
 function makeFruit(){
   const isBomb=(mode!=='zen')&&Math.random()<0.1;
   const isBonus=(mode==='arcade')&&!isBomb&&Math.random()<0.09;
@@ -452,7 +656,6 @@ function makeFruit(){
     flesh:fd.flesh,juice:isBomb?'#ff3300':fd.juice,
     sliced:false,rot:Math.random()*Math.PI*2,rotV:(Math.random()-.5)*0.09};
 }
-
 function doSpawn(){
   fruits.push(makeFruit());
   if(score>150&&Math.random()<0.35)fruits.push(makeFruit());
@@ -461,7 +664,6 @@ function doSpawn(){
   const delay=Math.max(200,base-Math.min(score/50,340)+Math.random()*300);
   spawnTO=setTimeout(doSpawn,delay);
 }
-
 function sliceIntoHalves(f,angle){
   const px=Math.sin(angle),py=-Math.cos(angle),sp=3+Math.random()*3;
   for(let s=0;s<2;s++){
@@ -472,11 +674,9 @@ function sliceIntoHalves(f,angle){
   }
   burstJuice(f.x,f.y,f.juice,24);
 }
-
 function drawHalf(h){
   const r=h.size*0.52;
-  ctx.save();
-  ctx.beginPath();
+  ctx.save();ctx.beginPath();
   if(h.side===0){ctx.arc(0,0,r,Math.PI*.5,Math.PI*1.5);ctx.closePath();}
   else{ctx.arc(0,0,r,-Math.PI*.5,Math.PI*.5);ctx.closePath();}
   ctx.clip();
@@ -488,7 +688,6 @@ function drawHalf(h){
   ctx.save();ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=3;
   ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(0,r);ctx.stroke();ctx.restore();
 }
-
 function bombExplosion(x,y){
   sndBoom();
   burstJuice(x,y,'#ff4400',40);burstJuice(x,y,'#ffaa00',30);burstJuice(x,y,'#ffffff',15);
@@ -497,10 +696,8 @@ function bombExplosion(x,y){
   fl.classList.add('boom');setTimeout(()=>fl.classList.remove('boom'),80);
   let t=0;const shake=setInterval(()=>{t++;canvas.style.transform=`translate(${(Math.random()-.5)*12}px,${(Math.random()-.5)*12}px)`;if(t>8){clearInterval(shake);canvas.style.transform='none';}},30);
 }
-
 function getTrailColors(){return(TRAILS.find(t=>t.id===equippedTrail)||TRAILS[0]).colors;}
 function trailColor(colors,t){const idx=Math.floor(t*(colors.length-1));return(colors[Math.min(idx,colors.length-1)]).replace('{a}',t*0.92);}
-
 function drawBlade(){
   if(blade.length<2)return;
   const colors=getTrailColors();
@@ -517,7 +714,6 @@ function drawBlade(){
   ctx.beginPath();ctx.arc(tip.x,tip.y,5,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
-
 function refreshHUD(){
   document.getElementById('scoreVal').textContent=score;
   document.getElementById('livesVal').textContent=HEARTS[Math.max(0,Math.min(3,lives))];
@@ -534,7 +730,6 @@ function showHUD(v){document.getElementById('hud').style.display=v?'flex':'none'
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));if(id)document.getElementById(id).classList.add('active');}
 function flashRed(){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(255,0,0,.2);z-index:997;pointer-events:none;transition:opacity .25s;';document.body.appendChild(d);setTimeout(()=>d.style.opacity='0',80);setTimeout(()=>d.remove(),350);}
 function popup(x,y,txt,big){const d=document.createElement('div');d.className='popup'+(big?' big':'');d.textContent=txt;d.style.left=(x-40)+'px';d.style.top=(y-60)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),900);}
-
 function trySlice(x,y){
   const angle=Math.atan2(y-lastPY,x-lastPX);
   for(let i=fruits.length-1;i>=0;i--){
@@ -561,7 +756,6 @@ function trySlice(x,y){
     }
   }
 }
-
 let bgCanvas=null;
 function buildBG(){
   bgCanvas=document.createElement('canvas');bgCanvas.width=W;bgCanvas.height=H;
@@ -576,7 +770,6 @@ function buildBG(){
   orb.addColorStop(1,'transparent');
   bc.fillStyle=orb;bc.fillRect(0,0,W,H);
 }
-
 function render(){
   requestAnimationFrame(render);
   if(!bgCanvas)buildBG();
@@ -617,7 +810,6 @@ function render(){
   }
   ctx.globalAlpha=1;drawBlade();
 }
-
 function onMove(x,y){
   if(!pDown)return;
   blade.push({x,y});if(blade.length>18)blade.shift();
@@ -630,7 +822,6 @@ document.addEventListener('mouseup',()=>{pDown=false;blade=[];});
 document.addEventListener('touchstart',e=>{if(e.target.tagName==='BUTTON')return;e.preventDefault();pDown=true;lastPX=e.touches[0].clientX;lastPY=e.touches[0].clientY;onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
 document.addEventListener('touchmove',e=>{e.preventDefault();onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
 document.addEventListener('touchend',()=>{pDown=false;blade=[];});
-
 function runCountdown(cb){
   const wrap=document.getElementById('countdown'),num=document.getElementById('cdNum');
   let n=3;wrap.classList.add('active');
@@ -641,7 +832,6 @@ function runCountdown(cb){
   }
   tick();
 }
-
 function startGame(m){
   getAC();mode=m;bgCanvas=null;
   score=0;lives=3;combo=0;timeLeft=60;
@@ -672,7 +862,6 @@ function startGame(m){
     }
   });
 }
-
 function endGame(){
   if(!playing)return;
   playing=false;
@@ -696,7 +885,6 @@ function endGame(){
     showScreen('sOver');
   },500);
 }
-
 function goHome(){
   playing=false;clearTimeout(spawnTO);clearInterval(tickIV);
   fruits=[];halves=[];rings=[];blade=[];
@@ -705,7 +893,6 @@ function goHome(){
   document.getElementById('bestVal').textContent=topBest();
   updateCoinUI();bgCanvas=null;showScreen('sHome');
 }
-
 function showToast(m){const t=document.getElementById('copyToast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function buildTxt(){return `🍉 Ninja Slice — ${mode.charAt(0).toUpperCase()+mode.slice(1)} Mode\n🏆 Score: ${score}\n🍉 Sliced: ${totalSliced} | ⚡ Best Combo: ${bestCombo}x\n⚔️ Can you beat me? #NinjaSlice`;}
 function copyScore(){const txt=buildTxt();if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('✅ Copied!')).catch(()=>fbCopy(txt));else fbCopy(txt);}
@@ -719,13 +906,13 @@ document.getElementById('btnRetry').addEventListener('click',()=>startGame(mode)
 document.getElementById('btnHome').addEventListener('click',()=>goHome());
 document.getElementById('btnCopy').addEventListener('click',()=>copyScore());
 document.getElementById('btnShare').addEventListener('click',()=>shareScore());
-document.getElementById('btnShop').addEventListener('click',()=>{buildShop();showScreen('sShop');});
+document.getElementById('btnShop').addEventListener('click',()=>{buildShop();buildBoxes();switchTab('trails');showScreen('sShop');});
 document.getElementById('btnShopBack').addEventListener('click',()=>showScreen('sHome'));
-document.getElementById('btnGoShop').addEventListener('click',()=>{buildShop();showScreen('sShop');});
+document.getElementById('btnGoShop').addEventListener('click',()=>{buildShop();buildBoxes();switchTab('boxes');showScreen('sShop');});
 
 updateCoinUI();
 document.getElementById('bestVal').textContent=topBest();
-buildShop();
+buildShop();buildBoxes();
 requestAnimationFrame(render);
 </script>
 </body>
