@@ -1,613 +1,386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Fruit Ninja</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{
-      background:#000;
-      overflow:hidden;
-      touch-action:none;
-      font-family:'Fredoka One',cursive;
-      user-select:none;
-      -webkit-user-select:none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Ninja Slice</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One',cursive;user-select:none;}
 
-    /* CANVAS sits BEHIND everything */
-    #canvas{
-      position:absolute;
-      top:0;left:0;
-      z-index:1;
-      display:block;
-      cursor:crosshair;
-    }
+/* Canvas fills screen, sits on top for input */
+#canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;display:block;cursor:crosshair;}
 
-    /* ALL UI sits ON TOP of canvas */
-    #ui{
-      position:absolute;
-      top:0;left:0;
-      width:100%;height:100%;
-      z-index:10;
-    }
+/* UI is BELOW canvas EXCEPT buttons which are pointer-events:all */
+#ui{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;}
 
-    /* ─── HUD ─── */
-    #hud{
-      position:absolute;
-      top:0;left:0;right:0;
-      display:none;
-      justify-content:space-between;
-      align-items:flex-start;
-      padding:14px 20px;
-      z-index:20;
-      pointer-events:none;
-    }
-    .pill{
-      background:rgba(0,0,0,0.7);
-      border:2px solid rgba(255,255,255,0.18);
-      border-radius:30px;
-      padding:8px 22px;
-      text-align:center;
-      backdrop-filter:blur(10px);
-    }
-    .pill-label{font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;}
-    .pill-val{font-size:28px;color:#fff;text-shadow:0 0 20px rgba(255,200,0,.8);line-height:1.1;}
-    #comboP .pill-val{color:#ffcc00;}
-    #livesP .pill-val{font-size:18px;letter-spacing:4px;}
+/* HUD */
+#hud{position:absolute;top:0;left:0;right:0;display:none;justify-content:space-between;padding:14px 18px;pointer-events:none;}
+.pill{background:rgba(0,0,0,.72);border:2px solid rgba(255,255,255,.18);border-radius:30px;padding:8px 20px;text-align:center;backdrop-filter:blur(10px);}
+.plabel{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;}
+.pval{font-size:26px;color:#fff;text-shadow:0 0 18px rgba(255,200,0,.8);line-height:1.1;}
+#livesP .pval{font-size:17px;letter-spacing:4px;}
+#comboP .pval{color:#ffcc00;text-shadow:0 0 22px #ff8800;}
 
-    /* ─── SCREENS ─── */
-    .screen{
-      position:absolute;
-      top:0;left:0;
-      width:100%;height:100%;
-      display:none;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      z-index:15;
-    }
-    .screen.active{display:flex;}
+/* Timer bar */
+#timerWrap{position:absolute;bottom:0;left:0;right:0;height:7px;background:rgba(255,255,255,.1);display:none;}
+#timerFill{height:100%;width:100%;background:linear-gradient(90deg,#ff2200,#ffcc00,#00ff88);box-shadow:0 0 12px #ffcc00;transition:width .1s linear;}
 
-    /* HOME */
-    #sHome{
-      background:radial-gradient(ellipse at 50% 30%, #2a0060 0%, #0d0020 60%, #000 100%);
-    }
-    .logo-tag{
-      font-family:'Bangers',cursive;
-      font-size:clamp(13px,3vw,20px);
-      color:#ff8800;
-      letter-spacing:8px;
-      text-shadow:0 0 20px #ff4400;
-      margin-bottom:4px;
-    }
-    .logo-main{
-      font-family:'Bangers',cursive;
-      font-size:clamp(70px,18vw,130px);
-      letter-spacing:4px;
-      line-height:.9;
-      background:linear-gradient(180deg,#fff 0%,#ffdd00 35%,#ff6600 65%,#cc2200 100%);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      background-clip:text;
-      filter:drop-shadow(0 0 40px rgba(255,100,0,.9));
-      animation:glow 2.5s ease-in-out infinite;
-      text-align:center;
-    }
-    @keyframes glow{
-      0%,100%{filter:drop-shadow(0 0 25px rgba(255,100,0,.8));}
-      50%{filter:drop-shadow(0 0 65px rgba(255,220,0,1));}
-    }
-    .fruit-bounce{
-      font-size:clamp(26px,6vw,44px);
-      letter-spacing:8px;
-      margin:12px 0 34px;
-      animation:bounce 1.8s ease-in-out infinite;
-    }
-    @keyframes bounce{
-      0%,100%{transform:translateY(0);}
-      50%{transform:translateY(-8px);}
-    }
-    .mode-row{
-      display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
-      padding:0 16px;
-    }
-    .mode-card{
-      display:flex;flex-direction:column;align-items:center;
-      padding:16px 24px;
-      border:none;border-radius:22px;
-      cursor:pointer;
-      min-width:120px;
-      transition:transform .15s, box-shadow .15s;
-      -webkit-tap-highlight-color:transparent;
-      position:relative;
-      overflow:hidden;
-    }
-    .mode-card:active{transform:scale(.95);}
-    .mode-card:hover{transform:scale(1.06) translateY(-4px);}
-    .mc-classic{
-      background:linear-gradient(135deg,#e65c00,#f9d423);
-      box-shadow:0 8px 30px rgba(230,90,0,.55);
-    }
-    .mc-zen{
-      background:linear-gradient(135deg,#1a78c2,#00d2ff);
-      box-shadow:0 8px 30px rgba(0,150,255,.45);
-    }
-    .mc-arcade{
-      background:linear-gradient(135deg,#6a0dad,#d63aff);
-      box-shadow:0 8px 30px rgba(180,0,255,.45);
-    }
-    .mc-icon{font-size:34px;margin-bottom:5px;}
-    .mc-name{font-size:17px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.4);}
-    .mc-desc{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;}
-    .best-tag{
-      margin-top:20px;
-      font-size:15px;color:rgba(255,255,255,.4);
-    }
-    .best-tag span{color:#ffcc00;}
+/* Mode banner */
+#modeBanner{position:absolute;top:88px;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(255,255,255,.45);letter-spacing:3px;text-transform:uppercase;pointer-events:none;text-align:center;white-space:nowrap;}
 
-    /* GAME OVER */
-    #sOver{
-      background:radial-gradient(ellipse at center, #1c0000 0%, #060000 100%);
-    }
-    .go-title{
-      font-family:'Bangers',cursive;
-      font-size:clamp(55px,14vw,108px);
-      color:#ff1a00;
-      text-shadow:0 0 50px #ff0000, 0 0 100px #aa0000;
-      letter-spacing:4px;
-      animation:shake .09s infinite alternate;
-    }
-    @keyframes shake{
-      0%{transform:translateX(-2px);}
-      100%{transform:translateX(2px);}
-    }
-    .go-mode{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:4px;margin:6px 0;}
-    .go-score{font-size:clamp(22px,5vw,38px);color:#fff;margin:8px 0 4px;}
-    .go-best{font-size:18px;color:#ffcc00;margin-bottom:34px;}
-    .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
-    .go-btn{
-      font-family:'Fredoka One',cursive;
-      font-size:20px;padding:13px 34px;
-      border:none;border-radius:40px;
-      cursor:pointer;
-      transition:transform .15s;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .go-btn:hover{transform:scale(1.07);}
-    .go-btn:active{transform:scale(.95);}
-    .gb-primary{
-      background:linear-gradient(135deg,#ff6600,#ff2200);
-      color:#fff;
-      box-shadow:0 8px 28px rgba(255,60,0,.5);
-    }
-    .gb-secondary{
-      background:rgba(255,255,255,.1);
-      color:#fff;
-      border:2px solid rgba(255,255,255,.2);
-    }
+/* SCREENS — pointer-events:all so buttons work */
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;z-index:20;}
+.screen.active{display:flex;}
 
-    /* COUNTDOWN */
-    #countdown{
-      position:absolute;
-      top:0;left:0;width:100%;height:100%;
-      display:none;
-      align-items:center;justify-content:center;
-      z-index:25;
-      pointer-events:none;
-    }
-    #countdown.active{display:flex;}
-    #cdNum{
-      font-family:'Bangers',cursive;
-      font-size:clamp(120px,25vw,220px);
-      color:#fff;
-      text-shadow:0 0 80px rgba(255,180,0,1), 0 0 40px rgba(255,100,0,.8);
-      animation:cdPop .8s ease-out;
-    }
-    @keyframes cdPop{
-      0%{transform:scale(2);opacity:0;}
-      50%{transform:scale(1.1);opacity:1;}
-      100%{transform:scale(1);opacity:1;}
-    }
+/* HOME */
+#sHome{background:radial-gradient(ellipse at 50% 30%,#2a0060 0%,#0d0020 60%,#000 100%);}
+.logo-tag{font-family:'Bangers',cursive;font-size:clamp(12px,3vw,19px);color:#ff8800;letter-spacing:8px;text-shadow:0 0 20px #ff4400;margin-bottom:4px;}
+.logo-main{font-family:'Bangers',cursive;font-size:clamp(62px,16vw,122px);letter-spacing:4px;line-height:.9;background:linear-gradient(180deg,#fff 0%,#ffdd00 35%,#ff6600 65%,#cc2200 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 35px rgba(255,100,0,.9));animation:glow 2.5s ease-in-out infinite;text-align:center;}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 25px rgba(255,100,0,.8));}50%{filter:drop-shadow(0 0 60px rgba(255,220,0,1));}}
+.fbounce{font-size:clamp(24px,5.5vw,42px);letter-spacing:8px;margin:12px 0 30px;animation:bounce 1.8s ease-in-out infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.mode-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:0 16px;}
+.mcard{display:flex;flex-direction:column;align-items:center;padding:16px 24px;border:none;border-radius:22px;cursor:pointer;min-width:118px;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+.mcard:hover{transform:scale(1.07) translateY(-4px);}
+.mcard:active{transform:scale(.94);}
+.mc1{background:linear-gradient(135deg,#e65c00,#f9d423);box-shadow:0 8px 28px rgba(230,90,0,.55);}
+.mc2{background:linear-gradient(135deg,#1a78c2,#00d2ff);box-shadow:0 8px 28px rgba(0,150,255,.45);}
+.mc3{background:linear-gradient(135deg,#6a0dad,#d63aff);box-shadow:0 8px 28px rgba(180,0,255,.45);}
+.micon{font-size:32px;margin-bottom:5px;}
+.mname{font-size:16px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.4);}
+.mdesc{font-size:11px;color:rgba(255,255,255,.72);margin-top:2px;}
+.besttag{margin-top:18px;font-size:15px;color:rgba(255,255,255,.4);}
+.besttag span{color:#ffcc00;}
 
-    /* TIMER BAR */
-    #timerWrap{
-      position:absolute;
-      bottom:0;left:0;right:0;
-      height:7px;
-      background:rgba(255,255,255,.1);
-      display:none;
-      z-index:20;
-    }
-    #timerFill{
-      height:100%;width:100%;
-      background:linear-gradient(90deg,#ff2200,#ffcc00,#00ff88);
-      box-shadow:0 0 14px #ffcc00;
-      transition:width .1s linear;
-    }
+/* GAME OVER */
+#sOver{background:radial-gradient(ellipse at center,#1c0000 0%,#060000 100%);}
+.go-title{font-family:'Bangers',cursive;font-size:clamp(54px,13vw,106px);color:#ff1a00;text-shadow:0 0 50px #ff0000,0 0 100px #aa0000;letter-spacing:4px;animation:shake .09s infinite alternate;}
+@keyframes shake{0%{transform:translateX(-2px);}100%{transform:translateX(2px);}}
+.go-mode{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:4px;margin:6px 0;}
+.go-sc{font-size:clamp(22px,5vw,38px);color:#fff;margin:8px 0 4px;}
+.go-best{font-size:18px;color:#ffcc00;margin-bottom:32px;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.gbtn{font-family:'Fredoka One',cursive;font-size:20px;padding:13px 34px;border:none;border-radius:40px;cursor:pointer;transition:transform .15s;-webkit-tap-highlight-color:transparent;}
+.gbtn:hover{transform:scale(1.07);}
+.gbtn:active{transform:scale(.94);}
+.gbp{background:linear-gradient(135deg,#ff6600,#ff2200);color:#fff;box-shadow:0 8px 26px rgba(255,60,0,.5);}
+.gbs{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);}
 
-    /* MODE BANNER */
-    #modeBanner{
-      position:absolute;
-      top:90px;left:50%;
-      transform:translateX(-50%);
-      z-index:20;
-      font-size:13px;
-      color:rgba(255,255,255,.5);
-      letter-spacing:3px;
-      text-transform:uppercase;
-      pointer-events:none;
-      text-align:center;
-    }
+/* COUNTDOWN */
+#countdown{position:absolute;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:25;pointer-events:none;}
+#countdown.active{display:flex;}
+#cdNum{font-family:'Bangers',cursive;font-size:clamp(110px,24vw,210px);color:#fff;text-shadow:0 0 80px rgba(255,180,0,1),0 0 40px rgba(255,100,0,.8);}
+@keyframes cdPop{0%{transform:scale(2.2);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);opacity:1;}}
 
-    /* POPUP SCORES */
-    .popup{
-      position:absolute;
-      font-family:'Bangers',cursive;
-      font-size:32px;
-      color:#ffdd00;
-      text-shadow:0 0 16px #ff8800, 2px 2px 0 #000;
-      pointer-events:none;
-      z-index:30;
-      animation:popUp .85s ease-out forwards;
-    }
-    .popup.big{font-size:50px;color:#ff4400;}
-    @keyframes popUp{
-      0%{opacity:1;transform:translateY(0) scale(.85);}
-      40%{opacity:1;transform:translateY(-55px) scale(1.15);}
-      100%{opacity:0;transform:translateY(-95px) scale(.9);}
-    }
-  </style>
+/* SCORE POPUPS */
+.popup{position:fixed;font-family:'Bangers',cursive;font-size:32px;color:#ffdd00;text-shadow:0 0 16px #ff8800,2px 2px 0 #000;pointer-events:none;z-index:40;animation:popUp .85s ease-out forwards;}
+.popup.big{font-size:50px;color:#ff4400;}
+@keyframes popUp{0%{opacity:1;transform:translateY(0) scale(.85);}40%{opacity:1;transform:translateY(-55px) scale(1.15);}100%{opacity:0;transform:translateY(-95px) scale(.9);}}
+</style>
 </head>
 <body>
 
-<!-- CANVAS (layer 1) -->
 <canvas id="canvas"></canvas>
 
-<!-- UI LAYER (layer 2) -->
 <div id="ui">
-
   <!-- HUD -->
   <div id="hud">
-    <div class="pill" id="scoreP">
-      <div class="pill-label">Score</div>
-      <div class="pill-val" id="scoreVal">0</div>
-    </div>
-    <div class="pill" id="livesP">
-      <div class="pill-label">Lives</div>
-      <div class="pill-val" id="livesVal">❤️❤️❤️</div>
-    </div>
-    <div class="pill" id="comboP">
-      <div class="pill-label">Combo</div>
-      <div class="pill-val" id="comboVal">0x</div>
-    </div>
+    <div class="pill" id="scoreP"><div class="plabel">Score</div><div class="pval" id="scoreVal">0</div></div>
+    <div class="pill" id="livesP"><div class="plabel">Lives</div><div class="pval" id="livesVal">❤️❤️❤️</div></div>
+    <div class="pill" id="comboP"><div class="plabel">Combo</div><div class="pval" id="comboVal">0x</div></div>
   </div>
-
-  <!-- MODE BANNER -->
   <div id="modeBanner"></div>
-
-  <!-- TIMER BAR -->
   <div id="timerWrap"><div id="timerFill"></div></div>
-
-  <!-- COUNTDOWN -->
   <div id="countdown"><span id="cdNum">3</span></div>
 
   <!-- HOME SCREEN -->
   <div class="screen active" id="sHome">
     <div class="logo-tag">⚔ SLICE EVERYTHING ⚔</div>
-    <div class="logo-main">FRUIT<br>NINJA</div>
-    <div class="fruit-bounce">🍎 🍊 🍉 🍓 🥝</div>
+    <div class="logo-main">NINJA<br>SLICE</div>
+    <div class="fbounce">🍎 🍊 🍉 🍓 🥝</div>
     <div class="mode-row">
-      <button class="mode-card mc-classic" id="btnClassic">
-        <span class="mc-icon">⚔️</span>
-        <span class="mc-name">CLASSIC</span>
-        <span class="mc-desc">3 lives · slice all</span>
-      </button>
-      <button class="mode-card mc-zen" id="btnZen">
-        <span class="mc-icon">🧘</span>
-        <span class="mc-name">ZEN</span>
-        <span class="mc-desc">60s · no bombs</span>
-      </button>
-      <button class="mode-card mc-arcade" id="btnArcade">
-        <span class="mc-icon">⚡</span>
-        <span class="mc-name">ARCADE</span>
-        <span class="mc-desc">🍌 = +5s extra time</span>
-      </button>
+      <button class="mcard mc1" id="btnClassic"><span class="micon">⚔️</span><span class="mname">CLASSIC</span><span class="mdesc">3 lives · slice all</span></button>
+      <button class="mcard mc2" id="btnZen"><span class="micon">🧘</span><span class="mname">ZEN</span><span class="mdesc">60s · no bombs</span></button>
+      <button class="mcard mc3" id="btnArcade"><span class="micon">⚡</span><span class="mname">ARCADE</span><span class="mdesc">🍌 = +5s time</span></button>
     </div>
-    <div class="best-tag">Best: <span id="bestVal">0</span></div>
+    <div class="besttag">Best: <span id="bestVal">0</span></div>
   </div>
 
-  <!-- GAME OVER SCREEN -->
+  <!-- GAME OVER -->
   <div class="screen" id="sOver">
     <div class="go-title">GAME OVER</div>
     <div class="go-mode" id="goMode">CLASSIC MODE</div>
-    <div class="go-score">Score: <strong id="goScore">0</strong></div>
+    <div class="go-sc">Score: <strong id="goScore">0</strong></div>
     <div class="go-best" id="goBest">Best: 0</div>
     <div class="btn-row">
-      <button class="go-btn gb-primary" id="btnRetry">↩ RETRY</button>
-      <button class="go-btn gb-secondary" id="btnHome">🏠 HOME</button>
+      <button class="gbtn gbp" id="btnRetry">↩ RETRY</button>
+      <button class="gbtn gbs" id="btnHome">🏠 HOME</button>
     </div>
   </div>
-
-</div><!-- end #ui -->
+</div>
 
 <script>
-// ══════════════════════════════════════════════
-//  FRUIT NINJA — COMPLETE REWRITE v4
-//  Buttons wired AFTER DOM ready, NO z-index
-//  conflict with canvas.
-// ══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  NINJA SLICE — COMPLETE FIXED VERSION
+//  Fix: events on document, not canvas
+//  Fix: spawn starts immediately on play
+// ═══════════════════════════════════════════
 
-// ── Canvas setup ──────────────────────────────
 const canvas = document.getElementById('canvas');
-const ctx    = canvas.getContext('2d');
-let W = 0, H = 0;
-function resize(){
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 resize();
 window.addEventListener('resize', resize);
 
-// ── Persistent bests ──────────────────────────
-const DEFAULT_BESTS = {classic:0, zen:0, arcade:0};
-let bests = DEFAULT_BESTS;
-try { bests = JSON.parse(localStorage.getItem('fn_bests')) || DEFAULT_BESTS; } catch(e){}
-function saveBests(){ try{ localStorage.setItem('fn_bests', JSON.stringify(bests)); }catch(e){} }
-function getBestAll(){ return Math.max(bests.classic, bests.zen, bests.arcade); }
+// ── Bests ──
+let bests = {classic:0,zen:0,arcade:0};
+try{ bests = JSON.parse(localStorage.getItem('ns_bests')) || bests; }catch(e){}
+function saveBests(){ try{ localStorage.setItem('ns_bests', JSON.stringify(bests)); }catch(e){} }
+function topBest(){ return Math.max(bests.classic, bests.zen, bests.arcade); }
 
-// ── Game variables ─────────────────────────────
-let mode     = 'classic';
-let score    = 0;
-let lives    = 3;
-let combo    = 0;
-let playing  = false;
-let timeLeft = 60;   // zen / arcade
-let fruits   = [];
-let parts    = [];
-let blade    = [];
-let spawnTO  = null;
-let tickIV   = null;
-let comboTO  = null;
+// ── State ──
+let mode='classic', score=0, lives=3, combo=0, playing=false, timeLeft=60;
+let fruits=[], parts=[], blade=[];
+let spawnTO=null, tickIV=null, comboTO=null;
 
-// ── Fruit data ────────────────────────────────
-const FDATA = [
+// ── Fruit data ──
+const FDATA=[
   {e:'🍎',j:'#ff5555'},{e:'🍊',j:'#ffaa33'},{e:'🍌',j:'#ffe566'},
   {e:'🍇',j:'#cc55cc'},{e:'🍉',j:'#ff6677'},{e:'🍓',j:'#ff3366'},
   {e:'🥝',j:'#aadd22'},{e:'🍍',j:'#ffe033'},{e:'🍒',j:'#ff2244'},
   {e:'🍑',j:'#ffaa88'},{e:'🥭',j:'#ffaa00'},{e:'🍋',j:'#ffee22'},
 ];
-const HEARTS = ['💀','❤️','❤️❤️','❤️❤️❤️'];
+const HEARTS=['💀','❤️','❤️❤️','❤️❤️❤️'];
 
-// ── UI helpers ────────────────────────────────
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  if(id) document.getElementById(id).classList.add('active');
-}
-function setHUD(show){
-  document.getElementById('hud').style.display = show ? 'flex' : 'none';
-}
-function refreshHUD(){
-  document.getElementById('scoreVal').textContent = score;
-  document.getElementById('livesVal').textContent = HEARTS[Math.max(0,Math.min(3,lives))];
-  const cv = document.getElementById('comboVal');
-  cv.textContent = combo + 'x';
-  cv.style.opacity = combo >= 2 ? '1' : '0.4';
-  if(mode !== 'classic'){
-    document.getElementById('timerFill').style.width = (timeLeft/60*100)+'%';
-  }
-}
-function refreshBestDisplay(){
-  document.getElementById('bestVal').textContent = getBestAll();
-}
+// ── Spawn ──
+function spawnFruit(){
+  if(!playing) return;
+  const isBomb  = mode!=='zen' && Math.random()<0.1;
+  const isBonus = mode==='arcade' && !isBomb && Math.random()<0.09;
+  const fd = FDATA[Math.floor(Math.random()*FDATA.length)];
 
-// ── Popups ────────────────────────────────────
-function popup(x, y, txt, big){
-  const d = document.createElement('div');
-  d.className = 'popup' + (big ? ' big' : '');
-  d.textContent = txt;
-  d.style.left  = (x - 40) + 'px';
-  d.style.top   = (y - 60) + 'px';
-  document.getElementById('ui').appendChild(d);
-  setTimeout(() => d.remove(), 900);
-}
-
-// ── Particles ─────────────────────────────────
-function burst(x, y, col, n){
-  n = n || 20;
-  for(let i=0;i<n;i++){
-    const a = Math.random()*Math.PI*2;
-    const s = 2 + Math.random()*9;
-    parts.push({
-      x, y,
-      vx: Math.cos(a)*s,
-      vy: Math.sin(a)*s - 4,
-      g:  0.28,
-      sz: 2 + Math.random()*5,
-      col,
-      alpha: 1,
-      dec: 0.022 + Math.random()*0.018,
-    });
-  }
-}
-
-// ── Spawn one fruit ───────────────────────────
-function spawnOne(){
-  const isBomb  = (mode !== 'zen') && Math.random() < 0.1;
-  const isBonus = (mode === 'arcade') && !isBomb && Math.random() < 0.09;
-  const fd      = FDATA[Math.floor(Math.random()*FDATA.length)];
-
+  // Pick a random lane
   const lane = Math.floor(Math.random()*3);
   let sx, svx;
-  if(lane === 0){      sx = W*0.15; svx =  3+Math.random()*5; }
-  else if(lane === 2){ sx = W*0.85; svx = -(3+Math.random()*5); }
-  else {               sx = W*0.25+Math.random()*W*0.5; svx = (Math.random()-.5)*8; }
+  if(lane===0){      sx=W*0.15; svx=3+Math.random()*5; }
+  else if(lane===2){ sx=W*0.85; svx=-(3+Math.random()*5); }
+  else {             sx=W*0.2+Math.random()*W*0.6; svx=(Math.random()-.5)*7; }
 
   fruits.push({
-    x:  sx,
-    y:  H + 80,
-    vx: svx,
-    vy: -(H*0.021 + Math.random()*H*0.008),
-    g:  0.38,
-    size:  36 + Math.random()*22,
+    x:sx, y:H+60,
+    vx:svx,
+    vy:-(H*0.022 + Math.random()*H*0.007),
+    g:0.38,
+    size:38+Math.random()*22,
     isBomb, isBonus,
-    emoji: isBonus ? '🍌' : (isBomb ? '💣' : fd.e),
-    juice: isBomb ? '#ff3300' : fd.j,
-    sliced: false,
-    alpha:  1,
-    rot:    Math.random()*Math.PI*2,
-    rotV:   (Math.random()-.5)*0.1,
+    emoji: isBonus?'🍌':(isBomb?'💣':fd.e),
+    juice: isBomb?'#ff3300':fd.j,
+    sliced:false, alpha:1,
+    rot:Math.random()*Math.PI*2,
+    rotV:(Math.random()-.5)*0.1,
   });
 }
 
-// ── Schedule spawns ───────────────────────────
 function scheduleSpawn(){
   if(!playing) return;
-  const base  = mode==='arcade' ? 480 : mode==='zen' ? 850 : 720;
-  const fast  = Math.min(score/60, 380);
-  const delay = Math.max(220, base - fast + Math.random()*320);
+  clearTimeout(spawnTO);
+  const base  = mode==='arcade'?470:mode==='zen'?820:700;
+  const fast  = Math.min(score/50, 350);
+  const delay = Math.max(200, base-fast+Math.random()*300);
   spawnTO = setTimeout(()=>{
     if(!playing) return;
-    const multi = score > 150 && Math.random() < 0.3 ? 2 : 1;
-    for(let i=0;i<multi;i++) spawnOne();
+    // spawn 1 or 2 fruits
+    const n = score>200 && Math.random()<0.35 ? 2 : 1;
+    for(let i=0;i<n;i++) spawnFruit();
     scheduleSpawn();
   }, delay);
 }
 
-// ── Hit detection ─────────────────────────────
-function trySlice(x, y){
+// ── Particles ──
+function burst(x,y,col,n=20){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=2+Math.random()*9;
+    parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,g:0.28,sz:2+Math.random()*5,col,alpha:1,dec:0.022+Math.random()*0.018});
+  }
+}
+
+// ── Popup score ──
+function popup(x,y,txt,big=false){
+  const d=document.createElement('div');
+  d.className='popup'+(big?' big':'');
+  d.textContent=txt;
+  d.style.left=(x-40)+'px';
+  d.style.top=(y-60)+'px';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),900);
+}
+
+// ── HUD ──
+function refreshHUD(){
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('livesVal').textContent=HEARTS[Math.max(0,Math.min(3,lives))];
+  const cv=document.getElementById('comboVal');
+  cv.textContent=combo+'x';
+  cv.style.opacity=combo>=2?'1':'0.4';
+  if(mode!=='classic') document.getElementById('timerFill').style.width=(timeLeft/60*100)+'%';
+}
+function showHUD(v){ document.getElementById('hud').style.display=v?'flex':'none'; }
+
+// ── Screens ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  if(id) document.getElementById(id).classList.add('active');
+}
+
+// ── Flash red ──
+function flashRed(){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:rgba(255,0,0,.22);z-index:999;pointer-events:none;transition:opacity .3s;';
+  document.body.appendChild(d);
+  setTimeout(()=>d.style.opacity='0',80);
+  setTimeout(()=>d.remove(),380);
+}
+
+// ── Slice check ──
+function trySlice(x,y){
   for(let i=fruits.length-1;i>=0;i--){
-    const f = fruits[i];
+    const f=fruits[i];
     if(f.sliced) continue;
-    if(Math.hypot(x-f.x, y-f.y) < f.size*0.72){
-      f.sliced = true;
-      burst(f.x, f.y, f.juice, f.isBomb?55:22);
+    if(Math.hypot(x-f.x,y-f.y)<f.size*0.72){
+      f.sliced=true;
+      burst(f.x,f.y,f.juice,f.isBomb?55:22);
 
       if(f.isBomb){
-        burst(f.x, f.y, '#ff2200', 60);
-        burst(f.x, f.y, '#ffaa00', 35);
-        if(mode === 'classic'){ endGame(); return; }
-        else if(mode === 'arcade'){
-          timeLeft = Math.max(0, timeLeft - 10);
-          popup(f.x, f.y, '💣 -10s!', true);
+        burst(f.x,f.y,'#ff2200',60);
+        burst(f.x,f.y,'#ffaa00',35);
+        if(mode==='classic'){ endGame(); return; }
+        if(mode==='arcade'){
+          timeLeft=Math.max(0,timeLeft-10);
+          popup(f.x,f.y,'💣 -10s!',true);
           refreshHUD();
         }
         return;
       }
 
-      // Combo
       clearTimeout(comboTO);
       combo++;
-      comboTO = setTimeout(()=>{ combo=0; refreshHUD(); }, 1500);
+      comboTO=setTimeout(()=>{combo=0;refreshHUD();},1500);
 
-      const pts = 10 * Math.max(1, combo);
-      score += pts;
+      const pts=10*Math.max(1,combo);
+      score+=pts;
 
-      if(f.isBonus && mode==='arcade'){
-        timeLeft = Math.min(60, timeLeft + 5);
-        popup(f.x, f.y, '⏱+5s', true);
+      if(f.isBonus&&mode==='arcade'){
+        timeLeft=Math.min(60,timeLeft+5);
+        popup(f.x,f.y,'⏱+5s',true);
       } else {
-        popup(f.x, f.y, '+'+pts, combo >= 3);
-        if(combo >= 3) popup(f.x, f.y-70, combo+'x COMBO!', true);
+        popup(f.x,f.y,'+'+pts,combo>=3);
+        if(combo>=3) popup(f.x,f.y-70,combo+'x COMBO!',true);
       }
       refreshHUD();
     }
   }
 }
 
-// ── Background gradient ───────────────────────
-function makeBGGrad(){
-  const g = ctx.createLinearGradient(0,0,0,H);
-  if(mode==='zen'){
-    g.addColorStop(0,'#001a33'); g.addColorStop(1,'#002244');
-  } else if(mode==='arcade'){
-    g.addColorStop(0,'#1a0030'); g.addColorStop(1,'#2d0050');
-  } else {
-    g.addColorStop(0,'#0d0020'); g.addColorStop(.6,'#1a003a'); g.addColorStop(1,'#060010');
+// ── Draw blade ──
+// Blade points stored globally, drawn every frame
+function drawBlade(){
+  if(blade.length<2) return;
+  ctx.save();
+  for(let i=1;i<blade.length;i++){
+    const t=i/blade.length;
+    ctx.strokeStyle=`rgba(255,255,255,${t*0.92})`;
+    ctx.shadowColor='rgba(160,220,255,1)';
+    ctx.shadowBlur=30*t;
+    ctx.lineWidth=14*t;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(blade[i-1].x,blade[i-1].y);
+    ctx.lineTo(blade[i].x,blade[i].y);
+    ctx.stroke();
   }
-  return g;
+  // Glowing tip
+  const tip=blade[blade.length-1];
+  ctx.shadowColor='#fff';
+  ctx.shadowBlur=50;
+  ctx.fillStyle='rgba(255,255,255,0.95)';
+  ctx.beginPath();
+  ctx.arc(tip.x,tip.y,5,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
 }
 
-// ── Render loop ───────────────────────────────
-let bg = null;
-let raf = null;
+// ── Background ──
+function makeBG(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  if(mode==='zen'){      g.addColorStop(0,'#001a33'); g.addColorStop(1,'#002244'); }
+  else if(mode==='arcade'){ g.addColorStop(0,'#1a0030'); g.addColorStop(1,'#2d0050'); }
+  else { g.addColorStop(0,'#0d0020'); g.addColorStop(.6,'#1a003a'); g.addColorStop(1,'#060010'); }
+  return g;
+}
+let bg=null;
 
+// ── RENDER LOOP ──
 function render(){
-  raf = requestAnimationFrame(render);
+  requestAnimationFrame(render);
 
-  if(!bg) bg = makeBGGrad();
-  ctx.fillStyle = bg;
+  if(!bg) bg=makeBG();
+  ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
-  // Ambient glow
-  const orb = ctx.createRadialGradient(W*.5, H*.35, 0, W*.5, H*.35, W*.55);
-  const oc  = mode==='zen'?'rgba(0,80,180,.06)':mode==='arcade'?'rgba(130,0,220,.07)':'rgba(90,0,180,.07)';
-  orb.addColorStop(0, oc); orb.addColorStop(1,'transparent');
-  ctx.fillStyle = orb; ctx.fillRect(0,0,W,H);
-
-  if(!playing){ drawBlade(); return; }
+  // Glow orb
+  const orb=ctx.createRadialGradient(W*.5,H*.35,0,W*.5,H*.35,W*.55);
+  orb.addColorStop(0, mode==='zen'?'rgba(0,80,180,.06)':mode==='arcade'?'rgba(130,0,220,.07)':'rgba(90,0,180,.07)');
+  orb.addColorStop(1,'transparent');
+  ctx.fillStyle=orb;
+  ctx.fillRect(0,0,W,H);
 
   // Fruits
   for(let i=fruits.length-1;i>=0;i--){
-    const f = fruits[i];
-    f.vy += f.g;
-    f.x  += f.vx;
-    f.y  += f.vy;
-    f.rot += f.rotV;
-    if(f.sliced) f.alpha -= 0.038;
+    const f=fruits[i];
+    f.vy+=f.g; f.x+=f.vx; f.y+=f.vy; f.rot+=f.rotV;
+    if(f.sliced) f.alpha-=0.038;
 
-    // Missed
-    if(f.y > H+120 && !f.sliced){
+    if(f.y>H+130&&!f.sliced){
       fruits.splice(i,1);
-      if(!f.isBomb){
-        if(mode === 'classic'){
-          lives--;
-          flashRed();
-          refreshHUD();
-          if(lives <= 0){ endGame(); return; }
-        }
+      if(!f.isBomb&&mode==='classic'){
+        lives--; flashRed(); refreshHUD();
+        if(lives<=0){ endGame(); return; }
       }
       continue;
     }
-    if(f.alpha <= 0){ fruits.splice(i,1); continue; }
+    if(f.alpha<=0){ fruits.splice(i,1); continue; }
 
     ctx.save();
-    ctx.translate(f.x, f.y);
+    ctx.translate(f.x,f.y);
     ctx.rotate(f.rot);
-    ctx.globalAlpha = f.sliced ? f.alpha : 1;
+    ctx.globalAlpha=f.sliced?f.alpha:1;
+
+    if(f.sliced){ ctx.shadowColor=f.juice; ctx.shadowBlur=45; }
+    else { ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=18; ctx.shadowOffsetY=9; }
+
+    ctx.font=f.size+'px Arial';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(f.emoji,0,0);
 
     if(f.sliced){
-      ctx.shadowColor = f.juice;
-      ctx.shadowBlur  = 45;
-    } else {
-      ctx.shadowColor = 'rgba(0,0,0,.5)';
-      ctx.shadowBlur  = 18;
-      ctx.shadowOffsetY = 9;
-    }
-
-    ctx.font = f.size+'px Arial';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(f.emoji, 0, 0);
-
-    if(f.sliced){
-      // Slice crack
-      ctx.strokeStyle = 'rgba(255,255,255,.85)';
-      ctx.lineWidth   = 2.5;
-      ctx.shadowBlur  = 0;
+      ctx.strokeStyle='rgba(255,255,255,.85)';
+      ctx.lineWidth=2.5; ctx.shadowBlur=0;
       ctx.beginPath();
-      ctx.moveTo(-f.size*.5,  f.size*.35);
-      ctx.lineTo( f.size*.5, -f.size*.35);
+      ctx.moveTo(-f.size*.5,f.size*.35);
+      ctx.lineTo(f.size*.5,-f.size*.35);
       ctx.stroke();
-      // Juice drops
-      ctx.fillStyle = f.juice;
+      // juice drops
       for(let d=0;d<6;d++){
-        const ang = (d/6)*Math.PI*2 + (1-f.alpha)*5;
-        const r   = f.size*.55*(1-f.alpha);
-        ctx.globalAlpha = f.alpha*.7;
+        const ang=(d/6)*Math.PI*2+(1-f.alpha)*5;
+        const r=f.size*.55*(1-f.alpha);
+        ctx.fillStyle=f.juice;
+        ctx.globalAlpha=f.alpha*.65;
         ctx.beginPath();
-        ctx.arc(Math.cos(ang)*r, Math.sin(ang)*r, 3, 0, Math.PI*2);
+        ctx.arc(Math.cos(ang)*r,Math.sin(ang)*r,3,0,Math.PI*2);
         ctx.fill();
       }
     }
@@ -616,201 +389,154 @@ function render(){
 
   // Particles
   for(let i=parts.length-1;i>=0;i--){
-    const p = parts[i];
-    p.vx *= 0.97; p.vy += p.g;
-    p.x  += p.vx; p.y  += p.vy;
-    p.alpha -= p.dec;
-    if(p.alpha <= 0){ parts.splice(i,1); continue; }
+    const p=parts[i];
+    p.vx*=0.97; p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.alpha-=p.dec;
+    if(p.alpha<=0){ parts.splice(i,1); continue; }
     ctx.save();
-    ctx.globalAlpha = p.alpha;
-    ctx.fillStyle   = p.col;
-    ctx.shadowColor = p.col;
-    ctx.shadowBlur  = 12;
+    ctx.globalAlpha=p.alpha;
+    ctx.fillStyle=p.col;
+    ctx.shadowColor=p.col; ctx.shadowBlur=12;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2);
+    ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
 
+  // Always draw blade on top
   drawBlade();
 }
 
-function drawBlade(){
-  if(blade.length < 2) return;
-  ctx.save();
-  for(let i=1;i<blade.length;i++){
-    const t  = i/blade.length;
-    const p0 = blade[i-1], p1 = blade[i];
-    ctx.strokeStyle = `rgba(255,255,255,${t*.9})`;
-    ctx.shadowColor = 'rgba(160,210,255,1)';
-    ctx.shadowBlur  = 28*t;
-    ctx.lineWidth   = 14*t;
-    ctx.lineCap     = 'round';
-    ctx.beginPath();
-    ctx.moveTo(p0.x,p0.y);
-    ctx.lineTo(p1.x,p1.y);
-    ctx.stroke();
-  }
-  // Tip dot
-  const tip = blade[blade.length-1];
-  ctx.shadowBlur  = 50;
-  ctx.shadowColor = '#fff';
-  ctx.fillStyle   = '#fff';
-  ctx.beginPath();
-  ctx.arc(tip.x,tip.y,5,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
+// ── POINTER EVENTS — on document so UI never blocks ──
+let pDown=false;
+
+function onPointerMove(x,y){
+  if(!pDown) return;
+  blade.push({x,y});
+  if(blade.length>20) blade.shift();
+  if(playing) trySlice(x,y);
 }
 
-// ── Red flash on missed fruit ─────────────────
-function flashRed(){
-  const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;inset:0;background:rgba(255,0,0,.22);z-index:999;pointer-events:none;transition:opacity .3s;';
-  document.body.appendChild(d);
-  setTimeout(()=>d.style.opacity='0', 100);
-  setTimeout(()=>d.remove(), 400);
-}
+// Mouse — listen on document so buttons don't block blade
+document.addEventListener('mousedown', e=>{
+  // Don't slice if clicking a button
+  if(e.target.tagName==='BUTTON') return;
+  pDown=true;
+  onPointerMove(e.clientX,e.clientY);
+});
+document.addEventListener('mousemove', e=>{ onPointerMove(e.clientX,e.clientY); });
+document.addEventListener('mouseup',   ()=>{ pDown=false; blade=[]; });
 
-// ── Countdown ─────────────────────────────────
+// Touch — listen on document
+document.addEventListener('touchstart', e=>{
+  if(e.target.tagName==='BUTTON') return;
+  pDown=true;
+  onPointerMove(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:false});
+document.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  onPointerMove(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:false});
+document.addEventListener('touchend', ()=>{ pDown=false; blade=[]; });
+
+// ── Countdown ──
 function runCountdown(cb){
-  const wrap = document.getElementById('countdown');
-  const num  = document.getElementById('cdNum');
-  let n = 3;
+  const wrap=document.getElementById('countdown');
+  const num=document.getElementById('cdNum');
+  let n=3;
   wrap.classList.add('active');
-
   function tick(){
-    num.textContent = n;
-    // reset animation
-    num.style.animation = 'none';
+    num.textContent=n;
+    num.style.animation='none';
     void num.offsetWidth;
-    num.style.animation = 'cdPop .8s ease-out';
-
+    num.style.animation='cdPop .8s ease-out';
     n--;
-    if(n > 0){
-      setTimeout(tick, 900);
-    } else {
-      setTimeout(()=>{
-        wrap.classList.remove('active');
-        cb();
-      }, 900);
-    }
+    if(n>0) setTimeout(tick,900);
+    else setTimeout(()=>{ wrap.classList.remove('active'); cb(); },900);
   }
   tick();
 }
 
-// ── Start game ────────────────────────────────
+// ── Start game ──
 function startGame(m){
-  mode = m;
-  bg   = null;
+  mode=m; bg=null;
+  score=0; lives=3; combo=0; timeLeft=60;
+  fruits=[]; parts=[]; blade=[];
+  playing=false;
+  clearTimeout(spawnTO); clearInterval(tickIV); clearTimeout(comboTO);
 
-  // Reset state
-  score = 0; lives = 3; combo = 0;
-  timeLeft = 60;
-  fruits = []; parts = []; blade = [];
-  clearTimeout(spawnTO);
-  clearInterval(tickIV);
-  clearTimeout(comboTO);
-
-  showScreen(null);       // hide all screens
-  setHUD(false);
-  document.getElementById('modeBanner').textContent = '';
-  document.getElementById('timerWrap').style.display = 'none';
+  showScreen(null);
+  showHUD(false);
+  document.getElementById('modeBanner').textContent='';
+  document.getElementById('timerWrap').style.display='none';
 
   runCountdown(()=>{
-    playing = true;
-    setHUD(true);
+    playing=true;
+    showHUD(true);
     refreshHUD();
 
-    const names = {classic:'⚔️ CLASSIC',zen:'🧘 ZEN MODE',arcade:'⚡ ARCADE'};
-    const banner = document.getElementById('modeBanner');
-    banner.textContent = names[mode];
-    setTimeout(()=>banner.textContent='', 3000);
+    const names={classic:'⚔️ CLASSIC',zen:'🧘 ZEN MODE',arcade:'⚡ ARCADE'};
+    const b=document.getElementById('modeBanner');
+    b.textContent=names[mode];
+    setTimeout(()=>b.textContent='',3000);
 
-    if(mode !== 'classic'){
-      document.getElementById('timerWrap').style.display = 'block';
-    }
+    if(mode!=='classic') document.getElementById('timerWrap').style.display='block';
 
+    // SPAWN IMMEDIATELY then keep scheduling
+    spawnFruit();
+    spawnFruit();
     scheduleSpawn();
 
-    if(mode === 'zen' || mode === 'arcade'){
-      tickIV = setInterval(()=>{
+    if(mode==='zen'||mode==='arcade'){
+      tickIV=setInterval(()=>{
         if(!playing) return;
-        timeLeft = Math.max(0, timeLeft - 0.1);
+        timeLeft=Math.max(0,timeLeft-0.1);
         refreshHUD();
-        if(timeLeft <= 0) endGame();
-      }, 100);
+        if(timeLeft<=0) endGame();
+      },100);
     }
   });
 }
 
-// ── End game ──────────────────────────────────
+// ── End game ──
 function endGame(){
   if(!playing) return;
-  playing = false;
-  clearTimeout(spawnTO);
-  clearInterval(tickIV);
-  setHUD(false);
-  document.getElementById('timerWrap').style.display = 'none';
+  playing=false;
+  clearTimeout(spawnTO); clearInterval(tickIV);
+  showHUD(false);
+  document.getElementById('timerWrap').style.display='none';
 
-  const isNew = score > bests[mode];
-  if(isNew){ bests[mode] = score; saveBests(); }
+  const isNew=score>bests[mode];
+  if(isNew){ bests[mode]=score; saveBests(); }
 
   setTimeout(()=>{
-    document.getElementById('goMode').textContent  = mode.toUpperCase()+' MODE';
-    document.getElementById('goScore').textContent = score;
-    document.getElementById('goBest').textContent  = isNew ? '🏆 NEW BEST SCORE!' : 'Best: '+bests[mode];
-    refreshBestDisplay();
+    document.getElementById('goMode').textContent=mode.toUpperCase()+' MODE';
+    document.getElementById('goScore').textContent=score;
+    document.getElementById('goBest').textContent=isNew?'🏆 NEW BEST!':'Best: '+bests[mode];
+    document.getElementById('bestVal').textContent=topBest();
     showScreen('sOver');
-  }, 600);
+  },600);
 }
 
 function goHome(){
-  playing = false;
-  clearTimeout(spawnTO);
-  clearInterval(tickIV);
+  playing=false;
+  clearTimeout(spawnTO); clearInterval(tickIV);
   fruits=[]; parts=[]; blade=[];
-  setHUD(false);
-  document.getElementById('timerWrap').style.display = 'none';
-  refreshBestDisplay();
-  bg = null;
+  showHUD(false);
+  document.getElementById('timerWrap').style.display='none';
+  document.getElementById('bestVal').textContent=topBest();
+  bg=null;
   showScreen('sHome');
 }
 
-// ══════════════════════════════════════════════
-//  BUTTON WIRING — done here, never inline
-// ══════════════════════════════════════════════
-document.getElementById('btnClassic').addEventListener('click', ()=> startGame('classic'));
-document.getElementById('btnZen'    ).addEventListener('click', ()=> startGame('zen'));
-document.getElementById('btnArcade' ).addEventListener('click', ()=> startGame('arcade'));
-document.getElementById('btnRetry'  ).addEventListener('click', ()=> startGame(mode));
-document.getElementById('btnHome'   ).addEventListener('click', ()=> goHome());
+// ── Wire buttons ──
+document.getElementById('btnClassic').addEventListener('click',()=>startGame('classic'));
+document.getElementById('btnZen'    ).addEventListener('click',()=>startGame('zen'));
+document.getElementById('btnArcade' ).addEventListener('click',()=>startGame('arcade'));
+document.getElementById('btnRetry'  ).addEventListener('click',()=>startGame(mode));
+document.getElementById('btnHome'   ).addEventListener('click',()=>goHome());
 
-// ── Input ─────────────────────────────────────
-let pDown = false;
-function onMove(x, y){
-  if(!pDown) return;
-  blade.push({x,y});
-  if(blade.length > 18) blade.shift();
-  if(playing) trySlice(x,y);
-}
-// Mouse
-canvas.addEventListener('mousedown',  e =>{ pDown=true;  onMove(e.clientX,e.clientY); });
-canvas.addEventListener('mousemove',  e => onMove(e.clientX,e.clientY));
-canvas.addEventListener('mouseup',    ()=>{ pDown=false; blade=[]; });
-canvas.addEventListener('mouseleave', ()=>{ pDown=false; blade=[]; });
-// Touch
-canvas.addEventListener('touchstart', e=>{
-  e.preventDefault(); pDown=true;
-  onMove(e.touches[0].clientX, e.touches[0].clientY);
-},{passive:false});
-canvas.addEventListener('touchmove', e=>{
-  e.preventDefault();
-  onMove(e.touches[0].clientX, e.touches[0].clientY);
-},{passive:false});
-canvas.addEventListener('touchend', ()=>{ pDown=false; blade=[]; });
-
-// ── Kick off render loop ──────────────────────
-refreshBestDisplay();
+// ── Init ──
+document.getElementById('bestVal').textContent=topBest();
 requestAnimationFrame(render);
 </script>
 </body>
