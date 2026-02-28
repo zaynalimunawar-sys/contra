@@ -2,256 +2,264 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jungle Runner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jungle Runner Pro</title>
     <style>
-        body { margin: 0; background: #006400; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial; }
-        canvas { border: 2px solid #228B22; background: linear-gradient(to bottom, #228B22, #006400); }
-        #score { position: absolute; top: 10px; left: 10px; color: #FFD700; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; }
-        #highScore { position: absolute; top: 40px; left: 10px; color: #FFA500; font-size: 18px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(180deg, #228B22, #006400); font-family: 'Arial Black', Arial; overflow: hidden; }
+        canvas { display: block; width: 100vw; height: 100vh; max-width: 400px; max-height: 600px; margin: auto; }
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .hud { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; color: #FFD700; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; pointer-events: none; }
+        .hearts { display: flex; gap: 5px; }
+        .heart { width: 25px; height: 25px; background: #FF4444; clip-path: polygon(50% 0%, 0% 30%, 0% 100%, 100% 100%, 100% 30%); transform: scale(1); transition: transform 0.2s; }
+        .control-btns { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: all; }
+        .btn { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,215,0,0.8); border: 3px solid #FFD700; font-size: 24px; font-weight: bold; color: #006400; cursor: pointer; transition: all 0.2s; user-select: none; }
+        .btn:active { transform: scale(0.9); background: #FFD700; }
+        .menu, .gameover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,100,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #FFD700; text-align: center; pointer-events: all; }
+        .menu h1, .gameover h1 { font-size: 48px; margin-bottom: 30px; text-shadow: 3px 3px 6px #000; }
+        .menu h2 { font-size: 28px; margin-bottom: 20px; }
+        .btn-big { width: 200px; height: 60px; margin: 10px; font-size: 24px; border-radius: 30px; background: linear-gradient(45deg, #FFD700, #FFA500); color: #006400; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-big:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div id="score">Score: 0</div>
-    <div id="highScore">High: 0</div>
     <canvas id="gameCanvas" width="400" height="600"></canvas>
+    
+    <div class="ui-overlay">
+        <div class="hud hidden" id="hud">
+            <div>Score: <span id="score">0</span></div>
+            <div class="hearts" id="hearts"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div>
+            <div>Speed: <span id="speed">1x</span></div>
+        </div>
+    </div>
+
+    <div class="control-btns hidden" id="controls">
+        <div class="btn" id="leftBtn">←</div>
+        <div class="btn" id="jumpBtn">↑</div>
+        <div class="btn" id="rightBtn">→</div>
+    </div>
+
+    <div class="menu" id="menu">
+        <h1>🌿 Jungle Runner 🌿</h1>
+        <h2>High Score: <span id="highScore">0</span></h2>
+        <button class="btn-big" onclick="startGame()">▶ Play</button>
+        <button class="btn-big" onclick="showInstructions()">ℹ️ How to Play</button>
+    </div>
+
+    <div class="gameover hidden" id="gameover">
+        <h1>🐒 Game Over 🐒</h1>
+        <h2>Score: <span id="finalScore">0</span></h2>
+        <button class="btn-big" onclick="startGame()">🔄 Play Again</button>
+        <button class="btn-big" onclick="shareScore()">📱 Share Score</button>
+    </div>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
-        const highScoreEl = document.getElementById('highScore');
+        let state = 'menu'; // menu, playing, gameover
+        let score = 0, highScore = localStorage.getItem('jungleHigh') || 0;
+        document.getElementById('highScore').textContent = highScore;
 
-        // Game state
-        let score = 0;
-        let highScore = localStorage.getItem('jungleHigh') || 0;
-        highScoreEl.textContent = `High: ${highScore}`;
-        let gameSpeed = 3;
-        let player = { x: 180, y: 450, width: 40, height: 50, lane: 1, vy: 0 };
-        let obstacles = [];
-        let bananas = [];
-        let keys = {};
-        let gameRunning = true;
-        let gameOver = false;
+        // Game objects
+        let gameSpeed = 1, player = {x:180, y:450, w:40, h:50, lane:1, vy:0}, 
+            obstacles=[], bananas=[], particles=[], lives=3;
 
-        // Lanes
-        const lanes = [100, 180, 260];
+        const lanes = [100,180,260];
 
-        // Controls
-        document.addEventListener('keydown', (e) => { keys[e.key] = true; });
-        document.addEventListener('keyup', (e) => { keys[e.key] = false; });
-        canvas.addEventListener('touchstart', handleTouch, { passive: false });
-        canvas.addEventListener('touchmove', handleTouch, { passive: false });
-
-        function handleTouch(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-
-            if (y < canvas.height / 2) {
-                // Lane switch
-                if (x < canvas.width / 3) player.lane = 0;
-                else if (x < 2 * canvas.width / 3) player.lane = 1;
-                else player.lane = 2;
-            } else {
-                // Jump or slide
-                if (player.y === 450) {
-                    if (y > canvas.height * 0.7) {
-                        // Slide (temp crouch)
-                        player.height = 25;
-                        setTimeout(() => { player.height = 50; }, 300);
-                    } else {
-                        player.vy = -14;
-                    }
-                }
+        // Particles for effects
+        function createParticles(x,y,color) {
+            for(let i=0; i<10; i++) {
+                particles.push({
+                    x,y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                    life: 30, maxLife: 30, color
+                });
             }
         }
 
-        // Spawn
+        // UI functions
+        function showMenu() {
+            state = 'menu';
+            document.getElementById('menu').classList.remove('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('controls').classList.add('hidden');
+            document.getElementById('gameover').classList.add('hidden');
+        }
+
+        function startGame() {
+            state = 'playing';
+            score = 0; gameSpeed = 1; lives = 3; player.y=450; player.vy=0; player.lane=1;
+            obstacles = []; bananas = []; particles = [];
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('controls').classList.remove('hidden');
+            updateHearts();
+            gameLoop();
+        }
+
+        function gameOver() {
+            state = 'gameover';
+            document.getElementById('finalScore').textContent = score;
+            if(score > highScore) {
+                highScore = score;
+                localStorage.setItem('jungleHigh', highScore);
+            }
+            document.getElementById('gameover').classList.remove('hidden');
+            document.getElementById('controls').classList.add('hidden');
+            document.getElementById('hud').classList.add('hidden');
+        }
+
+        function showInstructions() {
+            alert('Swipe/Buttons:\n← → Switch lanes\n↑ Jump\n↓ Slide under vines\nCollect bananas! Avoid rocks & vines.\n3 Lives!');
+        }
+
+        function shareScore() {
+            if(navigator.share) {
+                navigator.share({title: 'Jungle Runner', text: `I scored ${score}! Beat it?`});
+            } else {
+                alert(`Share: I got ${score} in Jungle Runner!`);
+            }
+        }
+
+        function updateHearts() {
+            document.querySelectorAll('.heart').forEach((h,i) => {
+                h.style.transform = i < lives ? 'scale(1)' : 'scale(0.5)';
+            });
+        }
+
+        // Controls
+        document.getElementById('leftBtn').onclick = () => player.lane = Math.max(0, player.lane-1);
+        document.getElementById('rightBtn').onclick = () => player.lane = Math.min(2, player.lane+1);
+        document.getElementById('jumpBtn').onclick = () => { if(player.y>=450) player.vy=-14; };
+
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if(e.key=='ArrowLeft') player.lane = Math.max(0, player.lane-1);
+            if(e.key=='ArrowRight') player.lane = Math.min(2, player.lane+1);
+            if(e.key=='ArrowUp' || e.key==' ') { if(player.y>=450) player.vy=-14; }
+            if(e.key=='ArrowDown') player.h = 25;
+        });
+        document.addEventListener('keyup', e => { if(e.key=='ArrowDown') player.h=50; });
+
+        // Game logic
         function spawnObstacle() {
-            if (Math.random() < 0.025 + gameSpeed * 0.005) {
-                const lane = Math.floor(Math.random() * 3);
-                const type = Math.random() > 0.5 ? 'vine' : 'rock';
-                obstacles.push({ x: lanes[lane], y: -60, width: 50, height: type === 'vine' ? 80 : 60, type });
+            if(Math.random() < 0.02 + gameSpeed*0.005) {
+                const lane = Math.floor(Math.random()*3);
+                const type = Math.random()>0.5 ? 'vine' : 'rock';
+                obstacles.push({x:lanes[lane], y:-80, w:50, h:type=='vine'?90:60, type});
             }
         }
 
         function spawnBanana() {
-            if (Math.random() < 0.02 + gameSpeed * 0.003) {
-                const lane = Math.floor(Math.random() * 3);
-                bananas.push({ x: lanes[lane] + 10, y: -30, width: 20, height: 20, rot: 0 });
+            if(Math.random() < 0.015 + gameSpeed*0.004) {
+                const lane = Math.floor(Math.random()*3);
+                bananas.push({x:lanes[lane]+10, y:-30, w:20, h:20, rot:0});
             }
         }
 
-        // Update
         function update() {
-            if (!gameRunning || gameOver) return;
+            if(state !== 'playing') return;
 
-            // Player
-            player.vy += 0.7;
-            player.y += player.vy;
-            player.x = lanes[player.lane];
-            if (player.y > 450) {
-                player.y = 450;
-                player.vy = 0;
-            }
+            // Player physics
+            player.vy += 0.8; player.y += player.vy; player.x = lanes[player.lane];
+            if(player.y > 450) { player.y=450; player.vy=0; }
 
-            // Move objects
+            // Move & cleanup
             obstacles.forEach(o => o.y += gameSpeed);
-            bananas.forEach(b => {
-                b.y += gameSpeed;
-                b.rot += 0.2;
-            });
+            bananas.forEach(b => { b.y += gameSpeed; b.rot += 0.15; });
+            obstacles = obstacles.filter(o => o.y < 650);
+            bananas = bananas.filter(b => b.y < 650);
 
-            // Clean up
-            obstacles = obstacles.filter(o => o.y < canvas.height + 50);
-            bananas = bananas.filter(b => b.y < canvas.height + 50);
+            // Particles
+            particles.forEach((p,i) => {
+                p.x += p.vx; p.y += p.vy; p.life--;
+                p.vx *= 0.98; p.vy *= 0.98;
+                if(p.life <= 0) particles.splice(i,1);
+            });
 
             // Collisions
-            obstacles.forEach((o, i) => {
-                if (player.x < o.x + o.width &&
-                    player.x + player.width > o.x &&
-                    player.y < o.y + o.height &&
-                    player.y + player.height > o.y) {
-                    endGame();
+            obstacles.forEach(o => {
+                if(player.x < o.x+o.w && player.x+player.w > o.x && player.y < o.y+o.h && player.y+player.h > o.y) {
+                    lives--; updateHearts(); createParticles(player.x+20, player.y+25, '#FF4444');
+                    if(lives <= 0) gameOver();
+                    obstacles = obstacles.filter(obs => obs !== o); // Remove hit obstacle
                 }
             });
 
-            bananas.forEach((b, i) => {
-                if (player.x < b.x + b.width &&
-                    player.x + player.width > b.x &&
-                    player.y < b.y + b.height &&
-                    player.y + player.height > b.y) {
-                    bananas.splice(i, 1);
-                    score += 50;
+            bananas.forEach((b,i) => {
+                if(player.x < b.x+b.w && player.x+player.w > b.x && player.y < b.y+b.h && player.y+player.h > b.y) {
+                    bananas.splice(i,1); score += 100; createParticles(b.x+10, b.y+10, '#FFD700');
                 }
             });
 
-            score += 1;
-            scoreEl.textContent = `Score: ${score}`;
-            gameSpeed += 0.002;
+            score++; gameSpeed += 0.001;
+            document.getElementById('score').textContent = score;
+            document.getElementById('speed').textContent = (gameSpeed*0.5).toFixed(1) + 'x';
 
-            spawnObstacle();
-            spawnBanana();
-        }
-
-        function endGame() {
-            gameRunning = false;
-            gameOver = true;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('jungleHigh', highScore);
-                highScoreEl.textContent = `High: ${highScore}`;
-            }
-            setTimeout(() => {
-                if (confirm(`Game Over! Score: ${score}\nPlay again?`)) {
-                    resetGame();
-                }
-            }, 500);
-        }
-
-        function resetGame() {
-            score = 0;
-            gameSpeed = 3;
-            player.y = 450;
-            player.vy = 0;
-            player.lane = 1;
-            obstacles = [];
-            bananas = [];
-            gameRunning = true;
-            gameOver = false;
+            spawnObstacle(); spawnBanana();
         }
 
         // Render
         function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0,0,400,600);
 
-            // Jungle bg elements (trees, vines)
-            ctx.fillStyle = 'rgba(0, 50, 0, 0.3)';
-            for (let i = 0; i < 5; i++) {
-                ctx.fillRect(i * 100 - (score / 10) % 100, 0, 60, canvas.height);
+            // Parallax jungle bg
+            const parallax = score / 100;
+            ctx.fillStyle = 'rgba(34,139,34,0.4)';
+            for(let i=0; i<6; i++) {
+                ctx.fillRect((i*80 - parallax*0.5) % 400 - 80, 0, 80, 600);
             }
 
-            // Lanes
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([10, 10]);
-            ctx.beginPath();
-            ctx.moveTo(133, 0); ctx.lineTo(133, canvas.height);
-            ctx.moveTo(266, 0); ctx.lineTo(266, canvas.height);
-            ctx.stroke();
-            ctx.setLineDash([]);
+            // Ground
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(0,500,400,100);
 
-            // Player (monkey)
-            ctx.fillStyle = '#8B4513';
-            ctx.shadowColor = '#D2691E';
-            ctx.shadowBlur = 15;
-            ctx.fillRect(player.x + 5, player.y, 30, player.height);
-            ctx.fillStyle = '#000';
-            ctx.fillRect(player.x + 15, player.y + 5, 4, 4); // Eye
-            ctx.shadowBlur = 0;
+            // Lanes
+            ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 4; ctx.setLineDash([15,15]);
+            ctx.beginPath(); ctx.moveTo(133,0); ctx.lineTo(133,600); ctx.moveTo(267,0); ctx.lineTo(267,600); ctx.stroke(); ctx.setLineDash([]);
+
+            // Player monkey
+            ctx.save(); ctx.shadowColor='#D2691E'; ctx.shadowBlur=20;
+            ctx.fillStyle='#8B4513'; ctx.fillRect(player.x+5, player.y, 30, player.h);
+            ctx.fillStyle='#000'; ctx.fillRect(player.x+12, player.y+5, 6, 6); // Eye
+            ctx.fillStyle='#A0522D'; ctx.fillRect(player.x+28, player.y+10, 8, player.h-20); // Tail
+            ctx.shadowBlur=0; ctx.restore();
 
             // Obstacles
             obstacles.forEach(o => {
-                ctx.shadowColor = o.type === 'vine' ? '#228B22' : '#8B0000';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = o.type === 'vine' ? '#228B22' : '#B22222';
-                ctx.fillRect(o.x, o.y, o.width, o.height);
-                ctx.shadowBlur = 0;
+                ctx.save(); ctx.shadowColor = o.type=='vine' ? '#228B22' : '#B22222'; ctx.shadowBlur=25;
+                ctx.fillStyle = o.type=='vine' ? '#228B22' : '#B22222';
+                ctx.fillRect(o.x, o.y, o.w, o.h);
+                ctx.shadowBlur=0; ctx.restore();
             });
 
             // Bananas
             bananas.forEach(b => {
-                ctx.save();
-                ctx.translate(b.x + 10, b.y + 10);
-                ctx.rotate(b.rot);
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(0, 0, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.restore();
+                ctx.save(); ctx.translate(b.x+10, b.y+10); ctx.rotate(b.rot);
+                ctx.shadowColor='#FFD700'; ctx.shadowBlur=20;
+                ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+                ctx.shadowBlur=0; ctx.restore();
             });
 
-            if (gameOver) {
-                ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#FFD700';
-                ctx.font = 'bold 32px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Game Over', canvas.width/2, canvas.height/2);
-                ctx.font = '24px Arial';
-                ctx.fillText('Tap/Click to Restart', canvas.width/2, canvas.height/2 + 40);
-            }
+            // Particles
+            particles.forEach(p => {
+                ctx.save(); ctx.globalAlpha = p.life / p.maxLife;
+                ctx.shadowColor = p.color; ctx.shadowBlur=10;
+                ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.restore();
+            });
         }
 
-        // Keyboard helper
-        function handleKeys() {
-            if (keys['ArrowLeft'] && player.lane > 0) player.lane--;
-            if (keys['ArrowRight'] && player.lane < 2) player.lane++;
-            if ((keys['ArrowUp'] || keys[' ']) && player.y === 450) player.vy = -14;
-            if (keys['ArrowDown'] && player.y === 450) {
-                player.height = 25;
-                setTimeout(() => { player.height = 50; }, 300);
+        let lastTime = 0;
+        function gameLoop(time) {
+            const dt = time - lastTime; lastTime = time;
+            if(dt > 16) { // ~60fps
+                update(); render();
             }
-        }
-
-        setInterval(handleKeys, 50);
-
-        function gameLoop() {
-            update();
-            render();
             requestAnimationFrame(gameLoop);
         }
 
-        canvas.addEventListener('click', () => {
-            if (gameOver) resetGame();
-        });
-
-        gameLoop();
+        // Init
+        requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
