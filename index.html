@@ -3,609 +3,631 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>🍉 Fruit Ninja</title>
+  <title>Fruit Ninja</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
       background:#000;
       overflow:hidden;
       touch-action:none;
       font-family:'Fredoka One',cursive;
       user-select:none;
+      -webkit-user-select:none;
     }
-    canvas { display:block; position:absolute; top:0; left:0; cursor:none; }
 
-    /* ══════════ HUD ══════════ */
-    #hud {
-      position:absolute; top:0; left:0; right:0;
-      z-index:50; display:flex;
+    /* CANVAS sits BEHIND everything */
+    #canvas{
+      position:absolute;
+      top:0;left:0;
+      z-index:1;
+      display:block;
+      cursor:crosshair;
+    }
+
+    /* ALL UI sits ON TOP of canvas */
+    #ui{
+      position:absolute;
+      top:0;left:0;
+      width:100%;height:100%;
+      z-index:10;
+    }
+
+    /* ─── HUD ─── */
+    #hud{
+      position:absolute;
+      top:0;left:0;right:0;
+      display:none;
       justify-content:space-between;
       align-items:flex-start;
-      padding:14px 18px 0;
+      padding:14px 20px;
+      z-index:20;
       pointer-events:none;
     }
-    .hud-pill {
-      background:rgba(0,0,0,0.6);
-      border:2px solid rgba(255,255,255,0.15);
+    .pill{
+      background:rgba(0,0,0,0.7);
+      border:2px solid rgba(255,255,255,0.18);
       border-radius:30px;
       padding:8px 22px;
-      display:flex; flex-direction:column; align-items:center;
-      backdrop-filter:blur(12px);
-      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      text-align:center;
+      backdrop-filter:blur(10px);
     }
-    .hud-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.45); text-transform:uppercase; }
-    .hud-val   { font-size:30px; color:#fff; line-height:1; text-shadow:0 0 20px rgba(255,220,0,.8); }
-    #livesVal  { font-size:18px; letter-spacing:5px; }
-    #comboVal  { color:#ffcc00; text-shadow:0 0 25px #ff8800; }
+    .pill-label{font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;}
+    .pill-val{font-size:28px;color:#fff;text-shadow:0 0 20px rgba(255,200,0,.8);line-height:1.1;}
+    #comboP .pill-val{color:#ffcc00;}
+    #livesP .pill-val{font-size:18px;letter-spacing:4px;}
 
-    /* ══════════ SCREENS ══════════ */
-    .screen {
-      position:absolute; inset:0; z-index:200;
-      display:flex; flex-direction:column;
-      justify-content:center; align-items:center;
+    /* ─── SCREENS ─── */
+    .screen{
+      position:absolute;
+      top:0;left:0;
+      width:100%;height:100%;
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:15;
     }
-    .screen.hide { display:none !important; }
+    .screen.active{display:flex;}
 
-    /* ── Home Screen ── */
-    #homeScreen {
+    /* HOME */
+    #sHome{
       background:radial-gradient(ellipse at 50% 30%, #2a0060 0%, #0d0020 60%, #000 100%);
-      overflow:hidden;
     }
-    #homeBg {
-      position:absolute; inset:0;
-      background:
-        radial-gradient(circle at 20% 80%, rgba(255,60,0,.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(100,0,255,.2) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(255,150,0,.08) 0%, transparent 70%);
-      pointer-events:none;
-    }
-    .dojo-line {
-      position:absolute; bottom:0; left:0; right:0; height:3px;
-      background:linear-gradient(90deg,transparent,#ff6600,#ffcc00,#ff6600,transparent);
-      box-shadow:0 0 30px #ff6600, 0 0 60px #ff3300;
-    }
-
-    .home-logo {
-      position:relative; text-align:center; z-index:5;
-    }
-    .logo-sub {
+    .logo-tag{
       font-family:'Bangers',cursive;
-      font-size:clamp(14px,3.5vw,22px);
+      font-size:clamp(13px,3vw,20px);
       color:#ff8800;
-      letter-spacing:10px;
+      letter-spacing:8px;
       text-shadow:0 0 20px #ff4400;
-      margin-bottom:6px;
+      margin-bottom:4px;
     }
-    .logo-main {
+    .logo-main{
       font-family:'Bangers',cursive;
-      font-size:clamp(72px,18vw,140px);
+      font-size:clamp(70px,18vw,130px);
       letter-spacing:4px;
-      line-height:0.9;
+      line-height:.9;
       background:linear-gradient(180deg,#fff 0%,#ffdd00 35%,#ff6600 65%,#cc2200 100%);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
       background-clip:text;
       filter:drop-shadow(0 0 40px rgba(255,100,0,.9));
-      animation:logoPulse 2.5s ease-in-out infinite;
+      animation:glow 2.5s ease-in-out infinite;
+      text-align:center;
     }
-    @keyframes logoPulse {
-      0%,100%{filter:drop-shadow(0 0 30px rgba(255,100,0,.8));}
-      50%{filter:drop-shadow(0 0 70px rgba(255,200,0,1));}
+    @keyframes glow{
+      0%,100%{filter:drop-shadow(0 0 25px rgba(255,100,0,.8));}
+      50%{filter:drop-shadow(0 0 65px rgba(255,220,0,1));}
     }
-    .logo-fruits {
-      font-size:clamp(28px,6vw,46px);
-      margin:14px 0 0;
-      letter-spacing:10px;
-      animation:floatFruits 2s ease-in-out infinite;
+    .fruit-bounce{
+      font-size:clamp(26px,6vw,44px);
+      letter-spacing:8px;
+      margin:12px 0 34px;
+      animation:bounce 1.8s ease-in-out infinite;
     }
-    @keyframes floatFruits {
+    @keyframes bounce{
       0%,100%{transform:translateY(0);}
       50%{transform:translateY(-8px);}
     }
-
-    /* Mode buttons */
-    .mode-grid {
-      display:flex; gap:16px; margin:36px 0 0; flex-wrap:wrap; justify-content:center;
-      padding:0 20px;
+    .mode-row{
+      display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+      padding:0 16px;
     }
-    .mode-btn {
-      display:flex; flex-direction:column; align-items:center;
-      padding:18px 28px;
-      border:none; border-radius:24px; cursor:pointer;
-      transition:all .2s; min-width:130px;
-      position:relative; overflow:hidden;
+    .mode-card{
+      display:flex;flex-direction:column;align-items:center;
+      padding:16px 24px;
+      border:none;border-radius:22px;
+      cursor:pointer;
+      min-width:120px;
+      transition:transform .15s, box-shadow .15s;
+      -webkit-tap-highlight-color:transparent;
+      position:relative;
+      overflow:hidden;
     }
-    .mode-btn::before {
-      content:''; position:absolute; inset:0;
-      background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
-    }
-    .mode-btn .mode-icon { font-size:36px; margin-bottom:6px; }
-    .mode-btn .mode-name {
-      font-family:'Fredoka One',cursive;
-      font-size:18px; color:#fff; font-weight:bold;
-      text-shadow:0 2px 4px rgba(0,0,0,.5);
-    }
-    .mode-btn .mode-desc { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
-    .mode-btn:hover, .mode-btn:active { transform:scale(1.07) translateY(-3px); }
-    .mode-classic {
+    .mode-card:active{transform:scale(.95);}
+    .mode-card:hover{transform:scale(1.06) translateY(-4px);}
+    .mc-classic{
       background:linear-gradient(135deg,#e65c00,#f9d423);
-      box-shadow:0 8px 30px rgba(230,90,0,.5);
+      box-shadow:0 8px 30px rgba(230,90,0,.55);
     }
-    .mode-zen {
+    .mc-zen{
       background:linear-gradient(135deg,#1a78c2,#00d2ff);
-      box-shadow:0 8px 30px rgba(0,150,255,.4);
+      box-shadow:0 8px 30px rgba(0,150,255,.45);
     }
-    .mode-arcade {
+    .mc-arcade{
       background:linear-gradient(135deg,#6a0dad,#d63aff);
-      box-shadow:0 8px 30px rgba(180,0,255,.4);
+      box-shadow:0 8px 30px rgba(180,0,255,.45);
     }
+    .mc-icon{font-size:34px;margin-bottom:5px;}
+    .mc-name{font-size:17px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.4);}
+    .mc-desc{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;}
+    .best-tag{
+      margin-top:20px;
+      font-size:15px;color:rgba(255,255,255,.4);
+    }
+    .best-tag span{color:#ffcc00;}
 
-    .best-row {
-      margin-top:24px;
-      font-size:16px; color:rgba(255,255,255,.4);
-      letter-spacing:1px; z-index:5;
+    /* GAME OVER */
+    #sOver{
+      background:radial-gradient(ellipse at center, #1c0000 0%, #060000 100%);
     }
-    .best-row span { color:#ffcc00; font-size:18px; }
-
-    /* ── Pause/Mode banner ── */
-    #modeBanner {
-      position:absolute; top:80px; left:50%; transform:translateX(-50%);
-      z-index:50; pointer-events:none;
-      font-size:14px; color:rgba(255,255,255,.5);
-      letter-spacing:3px; text-transform:uppercase;
-    }
-
-    /* ── Game Over ── */
-    #gameOverScreen {
-      background:radial-gradient(ellipse at center, #1a0000 0%, #050000 100%);
-    }
-    .go-title {
+    .go-title{
       font-family:'Bangers',cursive;
-      font-size:clamp(56px,14vw,110px);
+      font-size:clamp(55px,14vw,108px);
       color:#ff1a00;
-      text-shadow:0 0 50px #ff0000, 0 0 100px #ff2200;
+      text-shadow:0 0 50px #ff0000, 0 0 100px #aa0000;
       letter-spacing:4px;
-      animation:shake .08s infinite alternate;
+      animation:shake .09s infinite alternate;
     }
-    @keyframes shake {
-      0%{transform:translateX(-2px);}100%{transform:translateX(2px);}
+    @keyframes shake{
+      0%{transform:translateX(-2px);}
+      100%{transform:translateX(2px);}
     }
-    .go-mode  { font-size:16px; color:rgba(255,255,255,.4); letter-spacing:4px; margin:8px 0; text-transform:uppercase; }
-    .go-score { font-size:clamp(24px,5vw,40px); color:#fff; margin:10px 0 4px; }
-    .go-best  { font-size:20px; color:#ffcc00; margin-bottom:36px; }
-    .btn-row  { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
-    .go-btn {
+    .go-mode{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:4px;margin:6px 0;}
+    .go-score{font-size:clamp(22px,5vw,38px);color:#fff;margin:8px 0 4px;}
+    .go-best{font-size:18px;color:#ffcc00;margin-bottom:34px;}
+    .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+    .go-btn{
       font-family:'Fredoka One',cursive;
-      font-size:20px; padding:14px 36px;
-      border:none; border-radius:40px; cursor:pointer;
-      transition:all .2s;
+      font-size:20px;padding:13px 34px;
+      border:none;border-radius:40px;
+      cursor:pointer;
+      transition:transform .15s;
+      -webkit-tap-highlight-color:transparent;
     }
-    .go-btn.primary {
+    .go-btn:hover{transform:scale(1.07);}
+    .go-btn:active{transform:scale(.95);}
+    .gb-primary{
       background:linear-gradient(135deg,#ff6600,#ff2200);
       color:#fff;
-      box-shadow:0 8px 30px rgba(255,60,0,.5);
+      box-shadow:0 8px 28px rgba(255,60,0,.5);
     }
-    .go-btn.secondary {
+    .gb-secondary{
       background:rgba(255,255,255,.1);
-      color:#fff; border:2px solid rgba(255,255,255,.2);
-    }
-    .go-btn:hover { transform:scale(1.06); }
-
-    /* ── Popups ── */
-    .popup {
-      position:absolute; pointer-events:none; z-index:90;
-      font-family:'Bangers',cursive;
-      font-size:34px; color:#ffdd00;
-      text-shadow:0 0 20px #ff8800, 2px 2px 0 #000;
-      animation:popFloat 0.9s ease-out forwards;
-    }
-    .popup.big { font-size:52px; color:#ff4400; }
-    @keyframes popFloat {
-      0%  {opacity:1; transform:translateY(0) scale(.8);}
-      30% {opacity:1; transform:translateY(-40px) scale(1.2);}
-      100%{opacity:0; transform:translateY(-90px) scale(.9);}
+      color:#fff;
+      border:2px solid rgba(255,255,255,.2);
     }
 
-    /* ── Countdown ── */
-    #countdown {
-      position:absolute; inset:0; z-index:150;
-      display:flex; align-items:center; justify-content:center;
+    /* COUNTDOWN */
+    #countdown{
+      position:absolute;
+      top:0;left:0;width:100%;height:100%;
+      display:none;
+      align-items:center;justify-content:center;
+      z-index:25;
       pointer-events:none;
     }
-    #countNum {
+    #countdown.active{display:flex;}
+    #cdNum{
       font-family:'Bangers',cursive;
-      font-size:200px; color:#fff;
-      text-shadow:0 0 80px rgba(255,150,0,1);
-      opacity:0;
-      transition:opacity .1s;
+      font-size:clamp(120px,25vw,220px);
+      color:#fff;
+      text-shadow:0 0 80px rgba(255,180,0,1), 0 0 40px rgba(255,100,0,.8);
+      animation:cdPop .8s ease-out;
+    }
+    @keyframes cdPop{
+      0%{transform:scale(2);opacity:0;}
+      50%{transform:scale(1.1);opacity:1;}
+      100%{transform:scale(1);opacity:1;}
     }
 
-    /* ── Timer bar (Arcade mode) ── */
-    #timerBar {
-      position:absolute; bottom:0; left:0; right:0; height:6px;
-      background:rgba(255,255,255,.1); z-index:60;
+    /* TIMER BAR */
+    #timerWrap{
+      position:absolute;
+      bottom:0;left:0;right:0;
+      height:7px;
+      background:rgba(255,255,255,.1);
+      display:none;
+      z-index:20;
     }
-    #timerFill {
-      height:100%; width:100%;
+    #timerFill{
+      height:100%;width:100%;
       background:linear-gradient(90deg,#ff2200,#ffcc00,#00ff88);
+      box-shadow:0 0 14px #ffcc00;
       transition:width .1s linear;
-      box-shadow:0 0 12px #ffcc00;
+    }
+
+    /* MODE BANNER */
+    #modeBanner{
+      position:absolute;
+      top:90px;left:50%;
+      transform:translateX(-50%);
+      z-index:20;
+      font-size:13px;
+      color:rgba(255,255,255,.5);
+      letter-spacing:3px;
+      text-transform:uppercase;
+      pointer-events:none;
+      text-align:center;
+    }
+
+    /* POPUP SCORES */
+    .popup{
+      position:absolute;
+      font-family:'Bangers',cursive;
+      font-size:32px;
+      color:#ffdd00;
+      text-shadow:0 0 16px #ff8800, 2px 2px 0 #000;
+      pointer-events:none;
+      z-index:30;
+      animation:popUp .85s ease-out forwards;
+    }
+    .popup.big{font-size:50px;color:#ff4400;}
+    @keyframes popUp{
+      0%{opacity:1;transform:translateY(0) scale(.85);}
+      40%{opacity:1;transform:translateY(-55px) scale(1.15);}
+      100%{opacity:0;transform:translateY(-95px) scale(.9);}
     }
   </style>
 </head>
 <body>
+
+<!-- CANVAS (layer 1) -->
 <canvas id="canvas"></canvas>
 
-<!-- HUD -->
-<div id="hud" class="hide">
-  <div class="hud-pill">
-    <div class="hud-label">Score</div>
-    <div class="hud-val" id="scoreVal">0</div>
-  </div>
-  <div class="hud-pill">
-    <div class="hud-label">Lives</div>
-    <div class="hud-val" id="livesVal">❤️❤️❤️</div>
-  </div>
-  <div class="hud-pill">
-    <div class="hud-label">Combo</div>
-    <div class="hud-val" id="comboVal">0x</div>
-  </div>
-</div>
-<div id="modeBanner"></div>
-<div id="timerBar" class="hide"><div id="timerFill"></div></div>
+<!-- UI LAYER (layer 2) -->
+<div id="ui">
 
-<!-- Countdown -->
-<div id="countdown"><div id="countNum"></div></div>
+  <!-- HUD -->
+  <div id="hud">
+    <div class="pill" id="scoreP">
+      <div class="pill-label">Score</div>
+      <div class="pill-val" id="scoreVal">0</div>
+    </div>
+    <div class="pill" id="livesP">
+      <div class="pill-label">Lives</div>
+      <div class="pill-val" id="livesVal">❤️❤️❤️</div>
+    </div>
+    <div class="pill" id="comboP">
+      <div class="pill-label">Combo</div>
+      <div class="pill-val" id="comboVal">0x</div>
+    </div>
+  </div>
 
-<!-- HOME SCREEN -->
-<div class="screen" id="homeScreen">
-  <div id="homeBg"></div>
-  <div class="dojo-line"></div>
-  <div class="home-logo">
-    <div class="logo-sub">⚔ SLICE EVERYTHING ⚔</div>
+  <!-- MODE BANNER -->
+  <div id="modeBanner"></div>
+
+  <!-- TIMER BAR -->
+  <div id="timerWrap"><div id="timerFill"></div></div>
+
+  <!-- COUNTDOWN -->
+  <div id="countdown"><span id="cdNum">3</span></div>
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="sHome">
+    <div class="logo-tag">⚔ SLICE EVERYTHING ⚔</div>
     <div class="logo-main">FRUIT<br>NINJA</div>
-    <div class="logo-fruits">🍎 🍊 🍉 🍓 🥝</div>
+    <div class="fruit-bounce">🍎 🍊 🍉 🍓 🥝</div>
+    <div class="mode-row">
+      <button class="mode-card mc-classic" id="btnClassic">
+        <span class="mc-icon">⚔️</span>
+        <span class="mc-name">CLASSIC</span>
+        <span class="mc-desc">3 lives · slice all</span>
+      </button>
+      <button class="mode-card mc-zen" id="btnZen">
+        <span class="mc-icon">🧘</span>
+        <span class="mc-name">ZEN</span>
+        <span class="mc-desc">60s · no bombs</span>
+      </button>
+      <button class="mode-card mc-arcade" id="btnArcade">
+        <span class="mc-icon">⚡</span>
+        <span class="mc-name">ARCADE</span>
+        <span class="mc-desc">🍌 = +5s extra time</span>
+      </button>
+    </div>
+    <div class="best-tag">Best: <span id="bestVal">0</span></div>
   </div>
-  <div class="mode-grid">
-    <button class="mode-btn mode-classic" onclick="startGame('classic')">
-      <span class="mode-icon">⚔️</span>
-      <span class="mode-name">CLASSIC</span>
-      <span class="mode-desc">3 lives · slice all</span>
-    </button>
-    <button class="mode-btn mode-zen" onclick="startGame('zen')">
-      <span class="mode-icon">🧘</span>
-      <span class="mode-name">ZEN</span>
-      <span class="mode-desc">60s · no bombs</span>
-    </button>
-    <button class="mode-btn mode-arcade" onclick="startGame('arcade')">
-      <span class="mode-icon">⚡</span>
-      <span class="mode-name">ARCADE</span>
-      <span class="mode-desc">Bananas = +time</span>
-    </button>
-  </div>
-  <div class="best-row">Best: <span id="bestHome">0</span></div>
-</div>
 
-<!-- GAME OVER -->
-<div class="screen hide" id="gameOverScreen">
-  <div class="go-title">GAME OVER</div>
-  <div class="go-mode" id="goMode">CLASSIC</div>
-  <div class="go-score">Score: <strong id="goScore">0</strong></div>
-  <div class="go-best" id="goBest"></div>
-  <div class="btn-row">
-    <button class="go-btn primary" id="goReplay">↩ RETRY</button>
-    <button class="go-btn secondary" onclick="goHome()">🏠 HOME</button>
+  <!-- GAME OVER SCREEN -->
+  <div class="screen" id="sOver">
+    <div class="go-title">GAME OVER</div>
+    <div class="go-mode" id="goMode">CLASSIC MODE</div>
+    <div class="go-score">Score: <strong id="goScore">0</strong></div>
+    <div class="go-best" id="goBest">Best: 0</div>
+    <div class="btn-row">
+      <button class="go-btn gb-primary" id="btnRetry">↩ RETRY</button>
+      <button class="go-btn gb-secondary" id="btnHome">🏠 HOME</button>
+    </div>
   </div>
-</div>
+
+</div><!-- end #ui -->
 
 <script>
-// ════════════════════════════════════════════════
-//   🍉 FRUIT NINJA — FULL REWRITE v3
-// ════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  FRUIT NINJA — COMPLETE REWRITE v4
+//  Buttons wired AFTER DOM ready, NO z-index
+//  conflict with canvas.
+// ══════════════════════════════════════════════
+
+// ── Canvas setup ──────────────────────────────
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; makeBG(); }
-window.addEventListener('resize', resize);
+const ctx    = canvas.getContext('2d');
+let W = 0, H = 0;
+function resize(){
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
 resize();
+window.addEventListener('resize', resize);
 
-// ── Persistent state ──
-let bests = {classic:0, zen:0, arcade:0};
-try { bests = JSON.parse(localStorage.getItem('fnBests')) || bests; } catch(e){}
-function saveBests(){ localStorage.setItem('fnBests', JSON.stringify(bests)); }
+// ── Persistent bests ──────────────────────────
+const DEFAULT_BESTS = {classic:0, zen:0, arcade:0};
+let bests = DEFAULT_BESTS;
+try { bests = JSON.parse(localStorage.getItem('fn_bests')) || DEFAULT_BESTS; } catch(e){}
+function saveBests(){ try{ localStorage.setItem('fn_bests', JSON.stringify(bests)); }catch(e){} }
+function getBestAll(){ return Math.max(bests.classic, bests.zen, bests.arcade); }
 
-// ── Game state ──
-let mode = 'classic';
-let score = 0, lives = 3, combo = 0, playing = false;
-let arcadeTime = 60, zenTime = 60;
-let comboTimer = null, spawnTimer = null;
-let fruits = [], parts = [], blade = [], popups = [];
-let bgGrad, bgGrad2;
+// ── Game variables ─────────────────────────────
+let mode     = 'classic';
+let score    = 0;
+let lives    = 3;
+let combo    = 0;
+let playing  = false;
+let timeLeft = 60;   // zen / arcade
+let fruits   = [];
+let parts    = [];
+let blade    = [];
+let spawnTO  = null;
+let tickIV   = null;
+let comboTO  = null;
 
-const HEART = ['','❤️','❤️❤️','❤️❤️❤️'];
+// ── Fruit data ────────────────────────────────
 const FDATA = [
   {e:'🍎',j:'#ff5555'},{e:'🍊',j:'#ffaa33'},{e:'🍌',j:'#ffe566'},
   {e:'🍇',j:'#cc55cc'},{e:'🍉',j:'#ff6677'},{e:'🍓',j:'#ff3366'},
-  {e:'🥝',j:'#aedd22'},{e:'🍍',j:'#ffe033'},{e:'🍒',j:'#ff2244'},
+  {e:'🥝',j:'#aadd22'},{e:'🍍',j:'#ffe033'},{e:'🍒',j:'#ff2244'},
   {e:'🍑',j:'#ffaa88'},{e:'🥭',j:'#ffaa00'},{e:'🍋',j:'#ffee22'},
 ];
+const HEARTS = ['💀','❤️','❤️❤️','❤️❤️❤️'];
 
-// ── Background ──
-function makeBG(){
-  bgGrad = ctx.createLinearGradient(0,0,0,H);
-  if(mode==='zen'){
-    bgGrad.addColorStop(0,'#001a33');
-    bgGrad.addColorStop(1,'#002244');
-  } else if(mode==='arcade'){
-    bgGrad.addColorStop(0,'#1a0030');
-    bgGrad.addColorStop(1,'#2d0050');
-  } else {
-    bgGrad.addColorStop(0,'#0d0020');
-    bgGrad.addColorStop(0.6,'#1a003a');
-    bgGrad.addColorStop(1,'#060010');
+// ── UI helpers ────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  if(id) document.getElementById(id).classList.add('active');
+}
+function setHUD(show){
+  document.getElementById('hud').style.display = show ? 'flex' : 'none';
+}
+function refreshHUD(){
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('livesVal').textContent = HEARTS[Math.max(0,Math.min(3,lives))];
+  const cv = document.getElementById('comboVal');
+  cv.textContent = combo + 'x';
+  cv.style.opacity = combo >= 2 ? '1' : '0.4';
+  if(mode !== 'classic'){
+    document.getElementById('timerFill').style.width = (timeLeft/60*100)+'%';
   }
 }
-
-// ── Spawn system ──
-function scheduleSpawn(){
-  if(!playing) return;
-  let base = mode==='arcade' ? 500 : mode==='zen' ? 900 : 750;
-  let fast = Math.min(score/50, 400);
-  let delay = Math.max(250, base - fast + Math.random()*300);
-
-  spawnTimer = setTimeout(()=>{
-    if(!playing) return;
-    let count = score > 200 && Math.random()<0.3 ? 2 : 1;
-    for(let i=0;i<count;i++) spawnOne();
-    scheduleSpawn();
-  }, delay);
+function refreshBestDisplay(){
+  document.getElementById('bestVal').textContent = getBestAll();
 }
 
-function spawnOne(){
-  const isBomb = mode==='zen' ? false : Math.random() < 0.1;
-  const fd = FDATA[Math.floor(Math.random()*FDATA.length)];
-  const isBonus = mode==='arcade' && !isBomb && Math.random()<0.08; // banana time bonus
-
-  // Multiple spawn lanes
-  const lane = Math.floor(Math.random()*3);
-  let sx, svx;
-  if(lane===0){ sx=W*0.2; svx=2+Math.random()*4; }
-  else if(lane===2){ sx=W*0.8; svx=-(2+Math.random()*4); }
-  else { sx=W*0.35+Math.random()*W*0.3; svx=(Math.random()-.5)*8; }
-
-  const speedY = -(H*(0.02+Math.random()*0.009));
-
-  fruits.push({
-    x:sx, y:H+80,
-    vx:svx, vy:speedY, gravity:0.38,
-    size:36+Math.random()*22,
-    isBomb, isBonus,
-    emoji: isBonus ? '🍌' : (isBomb ? '💣' : fd.e),
-    juice: isBomb ? '#ff3300' : fd.j,
-    sliced:false, alpha:1,
-    rot:Math.random()*Math.PI*2,
-    rotV:(Math.random()-.5)*0.1,
-    wobble:0, wobbleV:(Math.random()-.5)*0.05,
-    trail:[],
-  });
+// ── Popups ────────────────────────────────────
+function popup(x, y, txt, big){
+  const d = document.createElement('div');
+  d.className = 'popup' + (big ? ' big' : '');
+  d.textContent = txt;
+  d.style.left  = (x - 40) + 'px';
+  d.style.top   = (y - 60) + 'px';
+  document.getElementById('ui').appendChild(d);
+  setTimeout(() => d.remove(), 900);
 }
 
-// ── Particles ──
-function burst(x,y,col,n=20){
+// ── Particles ─────────────────────────────────
+function burst(x, y, col, n){
+  n = n || 20;
   for(let i=0;i<n;i++){
-    const a=Math.random()*Math.PI*2, s=2+Math.random()*9;
+    const a = Math.random()*Math.PI*2;
+    const s = 2 + Math.random()*9;
     parts.push({
-      x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,
-      g:0.28, sz:2+Math.random()*5,
-      col, alpha:1, decay:0.022+Math.random()*0.018,
+      x, y,
+      vx: Math.cos(a)*s,
+      vy: Math.sin(a)*s - 4,
+      g:  0.28,
+      sz: 2 + Math.random()*5,
+      col,
+      alpha: 1,
+      dec: 0.022 + Math.random()*0.018,
     });
   }
 }
 
-// ── Score popup ──
-function popup(x,y,txt,big=false){
-  const d=document.createElement('div');
-  d.className='popup'+(big?' big':'');
-  d.textContent=txt;
-  d.style.left=(x-40)+'px';
-  d.style.top=(y-50)+'px';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),950);
+// ── Spawn one fruit ───────────────────────────
+function spawnOne(){
+  const isBomb  = (mode !== 'zen') && Math.random() < 0.1;
+  const isBonus = (mode === 'arcade') && !isBomb && Math.random() < 0.09;
+  const fd      = FDATA[Math.floor(Math.random()*FDATA.length)];
+
+  const lane = Math.floor(Math.random()*3);
+  let sx, svx;
+  if(lane === 0){      sx = W*0.15; svx =  3+Math.random()*5; }
+  else if(lane === 2){ sx = W*0.85; svx = -(3+Math.random()*5); }
+  else {               sx = W*0.25+Math.random()*W*0.5; svx = (Math.random()-.5)*8; }
+
+  fruits.push({
+    x:  sx,
+    y:  H + 80,
+    vx: svx,
+    vy: -(H*0.021 + Math.random()*H*0.008),
+    g:  0.38,
+    size:  36 + Math.random()*22,
+    isBomb, isBonus,
+    emoji: isBonus ? '🍌' : (isBomb ? '💣' : fd.e),
+    juice: isBomb ? '#ff3300' : fd.j,
+    sliced: false,
+    alpha:  1,
+    rot:    Math.random()*Math.PI*2,
+    rotV:   (Math.random()-.5)*0.1,
+  });
 }
 
-// ── HUD update ──
-function updateHUD(){
-  document.getElementById('scoreVal').textContent=score;
-  document.getElementById('livesVal').textContent=HEART[Math.max(0,lives)]||'💀';
-  const cv=document.getElementById('comboVal');
-  cv.textContent=combo+'x';
-  cv.style.opacity=combo>=2?'1':'0.4';
-  if(mode==='arcade'){
-    document.getElementById('timerFill').style.width=(arcadeTime/60*100)+'%';
-  } else if(mode==='zen'){
-    document.getElementById('timerFill').style.width=(zenTime/60*100)+'%';
-  }
+// ── Schedule spawns ───────────────────────────
+function scheduleSpawn(){
+  if(!playing) return;
+  const base  = mode==='arcade' ? 480 : mode==='zen' ? 850 : 720;
+  const fast  = Math.min(score/60, 380);
+  const delay = Math.max(220, base - fast + Math.random()*320);
+  spawnTO = setTimeout(()=>{
+    if(!playing) return;
+    const multi = score > 150 && Math.random() < 0.3 ? 2 : 1;
+    for(let i=0;i<multi;i++) spawnOne();
+    scheduleSpawn();
+  }, delay);
 }
 
-// ── Slice check ──
-function trySlice(x,y){
+// ── Hit detection ─────────────────────────────
+function trySlice(x, y){
   for(let i=fruits.length-1;i>=0;i--){
-    const f=fruits[i];
+    const f = fruits[i];
     if(f.sliced) continue;
-    if(Math.hypot(x-f.x,y-f.y)<f.size*0.72){
-      f.sliced=true;
-      burst(f.x,f.y,f.juice,f.isBomb?55:22);
+    if(Math.hypot(x-f.x, y-f.y) < f.size*0.72){
+      f.sliced = true;
+      burst(f.x, f.y, f.juice, f.isBomb?55:22);
 
       if(f.isBomb){
-        burst(f.x,f.y,'#ff2200',60);
-        burst(f.x,f.y,'#ffaa00',40);
-        if(mode==='classic'){
-          triggerGameOver();
-        } else if(mode==='arcade'){
-          arcadeTime=Math.max(0,arcadeTime-10);
+        burst(f.x, f.y, '#ff2200', 60);
+        burst(f.x, f.y, '#ffaa00', 35);
+        if(mode === 'classic'){ endGame(); return; }
+        else if(mode === 'arcade'){
+          timeLeft = Math.max(0, timeLeft - 10);
+          popup(f.x, f.y, '💣 -10s!', true);
+          refreshHUD();
         }
         return;
       }
 
-      clearTimeout(comboTimer);
+      // Combo
+      clearTimeout(comboTO);
       combo++;
-      comboTimer=setTimeout(()=>{ combo=0; updateHUD(); },1500);
+      comboTO = setTimeout(()=>{ combo=0; refreshHUD(); }, 1500);
 
-      const mult=Math.max(1,combo);
-      const pts=10*mult;
-      score+=pts;
+      const pts = 10 * Math.max(1, combo);
+      score += pts;
 
       if(f.isBonus && mode==='arcade'){
-        arcadeTime=Math.min(60,arcadeTime+5);
-        popup(f.x,f.y,'⏱ +5s',true);
+        timeLeft = Math.min(60, timeLeft + 5);
+        popup(f.x, f.y, '⏱+5s', true);
       } else {
-        popup(f.x,f.y,'+'+pts, combo>=3);
-        if(combo>=3) popup(f.x,f.y-60,combo+'x COMBO!',true);
+        popup(f.x, f.y, '+'+pts, combo >= 3);
+        if(combo >= 3) popup(f.x, f.y-70, combo+'x COMBO!', true);
       }
-      updateHUD();
+      refreshHUD();
     }
   }
 }
 
-// ── Blade drawing ──
-function drawBlade(){
-  if(blade.length<2) return;
-  ctx.save();
-  ctx.lineCap='round';
-  ctx.lineJoin='round';
-  for(let i=1;i<blade.length;i++){
-    const t=i/blade.length;
-    ctx.strokeStyle=`rgba(255,255,255,${t*0.9})`;
-    ctx.shadowColor='rgba(180,220,255,1)';
-    ctx.shadowBlur=30*t;
-    ctx.lineWidth=14*t;
-    ctx.beginPath();
-    ctx.moveTo(blade[i-1].x,blade[i-1].y);
-    ctx.lineTo(blade[i].x,blade[i].y);
-    ctx.stroke();
+// ── Background gradient ───────────────────────
+function makeBGGrad(){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  if(mode==='zen'){
+    g.addColorStop(0,'#001a33'); g.addColorStop(1,'#002244');
+  } else if(mode==='arcade'){
+    g.addColorStop(0,'#1a0030'); g.addColorStop(1,'#2d0050');
+  } else {
+    g.addColorStop(0,'#0d0020'); g.addColorStop(.6,'#1a003a'); g.addColorStop(1,'#060010');
   }
-  // Tip glow
-  const tip=blade[blade.length-1];
-  ctx.shadowBlur=40;
-  ctx.shadowColor='#fff';
-  ctx.fillStyle='rgba(255,255,255,0.9)';
-  ctx.beginPath();
-  ctx.arc(tip.x,tip.y,5,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
+  return g;
 }
 
-// ── Main loop ──
-let lastTime=0, arcadeInterval, zenInterval;
+// ── Render loop ───────────────────────────────
+let bg = null;
+let raf = null;
 
-function loop(ts){
-  requestAnimationFrame(loop);
-  const dt=Math.min((ts-lastTime)/16.67,3); lastTime=ts;
+function render(){
+  raf = requestAnimationFrame(render);
 
-  // Draw BG
-  ctx.fillStyle=bgGrad||'#0d0020';
+  if(!bg) bg = makeBGGrad();
+  ctx.fillStyle = bg;
   ctx.fillRect(0,0,W,H);
 
-  // Subtle glow orbs
-  const orb=ctx.createRadialGradient(W*.5,H*.3,0,W*.5,H*.3,W*.6);
-  orb.addColorStop(0,mode==='zen'?'rgba(0,80,180,.07)':mode==='arcade'?'rgba(140,0,220,.07)':'rgba(100,0,180,.07)');
-  orb.addColorStop(1,'transparent');
-  ctx.fillStyle=orb;
-  ctx.fillRect(0,0,W,H);
-
-  // Ground glow
-  const gGrad=ctx.createLinearGradient(0,H-80,0,H);
-  gGrad.addColorStop(0,'transparent');
-  gGrad.addColorStop(1,'rgba(255,100,0,.08)');
-  ctx.fillStyle=gGrad;
-  ctx.fillRect(0,H-80,W,80);
+  // Ambient glow
+  const orb = ctx.createRadialGradient(W*.5, H*.35, 0, W*.5, H*.35, W*.55);
+  const oc  = mode==='zen'?'rgba(0,80,180,.06)':mode==='arcade'?'rgba(130,0,220,.07)':'rgba(90,0,180,.07)';
+  orb.addColorStop(0, oc); orb.addColorStop(1,'transparent');
+  ctx.fillStyle = orb; ctx.fillRect(0,0,W,H);
 
   if(!playing){ drawBlade(); return; }
 
-  // ── Fruits ──
+  // Fruits
   for(let i=fruits.length-1;i>=0;i--){
-    const f=fruits[i];
-    f.vy+=f.gravity*dt;
-    f.x+=f.vx*dt; f.y+=f.vy*dt;
-    f.rot+=f.rotV*dt;
-    f.wobble+=f.wobbleV;
+    const f = fruits[i];
+    f.vy += f.g;
+    f.x  += f.vx;
+    f.y  += f.vy;
+    f.rot += f.rotV;
+    if(f.sliced) f.alpha -= 0.038;
 
-    if(f.sliced){ f.alpha-=0.04*dt; }
-
-    if(f.y>H+120&&!f.sliced){
+    // Missed
+    if(f.y > H+120 && !f.sliced){
       fruits.splice(i,1);
       if(!f.isBomb){
-        if(mode==='classic'){
+        if(mode === 'classic'){
           lives--;
-          // Miss flash
-          const flash=document.createElement('div');
-          flash.style.cssText='position:fixed;inset:0;background:rgba(255,0,0,.25);z-index:999;pointer-events:none;';
-          document.body.appendChild(flash);
-          setTimeout(()=>flash.remove(),200);
+          flashRed();
+          refreshHUD();
+          if(lives <= 0){ endGame(); return; }
         }
-        updateHUD();
-        if(mode==='classic'&&lives<=0) triggerGameOver();
       }
       continue;
     }
-    if(f.alpha<=0){ fruits.splice(i,1); continue; }
+    if(f.alpha <= 0){ fruits.splice(i,1); continue; }
 
-    // Draw
     ctx.save();
-    ctx.translate(f.x,f.y);
+    ctx.translate(f.x, f.y);
     ctx.rotate(f.rot);
-
-    if(!f.sliced){
-      ctx.shadowColor='rgba(0,0,0,.5)';
-      ctx.shadowBlur=20;
-      ctx.shadowOffsetY=10;
-    } else {
-      ctx.shadowColor=f.juice;
-      ctx.shadowBlur=50;
-      ctx.scale(1+f.alpha*.15,1+f.alpha*.15);
-    }
-
-    ctx.globalAlpha=f.sliced?f.alpha:1;
-    ctx.font=f.size+'px Arial';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText(f.emoji,0,0);
+    ctx.globalAlpha = f.sliced ? f.alpha : 1;
 
     if(f.sliced){
-      ctx.strokeStyle='rgba(255,255,255,.85)';
-      ctx.lineWidth=2;
-      ctx.shadowBlur=0;
+      ctx.shadowColor = f.juice;
+      ctx.shadowBlur  = 45;
+    } else {
+      ctx.shadowColor = 'rgba(0,0,0,.5)';
+      ctx.shadowBlur  = 18;
+      ctx.shadowOffsetY = 9;
+    }
+
+    ctx.font = f.size+'px Arial';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(f.emoji, 0, 0);
+
+    if(f.sliced){
+      // Slice crack
+      ctx.strokeStyle = 'rgba(255,255,255,.85)';
+      ctx.lineWidth   = 2.5;
+      ctx.shadowBlur  = 0;
       ctx.beginPath();
-      ctx.moveTo(-f.size*.5,f.size*.4);
-      ctx.lineTo(f.size*.5,-f.size*.4);
+      ctx.moveTo(-f.size*.5,  f.size*.35);
+      ctx.lineTo( f.size*.5, -f.size*.35);
       ctx.stroke();
-      // juice drops
-      ctx.fillStyle=f.juice;
+      // Juice drops
+      ctx.fillStyle = f.juice;
       for(let d=0;d<6;d++){
-        const a=(d/6)*Math.PI*2+(1-f.alpha)*4;
-        const r=f.size*.6*(1-f.alpha);
-        ctx.globalAlpha=f.alpha*.7;
+        const ang = (d/6)*Math.PI*2 + (1-f.alpha)*5;
+        const r   = f.size*.55*(1-f.alpha);
+        ctx.globalAlpha = f.alpha*.7;
         ctx.beginPath();
-        ctx.arc(Math.cos(a)*r,Math.sin(a)*r,3,0,Math.PI*2);
+        ctx.arc(Math.cos(ang)*r, Math.sin(ang)*r, 3, 0, Math.PI*2);
         ctx.fill();
       }
     }
     ctx.restore();
   }
 
-  // ── Particles ──
+  // Particles
   for(let i=parts.length-1;i>=0;i--){
-    const p=parts[i];
-    p.x+=p.vx*dt; p.y+=p.vy*dt;
-    p.vy+=p.g*dt; p.vx*=0.97;
-    p.alpha-=p.decay*dt;
-    if(p.alpha<=0){parts.splice(i,1);continue;}
+    const p = parts[i];
+    p.vx *= 0.97; p.vy += p.g;
+    p.x  += p.vx; p.y  += p.vy;
+    p.alpha -= p.dec;
+    if(p.alpha <= 0){ parts.splice(i,1); continue; }
     ctx.save();
-    ctx.globalAlpha=p.alpha;
-    ctx.fillStyle=p.col;
-    ctx.shadowColor=p.col; ctx.shadowBlur=10;
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle   = p.col;
+    ctx.shadowColor = p.col;
+    ctx.shadowBlur  = 12;
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+    ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
@@ -613,139 +635,183 @@ function loop(ts){
   drawBlade();
 }
 
-// ── Input ──
-let pDown=false;
-function onMove(x,y){
-  if(!pDown) return;
-  blade.push({x,y});
-  if(blade.length>18) blade.shift();
-  if(playing) trySlice(x,y);
+function drawBlade(){
+  if(blade.length < 2) return;
+  ctx.save();
+  for(let i=1;i<blade.length;i++){
+    const t  = i/blade.length;
+    const p0 = blade[i-1], p1 = blade[i];
+    ctx.strokeStyle = `rgba(255,255,255,${t*.9})`;
+    ctx.shadowColor = 'rgba(160,210,255,1)';
+    ctx.shadowBlur  = 28*t;
+    ctx.lineWidth   = 14*t;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(p0.x,p0.y);
+    ctx.lineTo(p1.x,p1.y);
+    ctx.stroke();
+  }
+  // Tip dot
+  const tip = blade[blade.length-1];
+  ctx.shadowBlur  = 50;
+  ctx.shadowColor = '#fff';
+  ctx.fillStyle   = '#fff';
+  ctx.beginPath();
+  ctx.arc(tip.x,tip.y,5,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
 }
-canvas.addEventListener('mousemove',e=>onMove(e.clientX,e.clientY));
-canvas.addEventListener('mousedown',e=>{pDown=true;onMove(e.clientX,e.clientY);});
-canvas.addEventListener('mouseup',()=>{pDown=false;blade=[];});
-canvas.addEventListener('mouseleave',()=>{pDown=false;blade=[];});
-canvas.addEventListener('touchstart',e=>{
-  e.preventDefault(); pDown=true;
-  const t=e.touches[0]; onMove(t.clientX,t.clientY);
-},{passive:false});
-canvas.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  const t=e.touches[0]; onMove(t.clientX,t.clientY);
-},{passive:false});
-canvas.addEventListener('touchend',()=>{pDown=false;blade=[];});
 
-// ── Countdown then start ──
-function countdown(cb){
-  const el=document.getElementById('countNum');
-  let n=3;
+// ── Red flash on missed fruit ─────────────────
+function flashRed(){
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;inset:0;background:rgba(255,0,0,.22);z-index:999;pointer-events:none;transition:opacity .3s;';
+  document.body.appendChild(d);
+  setTimeout(()=>d.style.opacity='0', 100);
+  setTimeout(()=>d.remove(), 400);
+}
+
+// ── Countdown ─────────────────────────────────
+function runCountdown(cb){
+  const wrap = document.getElementById('countdown');
+  const num  = document.getElementById('cdNum');
+  let n = 3;
+  wrap.classList.add('active');
+
   function tick(){
-    el.style.opacity='1';
-    el.textContent=n;
-    el.style.animation='none';
-    void el.offsetWidth;
-    el.style.animation='popFloat .9s ease-out forwards';
-    setTimeout(()=>{ el.style.opacity='0'; },700);
+    num.textContent = n;
+    // reset animation
+    num.style.animation = 'none';
+    void num.offsetWidth;
+    num.style.animation = 'cdPop .8s ease-out';
+
     n--;
-    if(n>0) setTimeout(tick,1000);
-    else setTimeout(cb,1000);
+    if(n > 0){
+      setTimeout(tick, 900);
+    } else {
+      setTimeout(()=>{
+        wrap.classList.remove('active');
+        cb();
+      }, 900);
+    }
   }
   tick();
 }
 
-// ── Start game ──
+// ── Start game ────────────────────────────────
 function startGame(m){
-  mode=m||mode;
-  document.getElementById('homeScreen').classList.add('hide');
-  document.getElementById('gameOverScreen').classList.add('hide');
-  document.getElementById('hud').classList.add('hide');
+  mode = m;
+  bg   = null;
 
-  countdown(()=>{
-    score=0; lives=3; combo=0;
-    arcadeTime=60; zenTime=60;
-    fruits=[]; parts=[]; blade=[];
-    playing=true;
-    makeBG();
-    updateHUD();
-    document.getElementById('hud').classList.remove('hide');
+  // Reset state
+  score = 0; lives = 3; combo = 0;
+  timeLeft = 60;
+  fruits = []; parts = []; blade = [];
+  clearTimeout(spawnTO);
+  clearInterval(tickIV);
+  clearTimeout(comboTO);
 
-    // Mode banner
-    const banner=document.getElementById('modeBanner');
-    const modeNames={classic:'⚔️ CLASSIC',zen:'🧘 ZEN MODE',arcade:'⚡ ARCADE'};
-    banner.textContent=modeNames[mode];
-    setTimeout(()=>banner.textContent='',3000);
+  showScreen(null);       // hide all screens
+  setHUD(false);
+  document.getElementById('modeBanner').textContent = '';
+  document.getElementById('timerWrap').style.display = 'none';
 
-    // Timer bar
-    const tb=document.getElementById('timerBar');
-    if(mode==='arcade'||mode==='zen'){
-      tb.classList.remove('hide');
-    } else {
-      tb.classList.add('hide');
+  runCountdown(()=>{
+    playing = true;
+    setHUD(true);
+    refreshHUD();
+
+    const names = {classic:'⚔️ CLASSIC',zen:'🧘 ZEN MODE',arcade:'⚡ ARCADE'};
+    const banner = document.getElementById('modeBanner');
+    banner.textContent = names[mode];
+    setTimeout(()=>banner.textContent='', 3000);
+
+    if(mode !== 'classic'){
+      document.getElementById('timerWrap').style.display = 'block';
     }
 
-    clearInterval(arcadeInterval);
-    clearInterval(zenInterval);
-    clearTimeout(spawnTimer);
     scheduleSpawn();
 
-    if(mode==='arcade'){
-      arcadeInterval=setInterval(()=>{
+    if(mode === 'zen' || mode === 'arcade'){
+      tickIV = setInterval(()=>{
         if(!playing) return;
-        arcadeTime=Math.max(0,arcadeTime-.1);
-        updateHUD();
-        if(arcadeTime<=0) triggerGameOver();
-      },100);
-    }
-    if(mode==='zen'){
-      zenInterval=setInterval(()=>{
-        if(!playing) return;
-        zenTime=Math.max(0,zenTime-.1);
-        updateHUD();
-        if(zenTime<=0) triggerGameOver();
-      },100);
+        timeLeft = Math.max(0, timeLeft - 0.1);
+        refreshHUD();
+        if(timeLeft <= 0) endGame();
+      }, 100);
     }
   });
 }
 
-// ── Game Over ──
-function triggerGameOver(){
-  playing=false;
-  clearTimeout(spawnTimer);
-  clearInterval(arcadeInterval);
-  clearInterval(zenInterval);
-  document.getElementById('hud').classList.add('hide');
-  document.getElementById('timerBar').classList.add('hide');
+// ── End game ──────────────────────────────────
+function endGame(){
+  if(!playing) return;
+  playing = false;
+  clearTimeout(spawnTO);
+  clearInterval(tickIV);
+  setHUD(false);
+  document.getElementById('timerWrap').style.display = 'none';
 
-  const isNew=score>bests[mode];
-  if(isNew){ bests[mode]=score; saveBests(); }
+  const isNew = score > bests[mode];
+  if(isNew){ bests[mode] = score; saveBests(); }
 
   setTimeout(()=>{
-    document.getElementById('goMode').textContent=mode.toUpperCase()+' MODE';
-    document.getElementById('goScore').textContent=score;
-    document.getElementById('goBest').textContent=isNew?'🏆 NEW BEST!':'Best: '+bests[mode];
-    document.getElementById('goReplay').onclick=()=>startGame(mode);
-    document.getElementById('gameOverScreen').classList.remove('hide');
-    document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
-  },700);
+    document.getElementById('goMode').textContent  = mode.toUpperCase()+' MODE';
+    document.getElementById('goScore').textContent = score;
+    document.getElementById('goBest').textContent  = isNew ? '🏆 NEW BEST SCORE!' : 'Best: '+bests[mode];
+    refreshBestDisplay();
+    showScreen('sOver');
+  }, 600);
 }
 
 function goHome(){
-  playing=false;
-  clearTimeout(spawnTimer);
-  clearInterval(arcadeInterval);
-  clearInterval(zenInterval);
-  fruits=[]; parts=[];
-  document.getElementById('gameOverScreen').classList.add('hide');
-  document.getElementById('hud').classList.add('hide');
-  document.getElementById('timerBar').classList.add('hide');
-  document.getElementById('homeScreen').classList.remove('hide');
-  document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
-  makeBG();
+  playing = false;
+  clearTimeout(spawnTO);
+  clearInterval(tickIV);
+  fruits=[]; parts=[]; blade=[];
+  setHUD(false);
+  document.getElementById('timerWrap').style.display = 'none';
+  refreshBestDisplay();
+  bg = null;
+  showScreen('sHome');
 }
 
-// Start loop
-document.getElementById('bestHome').textContent=Math.max(...Object.values(bests));
-requestAnimationFrame(loop);
+// ══════════════════════════════════════════════
+//  BUTTON WIRING — done here, never inline
+// ══════════════════════════════════════════════
+document.getElementById('btnClassic').addEventListener('click', ()=> startGame('classic'));
+document.getElementById('btnZen'    ).addEventListener('click', ()=> startGame('zen'));
+document.getElementById('btnArcade' ).addEventListener('click', ()=> startGame('arcade'));
+document.getElementById('btnRetry'  ).addEventListener('click', ()=> startGame(mode));
+document.getElementById('btnHome'   ).addEventListener('click', ()=> goHome());
+
+// ── Input ─────────────────────────────────────
+let pDown = false;
+function onMove(x, y){
+  if(!pDown) return;
+  blade.push({x,y});
+  if(blade.length > 18) blade.shift();
+  if(playing) trySlice(x,y);
+}
+// Mouse
+canvas.addEventListener('mousedown',  e =>{ pDown=true;  onMove(e.clientX,e.clientY); });
+canvas.addEventListener('mousemove',  e => onMove(e.clientX,e.clientY));
+canvas.addEventListener('mouseup',    ()=>{ pDown=false; blade=[]; });
+canvas.addEventListener('mouseleave', ()=>{ pDown=false; blade=[]; });
+// Touch
+canvas.addEventListener('touchstart', e=>{
+  e.preventDefault(); pDown=true;
+  onMove(e.touches[0].clientX, e.touches[0].clientY);
+},{passive:false});
+canvas.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  onMove(e.touches[0].clientX, e.touches[0].clientY);
+},{passive:false});
+canvas.addEventListener('touchend', ()=>{ pDown=false; blade=[]; });
+
+// ── Kick off render loop ──────────────────────
+refreshBestDisplay();
+requestAnimationFrame(render);
 </script>
 </body>
 </html>
