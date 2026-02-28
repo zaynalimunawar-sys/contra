@@ -82,37 +82,98 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 .badge-owned{background:#00ff96;color:#000;}
 .badge-equipped{background:#ffcc00;color:#000;}
 
-/* LUCKY WHEEL */
-#sWheel{background:radial-gradient(ellipse at 50% 0%,#220044 0%,#0a0018 60%,#000 100%);overflow:hidden;}
-.wheel-header{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 18px 0;z-index:2;}
-.wheel-title{font-family:'Bangers',cursive;font-size:clamp(32px,8vw,60px);color:#fff;letter-spacing:4px;text-shadow:0 0 30px #cc00ff;}
-.wheel-coins{display:flex;align-items:center;gap:6px;background:rgba(255,200,0,.15);border:2px solid rgba(255,200,0,.4);border-radius:30px;padding:7px 16px;font-size:18px;color:#ffdd00;}
-.wheel-back{font-family:'Fredoka One',cursive;font-size:15px;padding:9px 18px;border:none;border-radius:30px;background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);cursor:pointer;}
-.wheel-back:active{transform:scale(.94);}
-.wheel-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin:8px 0;z-index:2;}
-.wheel-ptr{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:36px solid #ffdd00;filter:drop-shadow(0 0 10px #ffaa00);z-index:10;}
-#wheelCanvas{border-radius:50%;box-shadow:0 0 50px rgba(180,0,255,.6),0 0 100px rgba(100,0,255,.3);display:block;}
-.wheel-info{text-align:center;z-index:2;padding:0 16px;}
-.wheel-cost{font-size:16px;color:rgba(255,255,255,.5);margin-bottom:10px;}
-.wheel-cost span{color:#ffdd00;}
-.wheel-spin-btn{font-family:'Bangers',cursive;font-size:clamp(22px,5vw,36px);padding:16px 50px;border:none;border-radius:50px;background:linear-gradient(135deg,#cc00ff,#6600cc);color:#fff;cursor:pointer;letter-spacing:3px;box-shadow:0 8px 30px rgba(180,0,255,.6);transition:transform .15s;-webkit-tap-highlight-color:transparent;}
-.wheel-spin-btn:hover{transform:scale(1.06);}
-.wheel-spin-btn:active{transform:scale(.94);}
-.wheel-spin-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.wheel-free-tag{font-size:13px;color:#00ffcc;margin-top:8px;min-height:20px;}
-.wheel-daily{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;}
+/* ══ LUCKY WHEEL — FULLY REDESIGNED LAYOUT ══ */
+#sWheel{
+  background:radial-gradient(ellipse at 50% 30%,#2a0055 0%,#0a0018 60%,#000 100%);
+  overflow:hidden;
+  justify-content:flex-start;
+}
+/* Animated bg sparkles */
+#wSparkles{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.wsp{position:absolute;border-radius:50%;background:#cc88ff;animation:wspTwinkle linear infinite;}
+@keyframes wspTwinkle{0%,100%{opacity:0;transform:scale(0);}50%{opacity:.8;transform:scale(1);}}
 
-/* Prize popup */
-#prizeOverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:none;align-items:center;justify-content:center;flex-direction:column;}
+.wheel-page{display:flex;flex-direction:column;align-items:center;width:100%;height:100%;z-index:2;overflow-y:auto;}
+
+/* Top bar */
+.wheel-topbar{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 18px 10px;flex-shrink:0;}
+.wheel-title{font-family:'Bangers',cursive;font-size:clamp(28px,7vw,52px);color:#fff;letter-spacing:4px;text-shadow:0 0 24px #cc00ff;}
+.wheel-topbar-right{display:flex;align-items:center;gap:10px;}
+.wheel-coins-pill{display:flex;align-items:center;gap:6px;background:rgba(255,200,0,.15);border:2px solid rgba(255,200,0,.4);border-radius:30px;padding:7px 16px;font-size:17px;color:#ffdd00;white-space:nowrap;}
+.wheel-back-btn{font-family:'Fredoka One',cursive;font-size:14px;padding:8px 16px;border:none;border-radius:30px;background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);cursor:pointer;white-space:nowrap;}
+.wheel-back-btn:active{transform:scale(.94);}
+
+/* Main content: wheel + panel side by side on wide, stacked on narrow */
+.wheel-body{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:24px;width:100%;padding:0 16px 10px;flex-wrap:wrap;}
+
+/* Wheel section */
+.wheel-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wheel-ptr{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:16px solid transparent;border-right:16px solid transparent;
+  border-top:32px solid #ffdd00;
+  filter:drop-shadow(0 0 8px #ffaa00);
+  z-index:10;
+}
+#wheelCanvas{border-radius:50%;display:block;box-shadow:0 0 40px rgba(180,0,255,.7),0 0 80px rgba(100,0,200,.4);}
+
+/* Right panel */
+.wheel-panel{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:200px;max-width:260px;}
+
+.wheel-spin-cost{
+  background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);
+  border-radius:18px;padding:12px 20px;text-align:center;width:100%;
+}
+.wsc-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.wsc-val{font-family:'Bangers',cursive;font-size:30px;color:#00ffcc;letter-spacing:1px;}
+.wsc-val.paid{color:#ffdd00;}
+
+.wheel-free-badge{
+  background:linear-gradient(135deg,rgba(0,255,200,.15),rgba(0,180,255,.1));
+  border:2px solid rgba(0,255,200,.4);
+  border-radius:40px;padding:8px 18px;
+  font-size:14px;color:#00ffcc;
+  text-align:center;width:100%;
+}
+.wheel-daily-note{font-size:12px;color:rgba(255,255,255,.3);text-align:center;}
+
+.wheel-spin-btn{
+  font-family:'Bangers',cursive;font-size:clamp(24px,5vw,34px);
+  padding:16px 0;width:100%;border:none;border-radius:50px;
+  background:linear-gradient(135deg,#cc00ff,#6600cc);color:#fff;
+  cursor:pointer;letter-spacing:3px;
+  box-shadow:0 8px 28px rgba(180,0,255,.6);
+  transition:transform .15s;-webkit-tap-highlight-color:transparent;
+}
+.wheel-spin-btn:hover{transform:scale(1.04);}
+.wheel-spin-btn:active{transform:scale(.94);}
+.wheel-spin-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+/* Prize legend */
+.wheel-legend{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 16px 20px;}
+.wleg-item{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:7px 10px;display:flex;align-items:center;gap:8px;}
+.wleg-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.wleg-txt{font-size:12px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wleg-trail{border-color:rgba(200,100,255,.3);background:rgba(150,0,255,.08);}
+.wleg-trail .wleg-txt{color:#cc88ff;}
+
+/* Prize popup overlay */
+#prizeOverlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;display:none;align-items:center;justify-content:center;}
 #prizeOverlay.show{display:flex;}
-.prize-box{background:linear-gradient(135deg,#1a0040,#0a0020);border:3px solid rgba(255,200,0,.5);border-radius:30px;padding:36px 48px;text-align:center;animation:prizeIn .5s cubic-bezier(.34,1.56,.64,1);}
+.prize-box{
+  background:linear-gradient(135deg,#1a0040,#0a0020);
+  border:3px solid rgba(255,200,0,.5);border-radius:30px;
+  padding:36px 48px;text-align:center;
+  animation:prizeIn .5s cubic-bezier(.34,1.56,.64,1);
+  max-width:340px;width:90%;
+}
 @keyframes prizeIn{0%{transform:scale(0.3);opacity:0;}100%{transform:scale(1);opacity:1;}}
-.prize-icon{font-size:clamp(60px,14vw,100px);animation:prizeSpin 1s ease-out;}
-@keyframes prizeSpin{0%{transform:rotate(-20deg) scale(0.5);}100%{transform:rotate(0deg) scale(1);}}
-.prize-label{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-top:8px;}
-.prize-val{font-family:'Bangers',cursive;font-size:clamp(40px,10vw,72px);color:#ffdd00;text-shadow:0 0 30px #ffaa00;letter-spacing:2px;}
-.prize-sub{font-size:15px;color:rgba(255,255,255,.5);margin-top:6px;}
-.prize-close{font-family:'Fredoka One',cursive;font-size:20px;padding:14px 40px;border:none;border-radius:40px;background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;cursor:pointer;margin-top:22px;box-shadow:0 6px 20px rgba(255,120,0,.5);}
+.prize-icon{font-size:clamp(60px,14vw,90px);}
+.prize-label{font-size:13px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-top:10px;}
+.prize-val{font-family:'Bangers',cursive;font-size:clamp(36px,9vw,64px);color:#ffdd00;text-shadow:0 0 30px #ffaa00;letter-spacing:2px;margin-top:4px;}
+.prize-sub{font-size:14px;color:rgba(255,255,255,.5);margin-top:6px;}
+.prize-close{font-family:'Fredoka One',cursive;font-size:19px;padding:13px 40px;border:none;border-radius:40px;background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;cursor:pointer;margin-top:22px;box-shadow:0 6px 20px rgba(255,120,0,.5);}
 .prize-close:active{transform:scale(.94);}
 
 /* GAME OVER */
@@ -145,7 +206,6 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 .gbtn:active{transform:scale(.94);}
 .gbp{background:linear-gradient(135deg,#ff6600,#ff2200);color:#fff;box-shadow:0 8px 26px rgba(255,60,0,.5);}
 .gbs{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);}
-.gbshare{background:linear-gradient(135deg,#1da1f2,#0d7abf);color:#fff;}
 .gbcopy{background:linear-gradient(135deg,#25d366,#128c4e);color:#fff;}
 .gbshop{background:linear-gradient(135deg,#ffaa00,#ff6600);color:#fff;}
 .gbwheel{background:linear-gradient(135deg,#cc00ff,#6600cc);color:#fff;}
@@ -169,12 +229,13 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 <canvas id="canvas"></canvas>
 <div id="bombFlash"></div>
 
+<!-- Prize Overlay -->
 <div id="prizeOverlay">
   <div class="prize-box">
     <div class="prize-icon" id="prizeIcon">🪙</div>
-    <div class="prize-label" id="prizeLabel">You won</div>
-    <div class="prize-val" id="prizeVal">500</div>
-    <div class="prize-sub" id="prizeSub">coins added!</div>
+    <div class="prize-label" id="prizeLabel">YOU WON</div>
+    <div class="prize-val"  id="prizeVal">500 coins!</div>
+    <div class="prize-sub"  id="prizeSub">Added to wallet!</div>
     <button class="prize-close" id="prizeClose">AWESOME! 🎉</button>
   </div>
 </div>
@@ -207,7 +268,6 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
         <button class="mcard mc2" id="btnZen"><span class="micon">🧘</span><span class="mname">ZEN</span><span class="mdesc">60s · no bombs</span></button>
         <button class="mcard mc3" id="btnArcade"><span class="micon">⚡</span><span class="mname">ARCADE</span><span class="mdesc">🍌=+5s · 💣=-10s</span></button>
       </div>
-      <!-- SHOP first, WHEEL second, BEST third -->
       <div class="home-btns">
         <button class="hbtn hbtn-shop"  id="btnShop">🛒 SHOP</button>
         <button class="hbtn hbtn-wheel" id="btnWheel">🎡 WHEEL</button>
@@ -228,20 +288,36 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
 
   <!-- LUCKY WHEEL -->
   <div class="screen" id="sWheel">
-    <div class="wheel-header">
-      <div class="wheel-title">🎡 LUCKY WHEEL</div>
-      <div class="wheel-coins">🪙 <span id="wheelCoins">0</span></div>
-      <button class="wheel-back" id="btnWheelBack">✕</button>
-    </div>
-    <div class="wheel-wrap">
-      <div class="wheel-ptr"></div>
-      <canvas id="wheelCanvas" width="320" height="320"></canvas>
-    </div>
-    <div class="wheel-info">
-      <div class="wheel-cost">Spin cost: <span id="wheelCostTxt">FREE</span></div>
-      <button class="wheel-spin-btn" id="btnSpin">🎯 SPIN!</button>
-      <div class="wheel-free-tag" id="wheelFreeTag"></div>
-      <div class="wheel-daily" id="wheelDailyTxt"></div>
+    <div id="wSparkles"></div>
+    <div class="wheel-page">
+      <!-- Top bar -->
+      <div class="wheel-topbar">
+        <div class="wheel-title">🎡 LUCKY WHEEL</div>
+        <div class="wheel-topbar-right">
+          <div class="wheel-coins-pill">🪙 <span id="wheelCoins">0</span></div>
+          <button class="wheel-back-btn" id="btnWheelBack">✕ BACK</button>
+        </div>
+      </div>
+
+      <!-- Wheel + Panel -->
+      <div class="wheel-body">
+        <div class="wheel-canvas-wrap">
+          <div class="wheel-ptr"></div>
+          <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        </div>
+        <div class="wheel-panel">
+          <div class="wheel-spin-cost">
+            <div class="wsc-label">Spin Cost</div>
+            <div class="wsc-val" id="wheelCostVal">FREE</div>
+          </div>
+          <div class="wheel-free-badge" id="wheelFreeBadge">🎁 1 Free spin today!</div>
+          <div class="wheel-daily-note" id="wheelDailyNote"></div>
+          <button class="wheel-spin-btn" id="btnSpin">🎯 SPIN!</button>
+        </div>
+      </div>
+
+      <!-- Prize legend -->
+      <div class="wheel-legend" id="wheelLegend"></div>
     </div>
   </div>
 
@@ -265,11 +341,11 @@ body{background:#000;overflow:hidden;touch-action:none;font-family:'Fredoka One'
       </div>
       <div class="go-coins-banner" id="goCoinsBanner">+0 🪙 earned</div>
       <div class="go-btn-row">
-        <button class="gbtn gbp"      id="btnRetry">↩ RETRY</button>
-        <button class="gbtn gbwheel"  id="btnGoWheel">🎡 WHEEL</button>
-        <button class="gbtn gbshop"   id="btnGoShop">🛒 SHOP</button>
-        <button class="gbtn gbcopy"   id="btnCopy">📋 COPY</button>
-        <button class="gbtn gbs"      id="btnHome">🏠 HOME</button>
+        <button class="gbtn gbp"     id="btnRetry">↩ RETRY</button>
+        <button class="gbtn gbwheel" id="btnGoWheel">🎡 WHEEL</button>
+        <button class="gbtn gbshop"  id="btnGoShop">🛒 SHOP</button>
+        <button class="gbtn gbcopy"  id="btnCopy">📋 COPY</button>
+        <button class="gbtn gbs"     id="btnHome">🏠 HOME</button>
       </div>
     </div>
   </div>
@@ -315,6 +391,18 @@ function buildStars(){
   }
 }
 buildStars();
+
+// Wheel sparkles
+function buildWSparkles(){
+  const c=document.getElementById('wSparkles');c.innerHTML='';
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');s.className='wsp';
+    const sz=2+Math.random()*3;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${1+Math.random()*2.5}s;animation-delay:${Math.random()*2}s;`;
+    c.appendChild(s);
+  }
+}
+buildWSparkles();
 
 // ── GO Particles ──
 const GO_EMOJIS=['🍎','🍊','🍉','🍓','💣','⭐','🔥','💥','🥝','🍋'];
@@ -375,26 +463,30 @@ function onTrailClick(tr){
   else{showToast('❌ Need '+(tr.price-coins)+' more 🪙');}
 }
 
-// ── Lucky Wheel ──
+// ── LUCKY WHEEL ──
 const SPIN_COST=100;
+
+// ✅ FIX: Trail prizes now correctly give the trail (not coins).
+// If already owned, give 30% value in coins as compensation.
 const WHEEL_SEGMENTS=[
-  {type:'coins',val:50,  label:'50🪙',   bg:'#ff6622'},
-  {type:'coins',val:150, label:'150🪙',  bg:'#ffaa22'},
-  {type:'coins',val:300, label:'300🪙',  bg:'#ffdd44'},
-  {type:'coins',val:75,  label:'75🪙',   bg:'#44dd66'},
-  {type:'trail',val:'fire',   label:'🔥 Fire',   bg:'#ff4422'},
-  {type:'coins',val:500, label:'500🪙',  bg:'#22aaff'},
-  {type:'coins',val:100, label:'100🪙',  bg:'#cc22ff'},
-  {type:'trail',val:'ice',    label:'🧊 Ice',    bg:'#0088dd'},
-  {type:'coins',val:1000,label:'1000🪙', bg:'#ffcc00'},
-  {type:'coins',val:25,  label:'25🪙',   bg:'#aaaaaa'},
-  {type:'trail',val:'toxic',  label:'☢️ Toxic',  bg:'#00aa00'},
-  {type:'coins',val:250, label:'250🪙',  bg:'#ff0088'},
-  {type:'trail',val:'galaxy', label:'🌌 Galaxy', bg:'#8800cc'},
-  {type:'coins',val:200, label:'200🪙',  bg:'#0088aa'},
-  {type:'trail',val:'neon',   label:'💜 Neon',   bg:'#880088'},
-  {type:'coins',val:750, label:'750🪙',  bg:'#cc6600'},
+  {type:'coins', val:50,        label:'50 🪙',      bg:'#cc3300', dotColor:'#ff6644'},
+  {type:'coins', val:150,       label:'150 🪙',     bg:'#cc7700', dotColor:'#ffaa33'},
+  {type:'coins', val:300,       label:'300 🪙',     bg:'#aaaa00', dotColor:'#ffdd00'},
+  {type:'coins', val:75,        label:'75 🪙',      bg:'#227733', dotColor:'#44dd66'},
+  {type:'trail', val:'fire',    label:'🔥 Fire Trail',    bg:'#881100', dotColor:'#ff4422'},
+  {type:'coins', val:500,       label:'500 🪙',     bg:'#005599', dotColor:'#22aaff'},
+  {type:'coins', val:100,       label:'100 🪙',     bg:'#660099', dotColor:'#cc22ff'},
+  {type:'trail', val:'ice',     label:'🧊 Ice Trail',     bg:'#004488', dotColor:'#0099ee'},
+  {type:'coins', val:1000,      label:'1,000 🪙',   bg:'#886600', dotColor:'#ffcc00'},
+  {type:'coins', val:25,        label:'25 🪙',      bg:'#555555', dotColor:'#aaaaaa'},
+  {type:'trail', val:'toxic',   label:'☢️ Toxic Trail',   bg:'#004400', dotColor:'#00cc44'},
+  {type:'coins', val:250,       label:'250 🪙',     bg:'#880044', dotColor:'#ff0088'},
+  {type:'trail', val:'galaxy',  label:'🌌 Galaxy Trail',  bg:'#330066', dotColor:'#9922ff'},
+  {type:'coins', val:200,       label:'200 🪙',     bg:'#005566', dotColor:'#00aacc'},
+  {type:'trail', val:'neon',    label:'💜 Neon Trail',    bg:'#440044', dotColor:'#cc44cc'},
+  {type:'coins', val:750,       label:'750 🪙',     bg:'#774400', dotColor:'#ffaa00'},
 ];
+
 const wCanvas=document.getElementById('wheelCanvas');
 const wCtx=wCanvas.getContext('2d');
 const SEG=WHEEL_SEGMENTS.length;
@@ -402,96 +494,166 @@ const SLICE=Math.PI*2/SEG;
 let wheelAngle=0,spinning=false;
 
 function drawWheel(){
-  const W2=wCanvas.width,H2=wCanvas.height,cx=W2/2,cy=H2/2,r=W2/2-4;
-  wCtx.clearRect(0,0,W2,H2);
-  wCtx.save();wCtx.shadowColor='rgba(180,0,255,0.8)';wCtx.shadowBlur=20;
-  wCtx.strokeStyle='rgba(255,200,255,0.6)';wCtx.lineWidth=4;
-  wCtx.beginPath();wCtx.arc(cx,cy,r,0,Math.PI*2);wCtx.stroke();wCtx.restore();
-  for(let i=0;i<SEG;i++){
-    const start=wheelAngle+i*SLICE,end=start+SLICE,seg=WHEEL_SEGMENTS[i];
-    wCtx.beginPath();wCtx.moveTo(cx,cy);wCtx.arc(cx,cy,r,start,end);wCtx.closePath();
-    wCtx.fillStyle=seg.bg;wCtx.fill();
-    wCtx.strokeStyle='rgba(0,0,0,0.3)';wCtx.lineWidth=1.5;wCtx.stroke();
-    wCtx.save();wCtx.translate(cx,cy);wCtx.rotate(start+SLICE/2);
-    wCtx.textAlign='right';wCtx.textBaseline='middle';
-    wCtx.font=`bold ${seg.type==='trail'?11:13}px Fredoka One,sans-serif`;
-    wCtx.fillStyle='#fff';wCtx.shadowColor='rgba(0,0,0,0.8)';wCtx.shadowBlur=4;
-    wCtx.fillText(seg.label,r-10,0);wCtx.restore();
-  }
+  const sz=wCanvas.width,cx=sz/2,cy=sz/2,r=sz/2-6;
+  wCtx.clearRect(0,0,sz,sz);
+  // Outer glow ring
   wCtx.save();
-  const cg=wCtx.createRadialGradient(cx,cy,0,cx,cy,28);
-  cg.addColorStop(0,'#fff');cg.addColorStop(0.5,'#ffdd00');cg.addColorStop(1,'#ff8800');
-  wCtx.shadowColor='rgba(255,200,0,0.6)';wCtx.shadowBlur=15;
-  wCtx.fillStyle=cg;wCtx.beginPath();wCtx.arc(cx,cy,28,0,Math.PI*2);wCtx.fill();
-  wCtx.font='20px Arial';wCtx.textAlign='center';wCtx.textBaseline='middle';
-  wCtx.fillStyle='#000';wCtx.shadowBlur=0;wCtx.fillText('🎯',cx,cy);wCtx.restore();
+  wCtx.shadowColor='rgba(200,100,255,0.9)';wCtx.shadowBlur=24;
+  wCtx.strokeStyle='rgba(220,150,255,0.5)';wCtx.lineWidth=5;
+  wCtx.beginPath();wCtx.arc(cx,cy,r+2,0,Math.PI*2);wCtx.stroke();
+  wCtx.restore();
+  // Segments
+  for(let i=0;i<SEG;i++){
+    const s=wheelAngle+i*SLICE,e=s+SLICE,seg=WHEEL_SEGMENTS[i];
+    // Alternate brightness
+    const bright=i%2===0?'dd':'aa';
+    wCtx.beginPath();wCtx.moveTo(cx,cy);wCtx.arc(cx,cy,r,s,e);wCtx.closePath();
+    wCtx.fillStyle=seg.bg;wCtx.fill();
+    wCtx.strokeStyle='rgba(0,0,0,0.25)';wCtx.lineWidth=1;wCtx.stroke();
+    // Text
+    wCtx.save();
+    wCtx.translate(cx,cy);wCtx.rotate(s+SLICE/2);
+    wCtx.textAlign='right';wCtx.textBaseline='middle';
+    const isTrail=seg.type==='trail';
+    wCtx.font=`bold ${isTrail?10:12}px Fredoka One,sans-serif`;
+    wCtx.fillStyle='#fff';
+    wCtx.shadowColor='rgba(0,0,0,.9)';wCtx.shadowBlur=5;
+    wCtx.fillText(isTrail?seg.label.split(' ').slice(1).join(' '):seg.label, r-10, 0);
+    if(isTrail){
+      // Draw emoji closer in
+      wCtx.font='12px Arial';wCtx.textAlign='right';
+      wCtx.fillText(seg.label.split(' ')[0], r-10, -11);
+    }
+    wCtx.restore();
+  }
+  // Spoke lines
+  for(let i=0;i<SEG;i++){
+    const a=wheelAngle+i*SLICE;
+    wCtx.save();wCtx.strokeStyle='rgba(0,0,0,0.2)';wCtx.lineWidth=1;
+    wCtx.beginPath();wCtx.moveTo(cx,cy);
+    wCtx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+    wCtx.stroke();wCtx.restore();
+  }
+  // Center cap
+  wCtx.save();
+  const cg=wCtx.createRadialGradient(cx,cy,0,cx,cy,26);
+  cg.addColorStop(0,'#ffffff');cg.addColorStop(0.4,'#ffdd00');cg.addColorStop(1,'#ff8800');
+  wCtx.shadowColor='rgba(255,200,0,.7)';wCtx.shadowBlur=16;
+  wCtx.fillStyle=cg;wCtx.beginPath();wCtx.arc(cx,cy,26,0,Math.PI*2);wCtx.fill();
+  wCtx.shadowBlur=0;wCtx.font='16px Arial';wCtx.textAlign='center';wCtx.textBaseline='middle';
+  wCtx.fillText('⚔️',cx,cy);
+  wCtx.restore();
+}
+
+function buildLegend(){
+  const legend=document.getElementById('wheelLegend');legend.innerHTML='';
+  WHEEL_SEGMENTS.forEach(seg=>{
+    const item=document.createElement('div');
+    item.className='wleg-item'+(seg.type==='trail'?' wleg-trail':'');
+    item.innerHTML=`<div class="wleg-dot" style="background:${seg.dotColor}"></div><div class="wleg-txt">${seg.label}</div>`;
+    legend.appendChild(item);
+  });
 }
 
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function hasFreeSpinToday(){return lastFreeSpinDate!==todayStr();}
+
 function updateWheelUI(){
   const free=hasFreeSpinToday();
-  const costEl=document.getElementById('wheelCostTxt');
-  const freeTag=document.getElementById('wheelFreeTag');
-  const dailyTxt=document.getElementById('wheelDailyTxt');
-  if(free){costEl.textContent='FREE';costEl.style.color='#00ffcc';freeTag.textContent='🎁 1 FREE spin available today!';dailyTxt.textContent='';}
-  else{costEl.textContent=SPIN_COST+'🪙';costEl.style.color='#ffdd00';freeTag.textContent='';dailyTxt.textContent='Free spin resets at midnight';}
+  const costVal=document.getElementById('wheelCostVal');
+  const freeBadge=document.getElementById('wheelFreeBadge');
+  const dailyNote=document.getElementById('wheelDailyNote');
+  if(free){
+    costVal.textContent='FREE';costVal.className='wsc-val';
+    freeBadge.textContent='🎁 1 Free spin available today!';freeBadge.style.display='block';
+    dailyNote.textContent='';
+  }else{
+    costVal.textContent=SPIN_COST+' 🪙';costVal.className='wsc-val paid';
+    freeBadge.style.display='none';
+    dailyNote.textContent='🕛 Free spin resets at midnight';
+  }
   document.getElementById('btnSpin').disabled=spinning||(!free&&coins<SPIN_COST);
   updateCoinUI();
 }
+
 function spinWheel(){
   if(spinning)return;
   const free=hasFreeSpinToday();
-  if(!free&&coins<SPIN_COST){showToast('❌ Not enough coins!');return;}
+  if(!free&&coins<SPIN_COST){showToast('❌ Not enough coins to spin!');return;}
   if(!free){coins-=SPIN_COST;save();updateCoinUI();}
   else{lastFreeSpinDate=todayStr();save();}
-  spinning=true;document.getElementById('btnSpin').disabled=true;
+  spinning=true;
+  document.getElementById('btnSpin').disabled=true;
+  // Pick winner
   const winIdx=Math.floor(Math.random()*SEG);
-  const targetAngle=-(winIdx*SLICE+SLICE/2)+Math.PI/2;
-  const spins=5+Math.floor(Math.random()*4);
-  const totalRotation=targetAngle-wheelAngle+spins*Math.PI*2;
+  // Calculate angle so pointer (top = -PI/2) lands on center of winning segment
+  const winCenterAngle=winIdx*SLICE+SLICE/2;
+  const targetAngle=(-Math.PI/2)-winCenterAngle;
+  const spins=6+Math.floor(Math.random()*4);
+  const totalRotation=(targetAngle-wheelAngle)+(spins*Math.PI*2);
   const startAngle=wheelAngle;
-  const duration=4000+Math.random()*1500;
-  const start=performance.now();
+  const duration=4500+Math.random()*1000;
+  const startTime=performance.now();
   function animate(now){
-    const elapsed=now-start,t=Math.min(elapsed/duration,1);
-    const ease=1-Math.pow(1-t,3);
+    const elapsed=now-startTime;
+    const t=Math.min(elapsed/duration,1);
+    const ease=1-Math.pow(1-t,4);
     wheelAngle=startAngle+ease*totalRotation;
     drawWheel();
     if(t<1){requestAnimationFrame(animate);}
-    else{wheelAngle=((targetAngle%( Math.PI*2))+Math.PI*2)%(Math.PI*2);spinning=false;drawWheel();showPrize(WHEEL_SEGMENTS[winIdx]);updateWheelUI();}
+    else{
+      // Normalize angle cleanly
+      wheelAngle=((targetAngle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+      spinning=false;
+      drawWheel();
+      setTimeout(()=>{showPrize(WHEEL_SEGMENTS[winIdx]);updateWheelUI();},300);
+    }
   }
   requestAnimationFrame(animate);
 }
+
+// ✅ FIXED: Trail prizes now properly give the trail.
+// Only gives coins if player already owns that trail.
 function showPrize(seg){
   sndCombo(4);
+  const overlay=document.getElementById('prizeOverlay');
   if(seg.type==='coins'){
+    // Coin prize
     coins+=seg.val;save();updateCoinUI();
     document.getElementById('prizeIcon').textContent='🪙';
-    document.getElementById('prizeLabel').textContent='You won';
+    document.getElementById('prizeLabel').textContent='YOU WON';
     document.getElementById('prizeVal').textContent='+'+seg.val.toLocaleString()+' coins!';
-    document.getElementById('prizeSub').textContent='Added to your wallet!';
-  }else{
+    document.getElementById('prizeSub').textContent='Added to your wallet! 💰';
+  } else {
+    // Trail prize
     const tr=TRAILS.find(t=>t.id===seg.val);
+    if(!tr)return;
     const alreadyOwned=ownedTrails.includes(seg.val);
     if(alreadyOwned){
-      const bonus=Math.floor(tr.price*0.3);coins+=bonus;save();updateCoinUI();
+      // Already own it — give compensation coins instead
+      const bonus=Math.floor(tr.price*0.3);
+      coins+=bonus;save();updateCoinUI();
       document.getElementById('prizeIcon').textContent='🪙';
-      document.getElementById('prizeLabel').textContent='Already own '+tr.name+'! Got';
+      document.getElementById('prizeLabel').textContent='ALREADY OWNED!');
       document.getElementById('prizeVal').textContent='+'+bonus+' coins!';
-      document.getElementById('prizeSub').textContent='30% trail value as coins 💰';
-    }else{
-      ownedTrails.push(seg.val);equippedTrail=seg.val;save();
+      document.getElementById('prizeSub').textContent=tr.name+' trail → 30% coin refund 💰';
+    } else {
+      // Give the trail!
+      ownedTrails.push(seg.val);
+      equippedTrail=seg.val;
+      save();buildShop();
       document.getElementById('prizeIcon').textContent=seg.label.split(' ')[0];
-      document.getElementById('prizeLabel').textContent='You unlocked';
+      document.getElementById('prizeLabel').textContent='TRAIL UNLOCKED!';
       document.getElementById('prizeVal').textContent=tr.name+' Trail!';
-      document.getElementById('prizeSub').textContent='Auto-equipped! 🎨';
+      document.getElementById('prizeSub').textContent='Auto-equipped! Check it out 🎨';
     }
   }
-  document.getElementById('prizeOverlay').classList.add('show');
+  overlay.classList.add('show');
 }
+
 document.getElementById('prizeClose').addEventListener('click',()=>{
-  document.getElementById('prizeOverlay').classList.remove('show');buildShop();
+  document.getElementById('prizeOverlay').classList.remove('show');
+  buildShop();updateCoinUI();
 });
 
 // ── Audio ──
@@ -771,21 +933,20 @@ function goHome(){
   document.getElementById('bestVal').textContent=topBest();
   updateCoinUI();bgCanvas=null;showScreen('sHome');
 }
-function openWheel(){updateWheelUI();drawWheel();showScreen('sWheel');}
+function openWheel(){updateWheelUI();drawWheel();buildLegend();showScreen('sWheel');}
 function showToast(m){const t=document.getElementById('copyToast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function buildTxt(){return `🍉 Ninja Slice — ${mode.charAt(0).toUpperCase()+mode.slice(1)} Mode\n🏆 Score: ${score}\n🍉 Sliced: ${totalSliced} | ⚡ Best Combo: ${bestCombo}x\n⚔️ Can you beat me? #NinjaSlice`;}
 function copyScore(){const txt=buildTxt();if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('✅ Copied!')).catch(()=>fbCopy(txt));else fbCopy(txt);}
 function fbCopy(txt){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ Copied!');}catch(e){showToast('❌ Failed');}ta.remove();}
 function shareScore(){const t=buildTxt();if(navigator.share)navigator.share({title:'Ninja Slice',text:t}).catch(()=>copyScore());else window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(t),'_blank');}
 
-// ── Button wiring ──
+// ── Buttons ──
 document.getElementById('btnClassic').addEventListener('click',()=>startGame('classic'));
 document.getElementById('btnZen').addEventListener('click',()=>startGame('zen'));
 document.getElementById('btnArcade').addEventListener('click',()=>startGame('arcade'));
 document.getElementById('btnRetry').addEventListener('click',()=>startGame(mode));
 document.getElementById('btnHome').addEventListener('click',()=>goHome());
 document.getElementById('btnCopy').addEventListener('click',()=>copyScore());
-document.getElementById('btnShare') && document.getElementById('btnShare').addEventListener('click',()=>shareScore());
 document.getElementById('btnShop').addEventListener('click',()=>{buildShop();showScreen('sShop');});
 document.getElementById('btnShopBack').addEventListener('click',()=>showScreen('sHome'));
 document.getElementById('btnGoShop').addEventListener('click',()=>{buildShop();showScreen('sShop');});
@@ -797,8 +958,7 @@ document.getElementById('btnSpin').addEventListener('click',()=>{getAC();spinWhe
 // ── Init ──
 updateCoinUI();
 document.getElementById('bestVal').textContent=topBest();
-buildShop();
-drawWheel();
+buildShop();drawWheel();buildLegend();
 requestAnimationFrame(render);
 </script>
 </body>
