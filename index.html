@@ -1,265 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Jungle Runner Pro</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: linear-gradient(180deg, #228B22, #006400); font-family: 'Arial Black', Arial; overflow: hidden; }
-        canvas { display: block; width: 100vw; height: 100vh; max-width: 400px; max-height: 600px; margin: auto; }
-        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .hud { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; color: #FFD700; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; pointer-events: none; }
-        .hearts { display: flex; gap: 5px; }
-        .heart { width: 25px; height: 25px; background: #FF4444; clip-path: polygon(50% 0%, 0% 30%, 0% 100%, 100% 100%, 100% 30%); transform: scale(1); transition: transform 0.2s; }
-        .control-btns { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: all; }
-        .btn { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,215,0,0.8); border: 3px solid #FFD700; font-size: 24px; font-weight: bold; color: #006400; cursor: pointer; transition: all 0.2s; user-select: none; }
-        .btn:active { transform: scale(0.9); background: #FFD700; }
-        .menu, .gameover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,100,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #FFD700; text-align: center; pointer-events: all; }
-        .menu h1, .gameover h1 { font-size: 48px; margin-bottom: 30px; text-shadow: 3px 3px 6px #000; }
-        .menu h2 { font-size: 28px; margin-bottom: 20px; }
-        .btn-big { width: 200px; height: 60px; margin: 10px; font-size: 24px; border-radius: 30px; background: linear-gradient(45deg, #FFD700, #FFA500); color: #006400; border: none; cursor: pointer; transition: all 0.3s; }
-        .btn-big:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .hidden { display: none !important; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temu Fruit Ninja</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Arial", sans-serif;
+      background-color: #00cccc;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 24px;
+      z-index: 1000;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    #score,
+    #misses {
+      margin: 4px 0;
+    }
+
+    .fruit {
+      position: absolute;
+      font-size: 40px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+
+    .fruit::before {
+      content: attr(data-fruit);
+    }
+
+    .sliced {
+      opacity: 0.3;
+      transform: translate(-50%, -50%) rotate(45deg);
+      pointer-events: none;
+    }
+
+    #gameover {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 28px;
+      display: none;
+      z-index: 1000;
+    }
+
+    #gameover button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 20px;
+      border: none;
+      background-color: #ff0066;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    
-    <div class="ui-overlay">
-        <div class="hud hidden" id="hud">
-            <div>Score: <span id="score">0</span></div>
-            <div class="hearts" id="hearts"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div>
-            <div>Speed: <span id="speed">1x</span></div>
-        </div>
+  <div id="game-container">
+    <div id="ui">
+      <div id="score">Score: 0</div>
+      <div id="misses">Misses: 0</div>
     </div>
 
-    <div class="control-btns hidden" id="controls">
-        <div class="btn" id="leftBtn">←</div>
-        <div class="btn" id="jumpBtn">↑</div>
-        <div class="btn" id="rightBtn">→</div>
+    <div id="gameover">
+      <div>Game Over!</div>
+      <div id="final-score">Score: 0</div>
+      <button id="restart">Play Again</button>
     </div>
+  </div>
 
-    <div class="menu" id="menu">
-        <h1>🌿 Jungle Runner 🌿</h1>
-        <h2>High Score: <span id="highScore">0</span></h2>
-        <button class="btn-big" onclick="startGame()">▶ Play</button>
-        <button class="btn-big" onclick="showInstructions()">ℹ️ How to Play</button>
-    </div>
+  <script>
+    // Game settings
+    const maxScore = 50;
+    const maxMisses = 10;
+    const minFruitTimeMs = 500;
+    const maxFruitTimeMs = 2000;
 
-    <div class="gameover hidden" id="gameover">
-        <h1>🐒 Game Over 🐒</h1>
-        <h2>Score: <span id="finalScore">0</span></h2>
-        <button class="btn-big" onclick="startGame()">🔄 Play Again</button>
-        <button class="btn-big" onclick="shareScore()">📱 Share Score</button>
-    </div>
+    // Fruits (you can change these to Temu‑style images later)
+    const fruits = ["🍏", "🍊", "🍓", "🍌", "🍉", "🍍", "🥭", "🥝", "🍅", "🥑"];
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let state = 'menu'; // menu, playing, gameover
-        let score = 0, highScore = localStorage.getItem('jungleHigh') || 0;
-        document.getElementById('highScore').textContent = highScore;
+    // Game state
+    let score = 0;
+    let misses = 0;
+    let isGameOver = false;
 
-        // Game objects
-        let gameSpeed = 1, player = {x:180, y:450, w:40, h:50, lane:1, vy:0}, 
-            obstacles=[], bananas=[], particles=[], lives=3;
+    const gameContainer = document.getElementById("game-container");
+    const scoreEl = document.getElementById("score");
+    const missesEl = document.getElementById("misses");
+    const gameoverEl = document.getElementById("gameover");
+    const finalScoreEl = document.getElementById("final-score");
+    const restartBtn = document.getElementById("restart");
 
-        const lanes = [100,180,260];
+    function updateUI() {
+      scoreEl.textContent = `Score: ${score}`;
+      missesEl.textContent = `Misses: ${misses}`;
+    }
 
-        // Particles for effects
-        function createParticles(x,y,color) {
-            for(let i=0; i<10; i++) {
-                particles.push({
-                    x,y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                    life: 30, maxLife: 30, color
-                });
-            }
+    function makeFruit() {
+      if (isGameOver) return;
+
+      const fruitEl = document.createElement("div");
+      fruitEl.classList.add("fruit");
+
+      const fruit = fruits[Math.floor(Math.random() * fruits.length)];
+      fruitEl.setAttribute("data-fruit", fruit);
+
+      const w = gameContainer.clientWidth;
+      const h = gameContainer.clientHeight;
+
+      const x = Math.random() * (w - 100) + 50;
+      const y = -100;
+
+      fruitEl.style.left = `${x}px`;
+      fruitEl.style.top = `${y}px`;
+
+      const vx = (Math.random() - 0.5) * 3;
+      const vy = 3 + Math.random() * 2;
+
+      let xCurr = x;
+      let yCurr = y;
+
+      function slice() {
+        if (fruitEl.classList.contains("sliced")) return;
+        fruitEl.classList.add("sliced");
+        score += 1;
+        updateUI();
+        if (score >= maxScore) gameOver();
+        setTimeout(() => fruitEl.remove(), 500);
+      }
+
+      function move() {
+        if (isGameOver) return;
+
+        xCurr += vx;
+        yCurr += vy;
+
+        fruitEl.style.left = `${xCurr}px`;
+        fruitEl.style.top = `${yCurr}px`;
+
+        if (yCurr > h + 100) {
+          if (!fruitEl.classList.contains("sliced")) {
+            misses += 1;
+            updateUI();
+            if (misses >= maxMisses) gameOver();
+          }
+          fruitEl.remove();
+        } else {
+          requestAnimationFrame(move);
         }
+      }
 
-        // UI functions
-        function showMenu() {
-            state = 'menu';
-            document.getElementById('menu').classList.remove('hidden');
-            document.getElementById('hud').classList.add('hidden');
-            document.getElementById('controls').classList.add('hidden');
-            document.getElementById('gameover').classList.add('hidden');
-        }
+      fruitEl.addEventListener("click", slice);
+      if ("ontouchstart" in window) {
+        fruitEl.addEventListener("touchstart", slice);
+      }
 
-        function startGame() {
-            state = 'playing';
-            score = 0; gameSpeed = 1; lives = 3; player.y=450; player.vy=0; player.lane=1;
-            obstacles = []; bananas = []; particles = [];
-            document.getElementById('menu').classList.add('hidden');
-            document.getElementById('hud').classList.remove('hidden');
-            document.getElementById('controls').classList.remove('hidden');
-            updateHearts();
-            gameLoop();
-        }
+      gameContainer.appendChild(fruitEl);
+      move();
+    }
 
-        function gameOver() {
-            state = 'gameover';
-            document.getElementById('finalScore').textContent = score;
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem('jungleHigh', highScore);
-            }
-            document.getElementById('gameover').classList.remove('hidden');
-            document.getElementById('controls').classList.add('hidden');
-            document.getElementById('hud').classList.add('hidden');
-        }
+    function spawnLoop() {
+      if (isGameOver) return;
 
-        function showInstructions() {
-            alert('Swipe/Buttons:\n← → Switch lanes\n↑ Jump\n↓ Slide under vines\nCollect bananas! Avoid rocks & vines.\n3 Lives!');
-        }
+      makeFruit();
 
-        function shareScore() {
-            if(navigator.share) {
-                navigator.share({title: 'Jungle Runner', text: `I scored ${score}! Beat it?`});
-            } else {
-                alert(`Share: I got ${score} in Jungle Runner!`);
-            }
-        }
+      const next = Math.random() * (maxFruitTimeMs - minFruitTimeMs) + minFruitTimeMs;
+      setTimeout(spawnLoop, next);
+    }
 
-        function updateHearts() {
-            document.querySelectorAll('.heart').forEach((h,i) => {
-                h.style.transform = i < lives ? 'scale(1)' : 'scale(0.5)';
-            });
-        }
+    function gameOver() {
+      isGameOver = true;
+      gameoverEl.style.display = "block";
+      finalScoreEl.textContent = `Score: ${score}`;
+    }
 
-        // Controls
-        document.getElementById('leftBtn').onclick = () => player.lane = Math.max(0, player.lane-1);
-        document.getElementById('rightBtn').onclick = () => player.lane = Math.min(2, player.lane+1);
-        document.getElementById('jumpBtn').onclick = () => { if(player.y>=450) player.vy=-14; };
+    restartBtn.addEventListener("click", () => {
+      gameoverEl.style.display = "none";
+      isGameOver = false;
+      score = 0;
+      misses = 0;
+      updateUI();
 
-        // Keyboard
-        document.addEventListener('keydown', e => {
-            if(e.key=='ArrowLeft') player.lane = Math.max(0, player.lane-1);
-            if(e.key=='ArrowRight') player.lane = Math.min(2, player.lane+1);
-            if(e.key=='ArrowUp' || e.key==' ') { if(player.y>=450) player.vy=-14; }
-            if(e.key=='ArrowDown') player.h = 25;
-        });
-        document.addEventListener('keyup', e => { if(e.key=='ArrowDown') player.h=50; });
+      // Remove all fruits
+      document.querySelectorAll(".fruit").forEach((el) => el.remove());
 
-        // Game logic
-        function spawnObstacle() {
-            if(Math.random() < 0.02 + gameSpeed*0.005) {
-                const lane = Math.floor(Math.random()*3);
-                const type = Math.random()>0.5 ? 'vine' : 'rock';
-                obstacles.push({x:lanes[lane], y:-80, w:50, h:type=='vine'?90:60, type});
-            }
-        }
+      spawnLoop();
+    });
 
-        function spawnBanana() {
-            if(Math.random() < 0.015 + gameSpeed*0.004) {
-                const lane = Math.floor(Math.random()*3);
-                bananas.push({x:lanes[lane]+10, y:-30, w:20, h:20, rot:0});
-            }
-        }
-
-        function update() {
-            if(state !== 'playing') return;
-
-            // Player physics
-            player.vy += 0.8; player.y += player.vy; player.x = lanes[player.lane];
-            if(player.y > 450) { player.y=450; player.vy=0; }
-
-            // Move & cleanup
-            obstacles.forEach(o => o.y += gameSpeed);
-            bananas.forEach(b => { b.y += gameSpeed; b.rot += 0.15; });
-            obstacles = obstacles.filter(o => o.y < 650);
-            bananas = bananas.filter(b => b.y < 650);
-
-            // Particles
-            particles.forEach((p,i) => {
-                p.x += p.vx; p.y += p.vy; p.life--;
-                p.vx *= 0.98; p.vy *= 0.98;
-                if(p.life <= 0) particles.splice(i,1);
-            });
-
-            // Collisions
-            obstacles.forEach(o => {
-                if(player.x < o.x+o.w && player.x+player.w > o.x && player.y < o.y+o.h && player.y+player.h > o.y) {
-                    lives--; updateHearts(); createParticles(player.x+20, player.y+25, '#FF4444');
-                    if(lives <= 0) gameOver();
-                    obstacles = obstacles.filter(obs => obs !== o); // Remove hit obstacle
-                }
-            });
-
-            bananas.forEach((b,i) => {
-                if(player.x < b.x+b.w && player.x+player.w > b.x && player.y < b.y+b.h && player.y+player.h > b.y) {
-                    bananas.splice(i,1); score += 100; createParticles(b.x+10, b.y+10, '#FFD700');
-                }
-            });
-
-            score++; gameSpeed += 0.001;
-            document.getElementById('score').textContent = score;
-            document.getElementById('speed').textContent = (gameSpeed*0.5).toFixed(1) + 'x';
-
-            spawnObstacle(); spawnBanana();
-        }
-
-        // Render
-        function render() {
-            ctx.clearRect(0,0,400,600);
-
-            // Parallax jungle bg
-            const parallax = score / 100;
-            ctx.fillStyle = 'rgba(34,139,34,0.4)';
-            for(let i=0; i<6; i++) {
-                ctx.fillRect((i*80 - parallax*0.5) % 400 - 80, 0, 80, 600);
-            }
-
-            // Ground
-            ctx.fillStyle = '#8B4513'; ctx.fillRect(0,500,400,100);
-
-            // Lanes
-            ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 4; ctx.setLineDash([15,15]);
-            ctx.beginPath(); ctx.moveTo(133,0); ctx.lineTo(133,600); ctx.moveTo(267,0); ctx.lineTo(267,600); ctx.stroke(); ctx.setLineDash([]);
-
-            // Player monkey
-            ctx.save(); ctx.shadowColor='#D2691E'; ctx.shadowBlur=20;
-            ctx.fillStyle='#8B4513'; ctx.fillRect(player.x+5, player.y, 30, player.h);
-            ctx.fillStyle='#000'; ctx.fillRect(player.x+12, player.y+5, 6, 6); // Eye
-            ctx.fillStyle='#A0522D'; ctx.fillRect(player.x+28, player.y+10, 8, player.h-20); // Tail
-            ctx.shadowBlur=0; ctx.restore();
-
-            // Obstacles
-            obstacles.forEach(o => {
-                ctx.save(); ctx.shadowColor = o.type=='vine' ? '#228B22' : '#B22222'; ctx.shadowBlur=25;
-                ctx.fillStyle = o.type=='vine' ? '#228B22' : '#B22222';
-                ctx.fillRect(o.x, o.y, o.w, o.h);
-                ctx.shadowBlur=0; ctx.restore();
-            });
-
-            // Bananas
-            bananas.forEach(b => {
-                ctx.save(); ctx.translate(b.x+10, b.y+10); ctx.rotate(b.rot);
-                ctx.shadowColor='#FFD700'; ctx.shadowBlur=20;
-                ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
-                ctx.shadowBlur=0; ctx.restore();
-            });
-
-            // Particles
-            particles.forEach(p => {
-                ctx.save(); ctx.globalAlpha = p.life / p.maxLife;
-                ctx.shadowColor = p.color; ctx.shadowBlur=10;
-                ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4);
-                ctx.restore();
-            });
-        }
-
-        let lastTime = 0;
-        function gameLoop(time) {
-            const dt = time - lastTime; lastTime = time;
-            if(dt > 16) { // ~60fps
-                update(); render();
-            }
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Init
-        requestAnimationFrame(gameLoop);
-    </script>
+    // Start
+    spawnLoop();
+    updateUI();
+  </script>
 </body>
 </html>
