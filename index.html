@@ -940,3 +940,46 @@ function endGame(){
     document.getElementById('goScore').textContent=score.toLocaleString();
     document.getElementById('goMode').textContent=mode.toUpperCase()+' MODE';
     document.
+           getElementById('goBestNum').textContent=bests[mode].toLocaleString();
+    document.getElementById('goSliced').textContent=totalSliced;
+    document.getElementById('goBestCombo').textContent=bestCombo+'x';
+    document.getElementById('goMissed').textContent=totalMissed;
+    document.getElementById('goCoinsBanner').textContent='+'+coinsEarned+' 🪙 earned this round';
+    document.getElementById('goNewBest').classList.toggle('show',isNew);
+    document.getElementById('bestVal').textContent=topBest().toLocaleString();
+    showScreen('sOver');
+  },400);
+}
+
+function showToast(msg){
+  const t=document.getElementById('copyToast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+document.getElementById('btnClassic').onclick=()=>startGame('classic');
+document.getElementById('btnZen').onclick=()=>startGame('zen');
+document.getElementById('btnArcade').onclick=()=>startGame('arcade');
+document.getElementById('btnShop').onclick=()=>{buildShop();buildBoxes();showScreen('sShop');startBoxRefresh();};
+document.getElementById('btnBest').onclick=()=>showToast('🏆 Best: '+topBest().toLocaleString());
+document.getElementById('btnShopBack').onclick=()=>{stopBoxRefresh();showScreen('sHome');};
+document.getElementById('btnRetry').onclick=()=>startGame(mode);
+document.getElementById('btnHome').onclick=()=>showScreen('sHome');
+document.getElementById('btnGoShop').onclick=()=>{buildShop();buildBoxes();showScreen('sShop');startBoxRefresh();};
+document.getElementById('btnCopy').onclick=()=>{
+  const txt=`🍉 Ninja Slice!\nScore: ${score} | Mode: ${mode.toUpperCase()}\nBest: ${bests[mode]}\nPlay at: ${location.href}`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('✅ Copied!')).catch(()=>showToast('❌ Copy failed'));
+};
+document.getElementById('btnShare').onclick=()=>{
+  const txt=`🍉 Ninja Slice! Score: ${score} | Mode: ${mode.toUpperCase()} | Best: ${bests[mode]}`;
+  if(navigator.share)navigator.share({title:'Ninja Slice',text:txt,url:location.href});
+  else showToast('🔗 Share not supported');
+};
+
+updateCoinUI();
+document.getElementById('bestVal').textContent=topBest().toLocaleString();
+render();
+</script>
+</body>
+</html>
+
