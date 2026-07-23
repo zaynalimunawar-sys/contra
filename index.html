@@ -888,9 +888,56 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
 .vote-refresh-btn:hover { border-color: var(--color-p1); color: var(--color-p1); }
 .vote-mods-status { font-size:0.72rem; color: var(--color-muted); }
 
+/* ─── DEV SITE WARNING ─── */
+#dev-warning-overlay {
+  position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+  background: rgba(5,5,10,0.92); backdrop-filter: blur(8px);
+}
+#dev-warning-overlay.hidden { display: none; }
+.dev-warning-box {
+  background: linear-gradient(160deg, #2a0a0a, #16050a); border: 2px solid rgba(255,68,68,0.55);
+  border-radius: 22px; padding: 34px 30px; max-width: 420px; width: 90vw; text-align: center;
+  box-shadow: 0 0 60px rgba(255,40,40,0.3), 0 20px 60px rgba(0,0,0,0.6);
+  animation: rewardPop 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.dev-warning-icon { font-size: 3rem; margin-bottom: 6px; filter: drop-shadow(0 0 16px rgba(255,80,0,0.6)); }
+.dev-warning-title {
+  font-family: 'Bangers', cursive; font-size: 1.9rem; letter-spacing: 3px; color: #ff5555;
+  text-shadow: 0 0 18px rgba(255,60,60,0.6); margin-bottom: 12px;
+}
+.dev-warning-text { font-size: 0.92rem; color: #fff; line-height: 1.6; margin-bottom: 10px; }
+.dev-warning-text b { color: #ff8888; }
+.dev-warning-sub { font-size: 0.82rem; color: var(--color-muted); margin-bottom: 22px; line-height: 1.5; }
+.dev-warning-sub b { color: #ffdd44; }
+.dev-warning-btn-row { display: flex; justify-content: center; }
+.dev-warning-btn {
+  padding: 12px 30px; border-radius: 12px; border: none; cursor: pointer;
+  font-family: 'Bangers', cursive; font-size: 1.05rem; letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #ff4444, #aa0000); color: #fff;
+  box-shadow: 0 4px 20px rgba(255,60,60,0.4); transition: transform 150ms ease;
+}
+.dev-warning-btn:hover { transform: scale(1.05); }
+
+
 </style>
 </head>
 <body>
+
+<!-- DEV SITE WARNING -->
+<div id="dev-warning-overlay">
+  <div class="dev-warning-box">
+    <div class="dev-warning-icon">⚠️</div>
+    <h2 class="dev-warning-title">DEV SITE</h2>
+    <p class="dev-warning-text">
+      This is an unfinished development build used for testing new features.<br>
+      You may run into <b>bugs, glitches, or lost progress</b>.
+    </p>
+    <p class="dev-warning-sub">Please visit the <b>official site</b> for the stable, bug-free version.</p>
+    <div class="dev-warning-btn-row">
+      <button class="dev-warning-btn primary" id="devWarningContinueBtn">Continue Anyway</button>
+    </div>
+  </div>
+</div>
 
 <!-- MENU -->
 <div id="menu">
@@ -4507,6 +4554,18 @@ document.getElementById('goShopBtn').addEventListener('click', openShop);
 document.getElementById('goMenuBtn').addEventListener('click', goToMenu);
 
 document.addEventListener('click', initAudio, { once: false });
+
+// ─── DEV SITE WARNING ─── show every time the page loads; dismiss with Continue Anyway
+(function() {
+  const overlay = document.getElementById('dev-warning-overlay');
+  const btn = document.getElementById('devWarningContinueBtn');
+  if (overlay && btn) {
+    btn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+    });
+  }
+})();
+
 
 window.addEventListener('load', function() {
 // ═══════════════════ MOBILE TOUCH CONTROLS (IMPROVED) ═══════════════════
