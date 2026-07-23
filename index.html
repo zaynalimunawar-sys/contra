@@ -1536,8 +1536,8 @@ function getCharSizeMult() {
   const w = window.innerWidth, h = window.innerHeight;
   const isPortrait = h > w;
   const isNarrow = w <= 900;
-  if (isPortrait && isNarrow) return 1.45;   // phone portrait — biggest boost
-  if (isPortrait) return 1.25;               // tablet portrait
+  if (isPortrait && isNarrow) return 2.1;    // phone portrait — biggest boost, much larger now
+  if (isPortrait) return 1.7;                // tablet portrait
   if (isNarrow) return 1.15;                 // phone landscape
   return 1.0;                                // desktop / wide tablet landscape
 }
