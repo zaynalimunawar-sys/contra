@@ -364,6 +364,23 @@ body { font-family: 'Rajdhani', sans-serif; color: var(--color-text); display: f
   border: none; background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-size: 1rem;
 }
 .admin-status { font-size: 0.85rem; color: #44ff88; min-height: 1.2em; margin: 0; }
+.admin-panel-box-wide { max-width: 440px; max-height: 88vh; overflow-y: auto; }
+.admin-slider {
+  width: 100%; height: 8px; border-radius: 6px; background: rgba(255,255,255,0.12);
+  outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; margin: 4px 0;
+}
+.admin-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff4466, #cc0033); border: 2px solid #fff; box-shadow: 0 2px 8px rgba(255,68,102,0.6); cursor: pointer;
+}
+.admin-slider::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #ff4466, #cc0033);
+  border: 2px solid #fff; box-shadow: 0 2px 8px rgba(255,68,102,0.6); cursor: pointer;
+}
+.admin-season-toggle-row { display: flex; gap: 8px; width: 100%; }
+.admin-season-btn { flex: 1; padding: 8px 10px; font-size: 0.8rem; }
+.admin-season-btn.active { background: linear-gradient(135deg, #ff4466, #cc0033); border-color: #ff4466; color: #fff; }
+
 
 /* ─── PROFILE SCREEN ─── */
 #profile-screen {
@@ -582,6 +599,17 @@ body { font-family: 'Rajdhani', sans-serif; color: var(--color-text); display: f
 }
 .pass-close-btn:hover { border-color: #fff; }
 .pass-season-label { position: relative; z-index: 1; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.85); font-weight: 700; }
+.pass-season-switcher { position: relative; z-index: 2; display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+.pass-season-tab { padding: 8px 18px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.7); cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; transition: all 180ms ease; }
+.pass-season-tab:hover { border-color: #fff; color: #fff; }
+.pass-season-tab.active { background: rgba(255,255,255,0.25); border-color: #fff; color: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.3); }
+.pass-season-tab.locked { opacity: 0.6; }
+.pass-season2-banner { position: relative; z-index: 1; margin: 0 auto 14px; max-width: 480px; padding: 14px 20px; border-radius: 18px; background: rgba(0,20,40,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(0,212,255,0.35); display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+.pass-season2-text { font-size: 0.88rem; text-align: left; color: rgba(255,255,255,0.9); }
+.pass-season2-text b { color: #44e0ff; }
+.pass-season2-btn { padding: 10px 22px; border-radius: 10px; border: none; cursor: pointer; font-family: 'Bangers', cursive; font-size: 1.05rem; letter-spacing: 1px; background: linear-gradient(135deg,#00d4ff,#0066cc); color: #001a33; box-shadow: 0 4px 16px rgba(0,180,255,0.4); transition: transform 150ms ease; white-space: nowrap; }
+.pass-season2-btn:hover { transform: scale(1.05); }
+
 .pass-title {
   position: relative; z-index: 1; font-family: 'Bangers', cursive; font-size: clamp(2.4rem, 7vw, 4rem);
   color: #fff; text-shadow: 0 4px 18px rgba(0,0,0,0.4); letter-spacing: 3px; margin: 2px 0 18px;
@@ -678,6 +706,7 @@ body { font-family: 'Rajdhani', sans-serif; color: var(--color-text); display: f
 }
 @keyframes passClaimPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 .pass-reward-card.locked-premium { border-style: dashed; border-color: rgba(255,204,68,0.4); }
+.pass-reward-card.locked-season { opacity: 0.65; border-style: dashed; border-color: rgba(0,212,255,0.45); background: linear-gradient(160deg,#0a1f30,#08141f); }
 .pass-reward-icon { font-size: 32px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
 .pass-reward-name { font-size: 0.62rem; text-align: center; color: rgba(255,255,255,0.7); line-height: 1.15; }
 .pass-reward-lock { position: absolute; top: 6px; right: 6px; font-size: 12px; opacity: 0.75; }
@@ -859,10 +888,7 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
 .mods-coming-soon { font-family: 'Bangers', cursive; font-size:1.15rem; letter-spacing:1.5px; color: #ffdd44; text-align:center; padding: 18px 12px; background: rgba(255,220,0,0.06); border: 2px dashed rgba(255,220,0,0.3); border-radius:14px; }
 .vote-mods-sub { font-size: 0.78rem; color: var(--color-muted); text-align:center; max-width:440px; margin: 0 auto 14px; }
 .vote-mods-container { display:flex; flex-direction:column; gap:10px; max-width:460px; margin:0 auto; }
-.vote-mod-card {
-  display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px;
-  border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); transition: all 200ms ease; position:relative; overflow:hidden;
-}
+.vote-mod-card { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); transition: all 200ms ease; position:relative; overflow:hidden; }
 .vote-mod-card.leading { border-color: rgba(255,220,0,0.55); background: rgba(255,220,0,0.07); box-shadow: 0 0 18px rgba(255,220,0,0.18); }
 .vote-mod-icon { font-size:26px; flex-shrink:0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
 .vote-mod-info { flex:1; min-width:0; }
@@ -871,20 +897,12 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
 .vote-mod-bar-wrap { width:100%; height:8px; background: rgba(255,255,255,0.08); border-radius:6px; overflow:hidden; margin-top:6px; }
 .vote-mod-bar { height:100%; background: linear-gradient(90deg,#ffdd44,#ff9900); border-radius:6px; transition: width 0.4s ease; }
 .vote-mod-count { font-family:'Bangers', cursive; font-size:1rem; color:#ffdd44; min-width:34px; text-align:center; flex-shrink:0; }
-.vote-mod-btn {
-  padding:8px 16px; border-radius:10px; border:none; cursor:pointer; flex-shrink:0;
-  font-family:'Rajdhani', sans-serif; font-weight:700; font-size:0.8rem; letter-spacing:0.5px;
-  background: linear-gradient(135deg,#00aacc,#0066aa); color:#fff; transition: transform 150ms ease;
-}
+.vote-mod-btn { padding:8px 16px; border-radius:10px; border:none; cursor:pointer; flex-shrink:0; font-family:'Rajdhani', sans-serif; font-weight:700; font-size:0.8rem; letter-spacing:0.5px; background: linear-gradient(135deg,#00aacc,#0066aa); color:#fff; transition: transform 150ms ease; }
 .vote-mod-btn:hover:not(:disabled) { transform: scale(1.06); }
 .vote-mod-btn:disabled { opacity:0.4; cursor:not-allowed; background: rgba(255,255,255,0.1); }
 .vote-mod-btn.voted { background: linear-gradient(135deg,#00e87a,#00cc66); color:#052; }
 .vote-mods-refresh-row { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:12px; }
-.vote-refresh-btn {
-  padding:8px 20px; border-radius:20px; border:2px solid var(--color-border); background: var(--color-surface);
-  color: var(--color-text); cursor:pointer; font-family:'Rajdhani', sans-serif; font-weight:700; font-size:0.8rem;
-  transition: all 180ms ease;
-}
+.vote-refresh-btn { padding:8px 20px; border-radius:20px; border:2px solid var(--color-border); background: var(--color-surface); color: var(--color-text); cursor:pointer; font-family:'Rajdhani', sans-serif; font-weight:700; font-size:0.8rem; transition: all 180ms ease; }
 .vote-refresh-btn:hover { border-color: var(--color-p1); color: var(--color-p1); }
 .vote-mods-status { font-size:0.72rem; color: var(--color-muted); }
 
@@ -901,21 +919,14 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
   animation: rewardPop 0.35s cubic-bezier(.34,1.56,.64,1);
 }
 .dev-warning-icon { font-size: 3rem; margin-bottom: 6px; filter: drop-shadow(0 0 16px rgba(255,80,0,0.6)); }
-.dev-warning-title {
-  font-family: 'Bangers', cursive; font-size: 1.9rem; letter-spacing: 3px; color: #ff5555;
-  text-shadow: 0 0 18px rgba(255,60,60,0.6); margin-bottom: 12px;
-}
+.dev-warning-title { font-family: 'Bangers', cursive; font-size: 1.9rem; letter-spacing: 3px; color: #ff5555; text-shadow: 0 0 18px rgba(255,60,60,0.6); margin-bottom: 12px; }
 .dev-warning-text { font-size: 0.92rem; color: #fff; line-height: 1.6; margin-bottom: 10px; }
 .dev-warning-text b { color: #ff8888; }
 .dev-warning-sub { font-size: 0.82rem; color: var(--color-muted); margin-bottom: 22px; line-height: 1.5; }
-.dev-warning-sub b { color: #ffdd44; }
+.dev-warning-link { color: #ffdd44; text-decoration: underline; font-weight: 700; }
+.dev-warning-link:hover { color: #ffee88; }
 .dev-warning-btn-row { display: flex; justify-content: center; }
-.dev-warning-btn {
-  padding: 12px 30px; border-radius: 12px; border: none; cursor: pointer;
-  font-family: 'Bangers', cursive; font-size: 1.05rem; letter-spacing: 1.5px;
-  background: linear-gradient(135deg, #ff4444, #aa0000); color: #fff;
-  box-shadow: 0 4px 20px rgba(255,60,60,0.4); transition: transform 150ms ease;
-}
+.dev-warning-btn { padding: 12px 30px; border-radius: 12px; border: none; cursor: pointer; font-family: 'Bangers', cursive; font-size: 1.05rem; letter-spacing: 1.5px; background: linear-gradient(135deg, #ff4444, #aa0000); color: #fff; box-shadow: 0 4px 20px rgba(255,60,60,0.4); transition: transform 150ms ease; }
 .dev-warning-btn:hover { transform: scale(1.05); }
 
 
@@ -932,7 +943,7 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
       This is an unfinished development build used for testing new features.<br>
       You may run into <b>bugs, glitches, or lost progress</b>.
     </p>
-    <p class="dev-warning-sub">Please visit the <b>official site</b> for the stable, bug-free version.</p>
+    <p class="dev-warning-sub">Please visit the <a href="https://zaynalimunawar-sys.github.io/flappybird/" target="_blank" rel="noopener" class="dev-warning-link">official site</a> for the stable, bug-free version.</p>
     <div class="dev-warning-btn-row">
       <button class="dev-warning-btn primary" id="devWarningContinueBtn">Continue Anyway</button>
     </div>
@@ -1100,22 +1111,38 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
 </div>
 
 <div id="admin-panel-screen">
-  <div class="admin-box admin-panel-box">
+  <div class="admin-box admin-panel-box admin-panel-box-wide">
     <button class="admin-panel-close" id="adminPanelClose">✕</button>
     <div class="admin-icon">🛠️</div>
     <h2>Admin Panel</h2>
     <p class="admin-sub">Current: <span id="adminCurrentCoins">0</span> 🪙 &nbsp;|&nbsp; <span id="adminCurrentTrophies">0</span> 🏆</p>
 
     <div class="admin-field-row">
-      <label>Coins to add</label>
-      <input type="number" id="adminCoinsInput" class="admin-num-input" value="1000" min="0">
-      <button class="admin-btn primary" id="adminGiveCoinsBtn">Give Coins</button>
+      <label>Coins: <span id="adminCoinsSliderVal">1000</span></label>
+      <input type="range" id="adminCoinsSlider" class="admin-slider" min="0" max="100000" step="100" value="1000">
+      <button class="admin-btn primary" id="adminGiveCoinsBtn">Set Coins</button>
     </div>
 
     <div class="admin-field-row">
-      <label>Trophies to add</label>
-      <input type="number" id="adminTrophiesInput" class="admin-num-input" value="100" min="0">
-      <button class="admin-btn primary" id="adminGiveTrophiesBtn">Give Trophies</button>
+      <label>Trophies: <span id="adminTrophiesSliderVal">100</span></label>
+      <input type="range" id="adminTrophiesSlider" class="admin-slider" min="0" max="5000" step="10" value="100">
+      <button class="admin-btn primary" id="adminGiveTrophiesBtn">Set Trophies</button>
+    </div>
+
+    <div class="admin-field-row">
+      <label>Fight Pass — Season: <span id="adminPassSeasonVal">1</span> &nbsp;|&nbsp; Tier: <span id="adminPassTierSliderVal">0</span></label>
+      <div class="admin-season-toggle-row">
+        <button class="admin-btn admin-season-btn active" id="adminPassSeason1Btn" data-season="1">Season 1</button>
+        <button class="admin-btn admin-season-btn" id="adminPassSeason2Btn" data-season="2">Season 2</button>
+      </div>
+      <input type="range" id="adminPassTierSlider" class="admin-slider" min="0" max="40" step="1" value="0">
+      <button class="admin-btn primary" id="adminSetPassTierBtn">Skip to Tier</button>
+    </div>
+
+    <div class="admin-field-row">
+      <label>Character to Prestige</label>
+      <select id="adminCharSelect" class="admin-num-input"></select>
+      <button class="admin-btn primary" id="adminPrestigeCharBtn">Instant Max Level + Prestige</button>
     </div>
 
     <div class="admin-btn-row">
@@ -1128,10 +1155,14 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
 
 <!-- FIGHT PASS -->
 <div id="pass-screen">
-  <div class="pass-hero">
+  <div class="pass-hero" id="passHero">
     <button class="pass-close-btn" id="passCloseBtn">✕ Close</button>
-    <div class="pass-season-label">SEASON 1</div>
-    <h1 class="pass-title">🎫 FIGHT PASS</h1>
+    <div class="pass-season-switcher" id="passSeasonSwitcher">
+      <button class="pass-season-tab" data-season="1" id="passSeasonTab1">SEASON 1</button>
+      <button class="pass-season-tab" data-season="2" id="passSeasonTab2">SEASON 2 👀</button>
+    </div>
+    <div class="pass-season-label" id="passSeasonLabel">SEASON 1</div>
+    <h1 class="pass-title" id="passSeasonTitle">🎫 FIGHT PASS</h1>
     <div class="pass-tier-badge">
       <div class="pass-tier-current-num" id="passTierCurrentNum">0</div>
       <div class="pass-tier-current-label">TIER</div>
@@ -1140,6 +1171,10 @@ body.is-ipad .tc-actions { right:28px; bottom:28px; }
     <div class="pass-tier-label" id="passTierLabel">0 / 4000 XP</div>
   </div>
   <div class="pass-upgrade-banner" id="passUpgradeBanner"></div>
+  <div class="pass-season2-banner" id="passSeason2Banner" style="display:none;">
+    <div class="pass-season2-text">👀 <b>Season 2: Ascension</b> is in preview — you can see all rewards, but you'll need to unlock it with coins to claim them!</div>
+    <button class="pass-season2-btn" id="passSeason2UnlockBtn">Unlock for 🪙 5000</button>
+  </div>
   <div class="pass-giveaway-banner" id="passGiveawayBanner">
     <div class="pass-giveaway-label">🎁 GIVEAWAY!!!</div>
     <div class="pass-giveaway-sub">Got a code? Redeem it here for a free Premium Pass!</div>
@@ -1591,6 +1626,36 @@ const CHARACTERS = [
     speedMult: 0.9, jumpMult: 0.95, weightMult: 0.95, dmgMult: 1.0,
     special: 'fireball', specialName: 'Arcane Bolt',
     desc: 'Mystic ranged fighter. Arcane Bolt fires a piercing energy projectile.',
+  },
+  {
+    id: 'berserker', name: 'Berserker', icon: '🪓', color: '#8a3a2a',
+    speedMult: 1.05, jumpMult: 0.9, weightMult: 1.2, dmgMult: 1.3,
+    special: 'dashpunch', specialName: 'Rage Charge',
+    desc: 'Aggressive glass cannon. Rage Charge is a reckless rushing combo that hits hard.',
+  },
+  {
+    id: 'ninja', name: 'Ninja', icon: '🥷', color: '#2a2a3a',
+    speedMult: 1.35, jumpMult: 1.25, weightMult: 0.65, dmgMult: 0.75,
+    special: 'counter', specialName: 'Shadow Step',
+    desc: 'Blazing fast and elusive. Shadow Step lets him vanish and punish attackers.',
+  },
+  {
+    id: 'templar', name: 'Templar', icon: '🛐', color: '#c8a83c',
+    speedMult: 0.8, jumpMult: 0.85, weightMult: 1.45, dmgMult: 1.2,
+    special: 'flyingkick', specialName: 'Holy Charge',
+    desc: 'Armored zealot with a punishing forward charge. Slow but hits like a hammer.',
+  },
+  {
+    id: 'wraith', name: 'Wraith', icon: '👻', color: '#5a8a8a',
+    speedMult: 1.15, jumpMult: 1.3, weightMult: 0.7, dmgMult: 0.9,
+    special: 'fireball', specialName: 'Spectral Orb',
+    desc: 'Floaty ranged specter. Spectral Orb fires a slow but relentless tracking projectile.',
+  },
+  {
+    id: 'gladiator', name: 'Gladiator', icon: '🏛️', color: '#a86a3c',
+    speedMult: 0.98, jumpMult: 1.0, weightMult: 1.15, dmgMult: 1.1,
+    special: 'dashpunch', specialName: 'Arena Slam',
+    desc: 'Well-rounded veteran fighter. Arena Slam is a powerful close-range combo finisher.',
   },
 ];
 let selectedCharIdx = 0;
@@ -2470,8 +2535,6 @@ function saveMods() {
 let MODS = loadMods();
 
 // ─── COMMUNITY MOD VOTING (shared across all players) ────────────────────────
-// Suggested mods players can vote on. Voting is global — every player's vote
-// updates a shared online counter, and the tallies are shown to everyone.
 const VOTE_MOD_DEFS = [
   { key: 'zeroGravity', icon: '🌌', name: 'Zero Gravity', desc: 'Massively reduced gravity — huge floaty jumps for everyone.' },
   { key: 'giantHeads',  icon: '🎈', name: 'Giant Heads',  desc: 'Everyone fights with comically oversized heads.' },
@@ -2480,27 +2543,17 @@ const VOTE_MOD_DEFS = [
   { key: 'speedDemon',  icon: '⚡', name: 'Speed Demon',  desc: 'Movement and attack speed cranked way up for all fighters.' },
   { key: 'lowGravity',  icon: '🎈', name: 'Low Gravity',  desc: 'Mild gravity reduction for floatier, more aerial fights.' }
 ];
-const VOTE_STORE_URL = 'https://jsonblob.com/api/jsonBlob/019f8f8f-7207-723e-b87f-aca74594bfa5';
+const VOTE_STORE_URL = 'https://jsonblob.com/api/jsonBlob/019f8fb7-de04-7682-ab92-8533af460cfe';
 const VOTE_LOCAL_KEY = 'tkwModVoteChoice';
 let voteTallies = {};
 let voteMyChoice = null;
 try { voteMyChoice = localStorage.getItem(VOTE_LOCAL_KEY) || null; } catch(e) {}
-
-function loadVoteChoiceLocal() {
-  try { return localStorage.getItem(VOTE_LOCAL_KEY) || null; } catch(e) { return null; }
-}
-function saveVoteChoiceLocal(key) {
-  try { localStorage.setItem(VOTE_LOCAL_KEY, key); } catch(e) {}
-}
-
+function saveVoteChoiceLocal(key) { try { localStorage.setItem(VOTE_LOCAL_KEY, key); } catch(e) {} }
 function renderVoteMods() {
   const container = document.getElementById('voteModsContainer');
   if (!container) return;
   const maxVotes = Math.max(1, ...VOTE_MOD_DEFS.map(m => voteTallies[m.key] || 0));
-  const leadingKey = VOTE_MOD_DEFS.reduce((best, m) => {
-    const v = voteTallies[m.key] || 0;
-    return (!best || v > (voteTallies[best] || 0)) ? m.key : best;
-  }, null);
+  const leadingKey = VOTE_MOD_DEFS.reduce((best, m) => { const v = voteTallies[m.key] || 0; return (!best || v > (voteTallies[best] || 0)) ? m.key : best; }, null);
   container.innerHTML = '';
   VOTE_MOD_DEFS.forEach(m => {
     const count = voteTallies[m.key] || 0;
@@ -2516,17 +2569,12 @@ function renderVoteMods() {
         <div class="vote-mod-bar-wrap"><div class="vote-mod-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="vote-mod-count">${count}</div>
-      <button class="vote-mod-btn${isMine ? ' voted' : ''}" data-key="${m.key}" ${voteMyChoice && !isMine ? 'disabled' : ''}>
-        ${isMine ? '✓ Voted' : 'Vote'}
-      </button>
+      <button class="vote-mod-btn${isMine ? ' voted' : ''}" data-key="${m.key}" ${voteMyChoice && !isMine ? 'disabled' : ''}>${isMine ? '✓ Voted' : 'Vote'}</button>
     `;
     container.appendChild(card);
   });
-  container.querySelectorAll('.vote-mod-btn').forEach(btn => {
-    btn.addEventListener('click', () => castModVote(btn.dataset.key));
-  });
+  container.querySelectorAll('.vote-mod-btn').forEach(btn => { btn.addEventListener('click', () => castModVote(btn.dataset.key)); });
 }
-
 async function fetchVoteTallies() {
   const statusEl = document.getElementById('voteModsStatus');
   if (statusEl) statusEl.textContent = 'Loading votes…';
@@ -2542,9 +2590,8 @@ async function fetchVoteTallies() {
     renderVoteMods();
   }
 }
-
 async function castModVote(key) {
-  if (voteMyChoice) return; // one vote per player, but they can see everyone else's votes update live
+  if (voteMyChoice) return;
   const statusEl = document.getElementById('voteModsStatus');
   voteMyChoice = key;
   saveVoteChoiceLocal(key);
@@ -2557,11 +2604,7 @@ async function castModVote(key) {
     const serverVotes = (data && data.votes) ? data.votes : {};
     VOTE_MOD_DEFS.forEach(m => { if (typeof serverVotes[m.key] !== 'number') serverVotes[m.key] = 0; });
     serverVotes[key] = (serverVotes[key] || 0) + 1;
-    await fetch(VOTE_STORE_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ votes: serverVotes })
-    });
+    await fetch(VOTE_STORE_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ votes: serverVotes }) });
     voteTallies = serverVotes;
     renderVoteMods();
     if (statusEl) statusEl.textContent = 'Vote submitted — thanks!';
@@ -2569,14 +2612,9 @@ async function castModVote(key) {
     if (statusEl) statusEl.textContent = 'Vote saved locally, but could not sync online right now.';
   }
 }
-
 document.getElementById('voteRefreshBtn')?.addEventListener('click', fetchVoteTallies);
-// Load tallies once the mods tab UI exists, and re-sync every time the Mods tab is opened
-// so returning players always see the latest community totals.
 fetchVoteTallies();
-document.querySelectorAll('.menu-tab[data-menutab="mods"]').forEach(tab => {
-  tab.addEventListener('click', fetchVoteTallies);
-});
+document.querySelectorAll('.menu-tab[data-menutab="mods"]').forEach(tab => { tab.addEventListener('click', fetchVoteTallies); });
 
 
 let guns = [];
@@ -3232,14 +3270,23 @@ let equipped = { skin: 'default', trail: 'none' };
 let boxCooldowns = {};
 const FREE_BOX_CD = 60 * 1000;
 
-// ─── FIGHT PASS ──────────────────────────────────────────────────────────────
+// ─── FIGHT PASS (multi-season) ────────────────────────────────────────────────
 const PASS_MAX_TIER = 40;
 const XP_PER_TIER = 100;
-let passXp = 0;
-let passTier = 0;
-let passPremiumOwned = false;
-let passClaimedFree = [];
-let passClaimedPremium = [];
+const PASS_SEASON2_UNLOCK_COST = 5000;
+const PASS_SEASONS = [
+  { id: 1, label: 'SEASON 1', name: 'Genesis', grad: 'linear-gradient(160deg, #ff2288 0%, #aa00e0 55%, #4400aa 100%)' },
+  { id: 2, label: 'SEASON 2', name: 'Ascension', grad: 'linear-gradient(160deg, #00d4ff 0%, #0088cc 55%, #002a66 100%)' },
+];
+function makeEmptyPassState() { return { xp: 0, tier: 0, premiumOwned: false, claimedFree: [], claimedPremium: [] }; }
+let passState = { 1: makeEmptyPassState(), 2: makeEmptyPassState() };
+let season2Unlocked = false;
+let currentPassSeason = 1;
+Object.defineProperty(window, 'passXp', { get() { return passState[currentPassSeason].xp; }, set(v) { passState[currentPassSeason].xp = v; } });
+Object.defineProperty(window, 'passTier', { get() { return passState[currentPassSeason].tier; }, set(v) { passState[currentPassSeason].tier = v; } });
+Object.defineProperty(window, 'passPremiumOwned', { get() { return passState[currentPassSeason].premiumOwned; }, set(v) { passState[currentPassSeason].premiumOwned = v; } });
+Object.defineProperty(window, 'passClaimedFree', { get() { return passState[currentPassSeason].claimedFree; }, set(v) { passState[currentPassSeason].claimedFree = v; } });
+Object.defineProperty(window, 'passClaimedPremium', { get() { return passState[currentPassSeason].claimedPremium; }, set(v) { passState[currentPassSeason].claimedPremium = v; } });
 
 // ─── DAILY STREAK ────────────────────────────────────────────────────────────
 let dailyStreak = 0;
@@ -3412,11 +3459,22 @@ function loadShopSave() {
     ownedItems = s.ownedItems || { skins:['default'], trails:['none'], powerups:[] };
     equipped = s.equipped || { skin:'default', trail:'none' };
     boxCooldowns = s.boxCooldowns || {};
-    passXp = s.passXp || 0;
-    passTier = s.passTier || 0;
-    passPremiumOwned = s.passPremiumOwned || false;
-    passClaimedFree = s.passClaimedFree || [];
-    passClaimedPremium = s.passClaimedPremium || [];
+    if (s.passState) {
+      passState = {
+        1: Object.assign(makeEmptyPassState(), s.passState[1] || {}),
+        2: Object.assign(makeEmptyPassState(), s.passState[2] || {}),
+      };
+    } else if (typeof s.passXp !== 'undefined' || typeof s.passTier !== 'undefined') {
+      passState[1] = {
+        xp: s.passXp || 0,
+        tier: s.passTier || 0,
+        premiumOwned: s.passPremiumOwned || false,
+        claimedFree: s.passClaimedFree || [],
+        claimedPremium: s.passClaimedPremium || [],
+      };
+    }
+    season2Unlocked = s.season2Unlocked || false;
+    currentPassSeason = s.currentPassSeason || 1;
     dailyStreak = s.dailyStreak || 0;
     lastLoginDate = s.lastLoginDate || null;
     trophies = s.trophies || 0;
@@ -3431,7 +3489,7 @@ function loadShopSave() {
   if (!ownedItems.trails.includes('none')) ownedItems.trails.push('none');
 }
 function saveShop() {
-  try { localStorage.setItem('tf_save', JSON.stringify({ coins, ownedItems, equipped, boxCooldowns, passXp, passTier, passPremiumOwned, passClaimedFree, passClaimedPremium, dailyStreak, lastLoginDate, trophies, highestTrophies, matchesPlayed, matchesWon, bestComboEver, playerUsername, mastery })); } catch(e) {}
+  try { localStorage.setItem('tf_save', JSON.stringify({ coins, ownedItems, equipped, boxCooldowns, passState, season2Unlocked, currentPassSeason, dailyStreak, lastLoginDate, trophies, highestTrophies, matchesPlayed, matchesWon, bestComboEver, playerUsername, mastery })); } catch(e) {}
 }
 function savePassData() { saveShop(); }
 loadShopSave();
@@ -3716,7 +3774,50 @@ function closePass() {
   document.getElementById('pass-screen').classList.remove('active');
 }
 
+function switchPassSeason(seasonId) {
+  currentPassSeason = seasonId;
+  savePassData();
+  updatePassUI();
+}
+
+function unlockSeason2() {
+  if (season2Unlocked) return;
+  if (coins < PASS_SEASON2_UNLOCK_COST) { showRewardPopup('🪙', 'Not enough coins!'); return; }
+  coins -= PASS_SEASON2_UNLOCK_COST;
+  season2Unlocked = true;
+  currentPassSeason = 2;
+  savePassData();
+  updateCoinsUI();
+  updatePassUI();
+  showRewardPopup('🔓', 'Season 2: Ascension Unlocked!');
+}
+
+document.getElementById('passSeasonTab1')?.addEventListener('click', () => switchPassSeason(1));
+document.getElementById('passSeasonTab2')?.addEventListener('click', () => switchPassSeason(2));
+document.getElementById('passSeason2UnlockBtn')?.addEventListener('click', unlockSeason2);
+
 function updatePassUI() {
+  const season = PASS_SEASONS[currentPassSeason - 1];
+  const seasonLocked = (currentPassSeason === 2 && !season2Unlocked);
+  const hero = document.getElementById('passHero');
+  const seasonLabel = document.getElementById('passSeasonLabel');
+  const seasonTitle = document.getElementById('passSeasonTitle');
+  if (hero) hero.style.background = season.grad;
+  if (seasonLabel) seasonLabel.textContent = season.label + (seasonLocked ? ' (PREVIEW)' : '');
+  if (seasonTitle) seasonTitle.textContent = '🎫 FIGHT PASS — ' + season.name;
+
+  const tab1 = document.getElementById('passSeasonTab1');
+  const tab2 = document.getElementById('passSeasonTab2');
+  if (tab1) tab1.className = 'pass-season-tab' + (currentPassSeason === 1 ? ' active' : '');
+  if (tab2) tab2.className = 'pass-season-tab' + (currentPassSeason === 2 ? ' active' : '') + (season2Unlocked ? '' : ' locked');
+  if (tab2) tab2.textContent = season2Unlocked ? 'SEASON 2' : 'SEASON 2 👀';
+
+  const season2Banner = document.getElementById('passSeason2Banner');
+  if (season2Banner) {
+    season2Banner.style.display = seasonLocked ? 'flex' : 'none';
+    season2Banner.querySelector('.pass-season2-text').innerHTML = '👀 <b>Season 2: Ascension</b> is in preview — you can see all rewards, but you\'ll need to unlock it with coins to claim them!';
+  }
+
   const label = document.getElementById('passTierLabel');
   const bar = document.getElementById('passXpBar');
   const badgeNum = document.getElementById('passTierCurrentNum');
@@ -3726,21 +3827,26 @@ function updatePassUI() {
 
   const banner = document.getElementById('passUpgradeBanner');
   if (banner) {
-    if (passPremiumOwned) {
-      banner.className = 'pass-upgrade-banner owned';
-      banner.innerHTML = '<div class="pass-upgrade-text">⭐ <b>Premium Pass Active</b> — all premium rewards unlocked as you tier up!</div>';
+    if (seasonLocked) {
+      banner.style.display = 'none';
     } else {
-      banner.className = 'pass-upgrade-banner';
-      banner.innerHTML = '<div class="pass-upgrade-text">Unlock the <b>⭐ Premium Track</b> for exclusive skins &amp; trails!</div><button class="pass-upgrade-btn" id="passBuyBtn">Unlock for 🪙 5000</button>';
-      const buyBtn = document.getElementById('passBuyBtn');
-      if (buyBtn) buyBtn.addEventListener('click', buyPremiumPass);
+      banner.style.display = 'flex';
+      if (passPremiumOwned) {
+        banner.className = 'pass-upgrade-banner owned';
+        banner.innerHTML = '<div class="pass-upgrade-text">⭐ <b>Premium Pass Active</b> — all premium rewards unlocked as you tier up!</div>';
+      } else {
+        banner.className = 'pass-upgrade-banner';
+        banner.innerHTML = '<div class="pass-upgrade-text">Unlock the <b>⭐ Premium Track</b> for exclusive skins &amp; trails!</div><button class="pass-upgrade-btn" id="passBuyBtn">Unlock for 🪙 5000</button>';
+        const buyBtn = document.getElementById('passBuyBtn');
+        if (buyBtn) buyBtn.addEventListener('click', buyPremiumPass);
+      }
     }
   }
-  renderPassTrack('passTrackFree', PASS_FREE_REWARDS, passClaimedFree, false);
-  renderPassTrack('passTrackPremium', PASS_PREMIUM_REWARDS, passClaimedPremium, true);
+  renderPassTrack('passTrackFree', PASS_FREE_REWARDS, passClaimedFree, false, seasonLocked);
+  renderPassTrack('passTrackPremium', PASS_PREMIUM_REWARDS, passClaimedPremium, true, seasonLocked);
 }
 
-function renderPassTrack(elId, rewards, claimedList, isPremium) {
+function renderPassTrack(elId, rewards, claimedList, isPremium, seasonLocked) {
   const el = document.getElementById(elId);
   if (!el) return;
   el.innerHTML = '';
@@ -3760,7 +3866,8 @@ function renderPassTrack(elId, rewards, claimedList, isPremium) {
     const needsPremium = isPremium && !passPremiumOwned;
     const claimed = claimedList.includes(r.tier);
     let cls = 'pass-reward-card';
-    if (needsPremium) cls += ' locked-premium';
+    if (seasonLocked) cls += ' locked-season';
+    else if (needsPremium) cls += ' locked-premium';
     else if (claimed) cls += ' unlocked';
     else if (unlocked) cls += ' claimable';
     else cls += ' locked';
@@ -3768,9 +3875,15 @@ function renderPassTrack(elId, rewards, claimedList, isPremium) {
     card.innerHTML = `
       <div class="pass-reward-icon">${r.icon}</div>
       <div class="pass-reward-name">${r.name}</div>
-      ${needsPremium ? '<div class="pass-reward-lock">🔒</div>' : ''}
+      ${seasonLocked ? '<div class="pass-reward-lock">👀</div>' : (needsPremium ? '<div class="pass-reward-lock">🔒</div>' : '')}
     `;
-    if (unlocked && !needsPremium && !claimed) {
+    if (seasonLocked) {
+      const tag = document.createElement('div');
+      tag.className = 'pass-reward-name';
+      tag.style.color = '#44e0ff';
+      tag.textContent = 'Preview Only';
+      card.appendChild(tag);
+    } else if (unlocked && !needsPremium && !claimed) {
       const btn = document.createElement('button');
       btn.className = 'pass-claim-btn';
       btn.textContent = 'CLAIM';
@@ -3789,6 +3902,7 @@ function renderPassTrack(elId, rewards, claimedList, isPremium) {
 }
 
 function claimPassReward(r, isPremium) {
+  if (currentPassSeason === 2 && !season2Unlocked) { showRewardPopup('👀', 'Unlock Season 2 to claim rewards!'); return; }
   const claimedList = isPremium ? passClaimedPremium : passClaimedFree;
   if (claimedList.includes(r.tier)) return;
   if (r.type === 'coins') {
@@ -3927,32 +4041,96 @@ function tryAdminLogin() {
     document.getElementById('adminLoginError').style.display = 'block';
   }
 }
+let adminSelectedPassSeason = 1;
 function openAdminPanel() {
   document.getElementById('adminCurrentCoins').textContent = coins.toLocaleString();
   document.getElementById('adminCurrentTrophies').textContent = trophies.toLocaleString();
   document.getElementById('adminStatusMsg').textContent = '';
+
+  const coinsSlider = document.getElementById('adminCoinsSlider');
+  const coinsVal = document.getElementById('adminCoinsSliderVal');
+  if (coinsSlider) { coinsSlider.value = coins; coinsVal.textContent = coins.toLocaleString(); }
+
+  const trophiesSlider = document.getElementById('adminTrophiesSlider');
+  const trophiesVal = document.getElementById('adminTrophiesSliderVal');
+  if (trophiesSlider) { trophiesSlider.value = Math.min(trophies, 5000); trophiesVal.textContent = trophies.toLocaleString(); }
+
+  adminSelectedPassSeason = currentPassSeason || 1;
+  updateAdminPassSeasonUI();
+
+  const charSelect = document.getElementById('adminCharSelect');
+  if (charSelect && charSelect.options.length === 0) {
+    CHARACTERS.forEach(ch => {
+      const opt = document.createElement('option');
+      opt.value = ch.id;
+      opt.textContent = ch.icon + ' ' + ch.name;
+      charSelect.appendChild(opt);
+    });
+  }
+
   document.getElementById('admin-panel-screen').classList.add('active');
 }
 function closeAdminPanel() {
   document.getElementById('admin-panel-screen').classList.remove('active');
 }
+function updateAdminPassSeasonUI() {
+  const tierSlider = document.getElementById('adminPassTierSlider');
+  const tierVal = document.getElementById('adminPassTierSliderVal');
+  const seasonVal = document.getElementById('adminPassSeasonVal');
+  const btn1 = document.getElementById('adminPassSeason1Btn');
+  const btn2 = document.getElementById('adminPassSeason2Btn');
+  if (btn1) btn1.className = 'admin-btn admin-season-btn' + (adminSelectedPassSeason === 1 ? ' active' : '');
+  if (btn2) btn2.className = 'admin-btn admin-season-btn' + (adminSelectedPassSeason === 2 ? ' active' : '');
+  if (seasonVal) seasonVal.textContent = adminSelectedPassSeason;
+  const tierNow = passState[adminSelectedPassSeason].tier;
+  if (tierSlider) tierSlider.value = tierNow;
+  if (tierVal) tierVal.textContent = tierNow;
+}
 function adminGiveCoins() {
-  const amt = Math.max(0, Math.floor(Number(document.getElementById('adminCoinsInput').value) || 0));
-  coins += amt;
+  const amt = Math.max(0, Math.floor(Number(document.getElementById('adminCoinsSlider').value) || 0));
+  coins = amt;
   updateCoinsUI();
   saveShop();
   document.getElementById('adminCurrentCoins').textContent = coins.toLocaleString();
-  document.getElementById('adminStatusMsg').textContent = `Added ${amt.toLocaleString()} coins!`;
+  document.getElementById('adminStatusMsg').textContent = `Coins set to ${amt.toLocaleString()}!`;
 }
 function adminGiveTrophies() {
-  const amt = Math.max(0, Math.floor(Number(document.getElementById('adminTrophiesInput').value) || 0));
-  trophies += amt;
+  const amt = Math.max(0, Math.floor(Number(document.getElementById('adminTrophiesSlider').value) || 0));
+  trophies = amt;
   highestTrophies = Math.max(highestTrophies, trophies);
   updateTrophyUI();
   saveShop();
   document.getElementById('adminCurrentTrophies').textContent = trophies.toLocaleString();
-  document.getElementById('adminStatusMsg').textContent = `Added ${amt.toLocaleString()} trophies!`;
+  document.getElementById('adminStatusMsg').textContent = `Trophies set to ${amt.toLocaleString()}!`;
 }
+function adminSetPassTier() {
+  const tier = Math.max(0, Math.min(PASS_MAX_TIER, Math.floor(Number(document.getElementById('adminPassTierSlider').value) || 0)));
+  passState[adminSelectedPassSeason].tier = tier;
+  passState[adminSelectedPassSeason].xp = 0;
+  if (adminSelectedPassSeason === 2 && !season2Unlocked) season2Unlocked = true;
+  savePassData();
+  if (currentPassSeason === adminSelectedPassSeason) updatePassUI();
+  document.getElementById('adminStatusMsg').textContent = `Season ${adminSelectedPassSeason} pass set to Tier ${tier}!`;
+}
+function adminPrestigeChar() {
+  const charId = document.getElementById('adminCharSelect').value;
+  if (!charId) return;
+  const m = getMastery(charId);
+  m.level = MASTERY_MAX_LEVEL;
+  m.xp = 0;
+  if (m.prestige < 3) m.prestige++;
+  else { m.prestige = 3; m.level = MASTERY_MAX_LEVEL; }
+  saveShop();
+  const ch = getCharById(charId);
+  document.getElementById('adminStatusMsg').textContent = `${ch.name} instantly maxed + prestiged to ${PRESTIGE_NAMES[m.prestige] || 'MAX'}!`;
+}
+document.getElementById('adminPassSeason1Btn')?.addEventListener('click', () => { adminSelectedPassSeason = 1; updateAdminPassSeasonUI(); });
+document.getElementById('adminPassSeason2Btn')?.addEventListener('click', () => { adminSelectedPassSeason = 2; updateAdminPassSeasonUI(); });
+document.getElementById('adminCoinsSlider')?.addEventListener('input', e => { document.getElementById('adminCoinsSliderVal').textContent = Number(e.target.value).toLocaleString(); });
+document.getElementById('adminTrophiesSlider')?.addEventListener('input', e => { document.getElementById('adminTrophiesSliderVal').textContent = Number(e.target.value).toLocaleString(); });
+document.getElementById('adminPassTierSlider')?.addEventListener('input', e => { document.getElementById('adminPassTierSliderVal').textContent = e.target.value; });
+document.getElementById('adminSetPassTierBtn')?.addEventListener('click', adminSetPassTier);
+document.getElementById('adminPrestigeCharBtn')?.addEventListener('click', adminPrestigeChar);
 function adminResetProgress() {
   if (!confirm('Reset ALL saved progress (coins, trophies, mastery, pass)? This cannot be undone.')) return;
   try { localStorage.removeItem('tf_save'); } catch(e) {}
@@ -4560,9 +4738,7 @@ document.addEventListener('click', initAudio, { once: false });
   const overlay = document.getElementById('dev-warning-overlay');
   const btn = document.getElementById('devWarningContinueBtn');
   if (overlay && btn) {
-    btn.addEventListener('click', () => {
-      overlay.classList.add('hidden');
-    });
+    btn.addEventListener('click', () => { overlay.classList.add('hidden'); });
   }
 })();
 
