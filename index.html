@@ -207,7 +207,6 @@ html, body {
 .warningPop { animation: warningPopAnim 0.4s ease; }
 @keyframes warningPopAnim { 0%{transform:scale(0.7); opacity:0;} 60%{transform:scale(1.08);} 100%{transform:scale(1); opacity:1;} }
 
-/* ===== Generic Popup System ===== */
 .gamePopup {
   position:fixed; background:#efefef; color:#111; border:2px solid #888; border-radius:10px;
   width:min(90%,380px); box-shadow: 0 20px 60px rgba(0,0,0,0.7); z-index:300; font-size:13.5px;
@@ -439,16 +438,10 @@ html, body {
 
 <script>
 
-/* =========================================================
-   DEVICE DETECTION - determines touch vs mouse mechanics
-   ========================================================= */
 var IS_TOUCH = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
 var IS_MOBILE = IS_TOUCH && Math.min(window.innerWidth, window.innerHeight) < 820;
 
-/* =========================================================
-   SAVE SYSTEM
-   ========================================================= */
-var SAVE_KEY = "dnp_save_v4";
+var SAVE_KEY = "dnp_save_v5";
 function loadSave() {
   try { var raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; return JSON.parse(raw); }
   catch(e) { return null; }
@@ -481,9 +474,6 @@ function applySaveData(data) {
   state.totalPressesEver = data.totalPresses || 0;
 }
 
-/* =========================================================
-   GLOBAL STATE
-   ========================================================= */
 var state = {
   presses:0, muted:false, sfxOn:true, volume:0.9, reducedFx:false,
   gameEnded:false, paused:false, screen:"menu",
@@ -503,7 +493,8 @@ var state = {
   _rapidBurst:0, notedYesPattern:false, notedNoPattern:false, notedObviousPattern:false,
   objectClickCounts:{}, activePopups:0, popupsSpawned:0, popupsClosed:0, popupsIgnored:0,
   swipeCount:0, longPressCount:0, doubleTapCount:0, dragCompleted:0, mobileAcknowledged:false,
-  popupCooldownMap:{}
+  popupCooldownMap:{}, tabHiddenCount:0, cameBackFromTabAway:false, deniedLies:0,
+  miniGameFails:0, allMiniGameTypesSeen:new Set(), reachedZeroFromHigh:false, maxPressesReachedThisRun:0
 };
 
 function D(id) { return document.getElementById(id); }
@@ -542,9 +533,6 @@ function showScreen(name) {
   state.screen = name;
 }
 
-/* =========================================================
-   WEB AUDIO API
-   ========================================================= */
 var AudioCtxClass = window.AudioContext || window.webkitAudioContext;
 var audioCtx = new AudioCtxClass();
 function vol(v) { return state.sfxOn ? v * state.volume : 0; }
@@ -571,9 +559,6 @@ function sfxMenuClick(){playTone(440,0.08,"triangle",0.1,660);}
 function sfxAchievement(){playTone(523,0.1,"sine",0.14,659); setTimeout(function(){playTone(659,0.15,"sine",0.14,784);},100);}
 function sfxNotif(){playTone(700,0.06,"sine",0.1,900); setTimeout(function(){playTone(900,0.06,"sine",0.1,700);},80);}
 
-/* =========================================================
-   SPEECH SYNTHESIS
-   ========================================================= */
 var chosenVoice = null;
 function pickVoice() {
   var voices = window.speechSynthesis.getVoices();
@@ -631,9 +616,6 @@ function speak(text, moodKey) {
 function speakByMood(text) { speak(text, getPhase(state.presses).mood); }
 function speakSilent(text) { dialogueText.textContent = text; }
 
-/* =========================================================
-   BACKGROUND CANVAS
-   ========================================================= */
 var bgCanvas, bgCtx, particleCanvas, pCtx, particles = [], bgHueBase = 260, bgTime = 0;
 function initCanvases() {
   bgCanvas = D("bgCanvas"); bgCtx = bgCanvas.getContext("2d");
@@ -681,9 +663,6 @@ function onOrientationChange() {
   }
 }
 
-/* =========================================================
-   VISUAL HELPERS
-   ========================================================= */
 function shakeScreen(intensity) {
   intensity = intensity || 1;
   gameScreen.classList.remove("shake","shakeHard"); void gameScreen.offsetWidth;
@@ -726,16 +705,13 @@ function showToast(title, name) {
   setTimeout(function(){ t.remove(); }, 4000);
 }
 
-/* =========================================================
-   BUTTON POSITIONING
-   ========================================================= */
 function placeButtonAt(xPercent, yPercent, fast) {
   mainBtn.classList.toggle("fastmove", !!fast);
   mainBtn.style.left = xPercent+"%"; mainBtn.style.top = yPercent+"%";
 }
 function moveButtonRandom(fast) { placeButtonAt(15+Math.random()*70, 22+Math.random()*56, fast); }
 function resetButtonPosition() { placeButtonAt(50,50); }
-function growButton(scale) { mainBtn.style.fontSize = ""; mainBtn.style.transform = "translate(-50%,-50%) scale(" + scale + ")"; setTimeout(function(){ if(!state.gameEnded) mainBtn.style.transform = "translate(-50%,-50%)"; }, 1200); }
+function growButton(scale) { mainBtn.style.transform = "translate(-50%,-50%) scale(" + scale + ")"; setTimeout(function(){ if(!state.gameEnded) mainBtn.style.transform = "translate(-50%,-50%)"; }, 1200); }
 function fleeFromPoint(clientX, clientY) {
   var rect = mainBtn.getBoundingClientRect();
   var zoneRect = stage.getBoundingClientRect();
@@ -748,7 +724,6 @@ function fleeFromPoint(clientX, clientY) {
   var ny = Math.max(15, Math.min(85, curY+dy*18));
   placeButtonAt(nx, ny, true);
 }
-/* Touch-friendly flee: teleport away from the tapped point instead of tracking continuous drag */
 function teleportAwayFromPoint(clientX, clientY) {
   var zoneRect = stage.getBoundingClientRect();
   var tapXPercent = ((clientX - zoneRect.left) / zoneRect.width) * 100;
@@ -758,9 +733,6 @@ function teleportAwayFromPoint(clientX, clientY) {
   placeButtonAt(nx, ny, true);
 }
 
-/* =========================================================
-   FAKE BUTTONS / TINY BUTTON / STAGE OBJECTS
-   ========================================================= */
 function spawnFakeButtons(count, textArr) {
   clearFakeButtons();
   for (var i=0;i<count;i++) {
@@ -838,9 +810,6 @@ function onSecretSparkleClick() {
   flashWarning(String.fromCodePoint(0x2726) + " HIDDEN OBJECT FOUND " + String.fromCodePoint(0x2726), 900);
 }
 
-/* =========================================================
-   PHASE / MOOD SYSTEM
-   ========================================================= */
 function getPhase(n) {
   if (n <= 5)   return { name:"Friendly",    mood:"friendly",  num:1 };
   if (n <= 12)  return { name:"Confused",    mood:"confused",  num:2 };
@@ -944,7 +913,10 @@ var ACHIEVEMENTS = [
   { id:"swiper", name:"Swiper", desc:"Perform a swipe gesture.", check:function(s){ return s.swipeCount>=1; } },
   { id:"holdOn", name:"Hold On", desc:"Long-press the button.", check:function(s){ return s.longPressCount>=1; } },
   { id:"doubleTrouble", name:"Double Trouble", desc:"Double-tap the button.", check:function(s){ return s.doubleTapCount>=1; } },
-  { id:"dragQueen", name:"Drag Racer", desc:"Complete a drag challenge.", check:function(s){ return s.dragCompleted>=1; } }
+  { id:"dragQueen", name:"Drag Racer", desc:"Complete a drag challenge.", check:function(s){ return s.dragCompleted>=1; } },
+  { id:"skeptic", name:"Skeptic", desc:"Refuse one of the narrator's lies.", check:function(s){ return s.deniedLies>=1; } },
+  { id:"comebackKid", name:"Comeback Kid", desc:"Leave the tab and come back.", check:function(s){ return s.cameBackFromTabAway; } },
+  { id:"completionist", name:"Completionist", desc:"Try every kind of mini-game.", check:function(s){ return s.allMiniGameTypesSeen.size>=5; } }
 ];
 function checkAchievements() {
   ACHIEVEMENTS.forEach(function(a) {
@@ -964,11 +936,11 @@ function unlockSecret(id, line) {
 }
 
 /* =========================================================
-   ENDINGS
+   ENDINGS - expanded collection of distinct endings
    ========================================================= */
 var ALL_ENDINGS = [
   { id:"deception", name:"Master of Deception", desc:"Clicked five fake buttons." },
-  { id:"keyboard", name:"Keyboard Warrior Ending", desc:"Never touched the button with a mouse." },
+  { id:"keyboard", name:"Keyboard Warrior Ending", desc:"Never touched the button with a mouse or finger." },
   { id:"hundred", name:"One Hundred Sins", desc:"Pressed the button exactly 100 times." },
   { id:"ascension", name:"Ascension", desc:"Pressed the button 250+ times." },
   { id:"haunting", name:"The Haunting", desc:"Clicked empty space obsessively." },
@@ -981,7 +953,20 @@ var ALL_ENDINGS = [
   { id:"avatarAbuse", name:"Don't Touch My Face", desc:"Clicked the narrator's avatar too many times." },
   { id:"friendshipEnding", name:"An Understanding", desc:"Completed every argument and answered every choice honestly." },
   { id:"popupOverload", name:"Popup Overload", desc:"Let 6 popups stack up at once." },
-  { id:"mobileMaster", name:"Pocket Chaos", desc:"Completed a full mobile-only playthrough." }
+  { id:"mobileMaster", name:"Pocket Chaos", desc:"Completed a full mobile-only playthrough." },
+  { id:"exactlyOne", name:"Just The One", desc:"Pressed it exactly once, then walked away for good." },
+  { id:"muteEnding", name:"Silent Treatment", desc:"Muted the narrator and kept playing for a long stretch." },
+  { id:"settingsHermit", name:"The Hermit", desc:"Spent more time in settings than in the actual game." },
+  { id:"skepticEnding", name:"The Skeptic", desc:"Refused every single lie the narrator told." },
+  { id:"gullibleEnding", name:"Absolutely Gullible", desc:"Fell for every single lie the narrator told." },
+  { id:"comebackEnding", name:"You Came Back", desc:"Left the tab mid-game and returned to keep pressing." },
+  { id:"miniGameMaster", name:"Games Within Games", desc:"Completed 5 mini-games in one playthrough." },
+  { id:"miniGameQuitter", name:"Gave Up", desc:"Failed the same mini-game 3 times." },
+  { id:"restartAddict", name:"Groundhog Day", desc:"Restarted the game 10 times in one sitting." },
+  { id:"perfectlyAverage", name:"Perfectly Average", desc:"Ended the game with exactly 42 presses." },
+  { id:"nightOwl", name:"Whatever Time It Is", desc:"Played for over 10 minutes straight without restarting." },
+  { id:"argumentLoser", name:"You Lost The Argument", desc:"Completed 5 narrator arguments without ever picking a real answer." },
+  { id:"rollercoaster", name:"Rollercoaster", desc:"Reached over 60 presses, then dropped back down near zero without restarting." }
 ];
 function unlockEnding(id, title, text) {
   var isNew = !state.unlockedEndings.has(id);
@@ -1005,9 +990,12 @@ function triggerEnding(title, text, id) {
 }
 function checkEndings() {
   var n = state.presses;
+  state.maxPressesReachedThisRun = Math.max(state.maxPressesReachedThisRun, n);
+
   if (state.fakeClicks >= 5) { unlockEnding("deception","Master of Deception","You clicked five fake buttons. Congratulations, you have officially fallen for my tricks more than anyone in recorded history. I almost respect it."); return; }
-  if (state.keyboardPresses >= 15 && state.mousePresses === 0 && state.touchPresses === 0) { unlockEnding("keyboard","Keyboard Warrior Ending","You never even touched the button with your mouse. Just spacebar, spacebar, spacebar. You found a loophole in my suffering. Well played."); return; }
+  if (state.keyboardPresses >= 15 && state.mousePresses === 0 && state.touchPresses === 0) { unlockEnding("keyboard","Keyboard Warrior Ending","You never even touched the button with your mouse or your finger. Just spacebar, spacebar, spacebar. You found a loophole in my suffering. Well played."); return; }
   if (n === 100) { unlockEnding("hundred","One Hundred Sins","You pressed it exactly one hundred times. I do not know whether to applaud you or have you arrested. Both feel appropriate."); return; }
+  if (n === 42) { unlockEnding("perfectlyAverage","Perfectly Average","Forty-two presses. The answer to life, the universe, and apparently also to how many times you would ignore me. Make of that what you will."); return; }
   if (n >= 250) { unlockEnding("ascension","Ascension","Two hundred and fifty presses. You have transcended the button. You have transcended me. You have transcended the concept of taking a hint. Go outside."); return; }
   if (state.ghostClicks >= 8) { unlockEnding("haunting","The Haunting","You have clicked empty space more times than the actual button. At this point you are not playing a game, you are just poking at nothing. I admire the commitment."); return; }
   if (state.choicesShown >= 6) { unlockEnding("interrogation","The Interrogation","You have answered every single one of my questions and pressed the button anyway. There was never a version of this conversation where you were going to stop, was there."); return; }
@@ -1018,6 +1006,15 @@ function checkEndings() {
   if (state.avatarClicks >= 12) { unlockEnding("avatarAbuse","Don't Touch My Face","Twelve times. You clicked my face twelve times. I have never wanted a restart button more in my life, and I am the one who coded it."); return; }
   if (state.activePopups >= 6) { unlockEnding("popupOverload","Popup Overload","Six popups, stacked on top of each other, all at once. This interface was not built for this. Neither was I."); return; }
   if (IS_MOBILE && n >= 40 && state.mousePresses === 0) { unlockEnding("mobileMaster","Pocket Chaos","An entire chaotic playthrough, from your phone, without ever needing a mouse. I see you found every workaround. I am almost proud. Mostly tired."); return; }
+  if (state.settingsOpenCount >= 6 && n <= 3) { unlockEnding("settingsHermit","The Hermit","You have opened the settings menu six times and pressed the button three times or fewer. I do not think you are here to play the game. I think you are here to avoid it."); return; }
+  if (state.timesLied >= 3 && state.deniedLies === 0) { unlockEnding("gullibleEnding","Absolutely Gullible","I lied to you three separate times, and you believed every single one. Not suspicious once. It was almost sweet, in a deeply concerning way."); return; }
+  if (state.deniedLies >= 3) { unlockEnding("skepticEnding","The Skeptic","Three lies, and you saw through every one. I cannot trick you anymore. That is either impressive or extremely sad for me specifically."); return; }
+  if (state.cameBackFromTabAway && n >= 3) { unlockEnding("comebackEnding","You Came Back","You left. I sat here, mid-sentence, waiting. And then you came back, like nothing happened, and just kept pressing. That says a lot about both of us."); return; }
+  if (state.miniGamesCompleted >= 5) { unlockEnding("miniGameMaster","Games Within Games","Five mini-games completed. You have now beaten this game inside of this game more times than you have beaten the actual point of it, which was to stop."); return; }
+  if (state.miniGameFails >= 3) { unlockEnding("miniGameQuitter","Gave Up","You failed the same mini-game three times and I watched every single attempt. This is somehow more satisfying than if you had succeeded."); return; }
+  if (state.restartCount >= 10) { unlockEnding("restartAddict","Groundhog Day","Ten restarts. We have done this exact conversation, this exact button, this exact everything, ten separate times. I remember all of them. You clearly do not."); return; }
+  if (state.argumentsCompleted >= 5) { unlockEnding("argumentLoser","You Lost The Argument","Five arguments, all of them ended the same way: you pressing the button instead of answering. I do not think you have ever actually won an argument in your life, have you."); return; }
+  if (state.maxPressesReachedThisRun >= 60 && n <= 10 && !state.gameEnded) { unlockEnding("rollercoaster","Rollercoaster","You got all the way up past sixty presses and then somehow drifted back down here, near zero, without ever restarting. I do not know what happened in between. I am afraid to ask."); return; }
   if (state.argumentsCompleted >= 3 && state.choicesShown >= 4 && state.choiceStreakNo === 0 && state.choiceStreakYes === 0) {
     unlockEnding("friendshipEnding","An Understanding","We have argued, we have negotiated, and somehow, through all of it, I think we understand each other now. You are still going to press the button. I have made peace with that."); return;
   }
@@ -1032,10 +1029,34 @@ setInterval(function(){
     unlockEnding("pacifist","The Pacifist","You opened this, listened to me, and never pressed anything. A full minute of restraint. I do not know what to do with this. Thank you. I mean that. Please leave before you change your mind.");
     return;
   }
+  if (state.presses === 1 && idleMs > 40000) {
+    unlockEnding("exactlyOne","Just The One","You pressed it exactly once, and then you just... stopped. Forever, apparently. I respect that more than almost anything else that has happened in this game.");
+    return;
+  }
+  if (state.muted && state.presses >= 20 && idleMs < 5000) {
+    unlockEnding("muteEnding","Silent Treatment","You muted me twenty presses ago and kept going anyway. I have been shouting into a void this entire time. At least the subtitles remember what I said.");
+    return;
+  }
   if (state.presses >= 3 && idleMs > 25000) {
     unlockEnding("waiting","The Waiting Game","You stopped pressing for so long that I actually started to worry about you. Then I got bored. Then I got worried again. This is the ending where you simply walked away. Thank you. Genuinely.");
+    return;
+  }
+  if (!state.gameEnded && (Date.now() - state.sessionStart) > 600000 && state.presses > 0) {
+    unlockEnding("nightOwl","Whatever Time It Is","Ten straight minutes. No restart, no quitting, just you and this button and me, going in circles. I do not know if that is dedication or something else entirely.");
+    return;
   }
 }, 3000);
+
+document.addEventListener("visibilitychange", function() {
+  if (document.hidden) {
+    if (state.screen === null && !state.gameEnded) state.tabHiddenCount++;
+  } else {
+    if (state.tabHiddenCount > 0 && state.screen === null && !state.gameEnded) {
+      state.cameBackFromTabAway = true;
+      checkAchievements();
+    }
+  }
+});
 
 /* =========================================================
    COLLECTION SCREEN
@@ -1079,9 +1100,6 @@ function wireCollectionTabs() {
   });
 }
 
-/* =========================================================
-   REACTION LINE POOLS
-   ========================================================= */
 var reactionLines = {
   normalClick: {
     friendly:["STOP.","Please don't.","I said don't press it.","That's the button. The one I told you not to press.","Hey now. We talked about this.","I really thought we had an understanding."],
@@ -1190,7 +1208,8 @@ var reactionLines = {
   swipeReaction: ["A swipe! Bold. Unnecessary, but bold.","Swiping at your screen won't make me disappear. I've checked."],
   longPressReaction: ["Holding it down doesn't make it press faster. It just means you're committed.","That's a long press. I noticed. I noticed everything."],
   doubleTapReaction: ["A double tap. Efficient. Still against the rules I never actually enforced."],
-  dragReaction: ["You just dragged something across my screen. I felt that structurally."]
+  dragReaction: ["You just dragged something across my screen. I felt that structurally."],
+  tabAwayReaction: ["Oh, you're back.","You just left mid-sentence. Rude, but understandable."]
 };
 function pickLine(category, moodOrKey) {
   var pool = reactionLines[category][moodOrKey] || reactionLines[category].friendly;
@@ -1201,9 +1220,6 @@ function pickFlat(category) {
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-/* =========================================================
-   EVENT LIBRARY
-   ========================================================= */
 var eventCooldownMap = {};
 function eventReady(key, cooldownMs) {
   var last = eventCooldownMap[key] || 0;
@@ -1308,23 +1324,14 @@ var ultraChaosEvents = [
   {k:"ultranoise", fn:function(n){ sfxChaos(); shakeScreen(1.8); flashScreen(); return "I don't have a line for this anymore. I'm just making noise at this point."; }},
   {k:"popupArgue", fn:function(n){ spawnPopup("error","Window A","I am the important popup.",[{label:"OK",action:function(){}}]); setTimeout(function(){ spawnPopup("error","Window B","No, I am the important popup.",[{label:"OK",action:function(){}}]); },500); return "Two popups are now arguing about which of them matters. Neither does."; }}
 ];
-
-/* =========================================================
-   MOBILE-ONLY EVENTS - only ever selected when IS_MOBILE is true
-   ========================================================= */
 var mobileOnlyEvents = [
   {k:"m_swipeChallenge", fn:function(n){ startSwipeChallenge(); return "Try swiping across the screen. See what happens. I already regret this."; }},
-  {k:"m_longPressChallenge", fn:function(n){ speakByMood("Hold the button down. Don't let go. Let's see how patient your thumb is."); mainBtn.dataset.longPressChallenge="1"; return "A long-press challenge. Your thumb versus my resolve."; }},
+  {k:"m_longPressChallenge", fn:function(n){ speakByMood("Hold the button down. Don't let go. Let's see how patient your thumb is."); return "A long-press challenge. Your thumb versus my resolve."; }},
   {k:"m_fakeNotif", fn:function(n){ spawnMobileNotification(); return "I generated a fake phone notification. It's not real. Please don't check your actual phone."; }},
   {k:"m_dragPopup", fn:function(n){ spawnDraggablePopup(); return "This popup needs to be dragged away. That's your problem now."; }},
   {k:"m_fingerFlee", fn:function(n){ state.buttonFleeing = true; mainBtn.classList.add("fleeMode"); setTimeout(function(){state.buttonFleeing=false; mainBtn.classList.remove("fleeMode");},5000); return "The button is now actively avoiding your finger specifically."; }}
 ];
 
-/* =========================================================
-   POPUP SYSTEM - a major gameplay layer of interactive windows
-   Popups can: be dismissed, have fake close buttons, move away
-   from touch, ask questions, auto-close, and stack on each other.
-   ========================================================= */
 var popupZCounter = 300;
 function spawnPopup(kind, title, text, buttons, opts) {
   opts = opts || {};
@@ -1427,7 +1434,6 @@ function closeAllPopups() {
   state.activePopups = 0;
 }
 
-/* Specific named popups referenced by events / progression */
 function spawnWarningCountPopup(n) {
   spawnPopup("warn", "WARNING", "You have pressed the button " + n + " times. This is becoming concerning.", [
     { label:"OK", action:function(){} }
@@ -1466,9 +1472,6 @@ function spawnDraggablePopup() {
   ], { draggable:true });
 }
 
-/* =========================================================
-   POPUP PROGRESSION - increasingly chaotic with press count
-   ========================================================= */
 function maybeSpawnProgressPopup(n) {
   if (n === 15 && eventReady("popupIntro", 999999)) { spawnWarningCountPopup(n); return true; }
   if (n === 23 && eventReady("popupSure", 999999)) {
@@ -1496,9 +1499,6 @@ function maybeSpawnProgressPopup(n) {
   return false;
 }
 
-/* =========================================================
-   FAKE CHOICE SYSTEM
-   ========================================================= */
 var choicePrompts = [
   { text:"Do you promise not to press the button?", a:"YES", b:"NO",
     onA:function(){ speakByMood("Good."); setTimeout(function(){speakByMood("You're lying.");},1400); registerChoice(true); },
@@ -1540,9 +1540,6 @@ function maybeShowChoice() {
   return true;
 }
 
-/* =========================================================
-   ARGUMENT SYSTEM
-   ========================================================= */
 var argumentScripts = [
   ["Why are you doing this?","That doesn't answer my question.","STOP ANSWERING ME WITH THE BUTTON.","YOU'RE NOT EVEN LISTENING."],
   ["What do you actually want from me?","The button is not an answer.","I'm asking a real question here.","Okay. Clearly we're not communicating."],
@@ -1563,15 +1560,13 @@ function advanceArgument() {
   state.argumentStep++;
   if (state.argumentStep < state.argumentScript.length) {
     speakByMood(state.argumentScript[state.argumentStep]);
-    if (state.argumentStep >= state.argumentScript.length-1) { state.argumentActive = false; state.argumentsCompleted++; checkAchievements(); }
+    if (state.argumentStep >= state.argumentScript.length-1) { state.argumentActive = false; state.argumentsCompleted++; checkAchievements(); checkEndings(); }
     return true;
   }
   state.argumentActive = false; return false;
 }
 
-/* =========================================================
-   LIES SYSTEM
-   ========================================================= */
+/* Lies system now supports the player refusing/denying, feeding the Skeptic/Gullible endings */
 function maybeTellLie() {
   if (state.gameEnded) return false;
   var lieType = Math.floor(Math.random()*3);
@@ -1588,13 +1583,18 @@ function maybeTellLie() {
     return true;
   }
 }
+/* Denying a lie: when the tiny button appears as bait and the player does NOT click it before it despawns */
+function registerLieDenied() {
+  state.deniedLies++;
+  checkAchievements();
+  checkEndings();
+}
 
-/* =========================================================
-   MINI-GAMES - fully touch and mouse compatible
-   ========================================================= */
 function launchMiniGame(type) {
   if (state.miniGameActive || state.gameEnded) return;
   state.miniGameActive = true;
+  state.allMiniGameTypesSeen.add(type);
+  checkAchievements();
   miniGameArena.innerHTML = ""; miniGameResult.textContent = "";
   miniGameBox.style.display = "block";
 
@@ -1611,7 +1611,7 @@ function launchMiniGame(type) {
         b.style.position="absolute";
         b.addEventListener("click", function() {
           if (i===realIdx) { miniGameResult.textContent = "You found it. Unfortunately."; sfxSuccess(); finishMiniGame(true); }
-          else { miniGameResult.textContent = "Wrong one. Obviously."; sfxError(); }
+          else { miniGameResult.textContent = "Wrong one. Obviously."; sfxError(); registerMiniGameFail(); }
         });
         miniGameArena.appendChild(b);
       })(i);
@@ -1628,7 +1628,7 @@ function launchMiniGame(type) {
     setTimeout(function(){ ready = true; b2.style.background = "#2ecc71"; b2.textContent = "TAP NOW"; }, delay);
     b2.addEventListener("click", function() {
       if (ready) { miniGameResult.textContent = "Impressive reflexes. Wasted on this, but impressive."; sfxSuccess(); finishMiniGame(true); }
-      else { miniGameResult.textContent = "Too early. Typical."; sfxError(); }
+      else { miniGameResult.textContent = "Too early. Typical."; sfxError(); registerMiniGameFail(); }
     });
   } else if (type === "catchMoving") {
     mgTitle.textContent = "Catch The Button";
@@ -1657,7 +1657,7 @@ function launchMiniGame(type) {
       b.style.left = (12+i*28)+"%"; b.style.top="42%";
       b.addEventListener("click", function() {
         if (i===actualCorrect) { miniGameResult.textContent = "That was correct, for what it's worth."; sfxSuccess(); finishMiniGame(true); }
-        else { miniGameResult.textContent = "Incorrect. Was I lying? You'll never know for sure."; sfxError(); }
+        else { miniGameResult.textContent = "Incorrect. Was I lying? You'll never know for sure."; sfxError(); registerMiniGameFail(); }
       });
       miniGameArena.appendChild(b);
     });
@@ -1709,11 +1709,12 @@ function launchMiniGame(type) {
     miniGameArena.appendChild(holdBtn);
   }
 }
+function registerMiniGameFail() { state.miniGameFails++; checkAchievements(); checkEndings(); }
 function finishMiniGame(success) {
   setTimeout(function() {
     miniGameBox.style.display = "none";
     state.miniGameActive = false;
-    if (success) { state.miniGamesCompleted++; checkAchievements(); }
+    if (success) { state.miniGamesCompleted++; checkAchievements(); checkEndings(); }
   }, 1400);
 }
 function maybeLaunchMiniGame() {
@@ -1724,9 +1725,6 @@ function maybeLaunchMiniGame() {
   launchMiniGame(type);
 }
 
-/* =========================================================
-   ADAPTIVE NARRATOR
-   ========================================================= */
 function checkAdaptiveNarrator() {
   if (state.choicesShown < 3) return;
   if (state.choiceStreakYes >= 3 && !state.notedYesPattern) {
@@ -1742,9 +1740,6 @@ function checkAdaptiveNarrator() {
   }
 }
 
-/* =========================================================
-   SWIPE / GESTURE DETECTION (global, for mobile mechanics)
-   ========================================================= */
 var swipeStartX = 0, swipeStartY = 0, swipeStartTime = 0;
 function startSwipeChallenge() {
   showDevMsg("SWIPE CHALLENGE:\nswipe anywhere on the screen\ngo on, try it");
@@ -1766,9 +1761,6 @@ function handleGlobalTouchEnd(e) {
   }
 }
 
-/* =========================================================
-   IDLE / TIMING DETECTION
-   ========================================================= */
 function clearIdleTimer() { if (state.idleTimer) clearTimeout(state.idleTimer); }
 function armIdleTimer() {
   clearIdleTimer();
@@ -1781,9 +1773,6 @@ function armIdleTimer() {
   }, 6000);
 }
 
-/* =========================================================
-   MAIN PRESS HANDLER
-   ========================================================= */
 function handlePress(source, evt) {
   if (state.gameEnded || state.paused || state.screen !== null || state.miniGameActive) return;
 
@@ -1794,6 +1783,12 @@ function handlePress(source, evt) {
   }
   mainBtn.classList.add("pressedNow");
   setTimeout(function(){mainBtn.classList.remove("pressedNow");}, 150);
+
+  /* If a lie about the tiny button is active and it despawned without a click, count it as denied */
+  if (state.pendingLie === null && tinyBtnEl === null && state._tinyBtnWasBaited) {
+    state._tinyBtnWasBaited = false;
+    registerLieDenied();
+  }
 
   var now = Date.now();
   var timeSinceLast = now - state.lastPressTime;
@@ -1815,7 +1810,6 @@ function handlePress(source, evt) {
   updateChaosBar();
   updateChapter(n);
 
-  /* Mobile acknowledgment fires once, early */
   if (IS_MOBILE && !state.mobileAcknowledged && n >= 2) {
     state.mobileAcknowledged = true;
     setTimeout(function(){ speakByMood(pickFlat("mobileAck")); }, 1400);
@@ -1846,7 +1840,6 @@ function handlePress(source, evt) {
 
   state.lastPressTime = now;
 
-  /* Progression popups take priority at specific milestones */
   if (maybeSpawnProgressPopup(n)) {
     speak(line, phase.mood);
     finalizeUI(n, phase);
@@ -1873,7 +1866,9 @@ function handlePress(source, evt) {
     } else if (n >= 6 && n % 7 === 0 && roll < 0.55) {
       maybeShowChoice(); state.eventCooldown = 3; finalizeUI(n, phase); checkAdaptiveNarrator(); persistSave(); return;
     } else if (n >= 8 && roll > 0.8 && roll <= 0.88) {
-      maybeTellLie(); state.eventCooldown = 3; finalizeUI(n, phase); persistSave(); return;
+      var lieResult = maybeTellLie();
+      if (state.pendingLie === null && tinyBtnEl !== null) state._tinyBtnWasBaited = true;
+      state.eventCooldown = 3; finalizeUI(n, phase); persistSave(); return;
     } else if (n >= 10 && roll > 0.88 && roll <= 0.94 && !state.argumentActive) {
       maybeStartArgument(); state.eventCooldown = 3; finalizeUI(n, phase); persistSave(); return;
     } else if (n >= 14 && roll > 0.94 && roll <= 0.97 && !state.miniGameActive) {
@@ -1904,9 +1899,6 @@ function finalizeUI(n, phase) {
   updateChaosBar();
 }
 
-/* =========================================================
-   MAIN BUTTON GESTURE HANDLING - tap, double-tap, long-press
-   ========================================================= */
 var lastMainBtnTap = 0, mainBtnPressTimer = null, mainBtnPressStart = 0, mainBtnLongPressFired = false;
 function onMainBtnPointerDown(e) {
   mainBtnPressStart = Date.now();
@@ -1947,7 +1939,6 @@ function wireAllInteractions() {
     }
   });
 
-  /* Main button: use pointer events where available, fallback to mouse+touch */
   if (window.PointerEvent) {
     mainBtn.addEventListener("pointerdown", function(e){ e.preventDefault(); onMainBtnPointerDown(e); }, {passive:false});
     mainBtn.addEventListener("pointerup", function(e){ e.preventDefault(); onMainBtnPointerUp(e); }, {passive:false});
@@ -1979,7 +1970,7 @@ function wireAllInteractions() {
   });
 
   D("playBtn").addEventListener("click", function() { sfxMenuClick(); startNewGame(); });
-  D("settingsBtn").addEventListener("click", function() { sfxMenuClick(); state.settingsOpenCount++; checkAchievements(); showScreen("settings"); });
+  D("settingsBtn").addEventListener("click", function() { sfxMenuClick(); state.settingsOpenCount++; checkAchievements(); checkEndings(); showScreen("settings"); });
   D("settingsBackBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("menu"); });
   D("creditsBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("credits"); });
   D("creditsBackBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("menu"); });
@@ -2011,7 +2002,7 @@ function wireAllInteractions() {
     D("voiceToggle").checked = !state.muted;
     if (state.muted) { state.voiceOffCount++; window.speechSynthesis.cancel(); if (state.screen===null) speakSilent(pickFlat("voiceOffNag")); }
     else { state.voiceOnCount++; if (state.screen===null) speakByMood(pickFlat("voiceOnNag")); }
-    checkAchievements(); persistSave();
+    checkAchievements(); persistSave(); checkEndings();
   });
 
   pauseBtn.addEventListener("click", togglePause);
@@ -2038,7 +2029,6 @@ function wireAllInteractions() {
     }
   });
 
-  /* Touch-based flee: teleport away when a touch lands near the button (no cursor tracking needed) */
   document.addEventListener("touchstart", function(e) {
     if (state.screen !== null || state.gameEnded || state.paused || !e.touches.length) return;
     if (state.buttonFleeing && e.target !== mainBtn) {
@@ -2068,9 +2058,6 @@ function togglePause() {
   else if (state.screen === "pause") { state.paused = false; showScreen(null); window.speechSynthesis.resume(); }
 }
 
-/* =========================================================
-   GAME LIFECYCLE
-   ========================================================= */
 function startNewGame() {
   resetGameState();
   showScreen(null);
@@ -2093,7 +2080,9 @@ function resetGameState() {
     notedYesPattern:false, notedNoPattern:false, notedObviousPattern:false,
     keysPressedSet:new Set(), objectClickCounts:{}, hiddenSecretsFound:0, timesLied:0,
     activePopups:0, popupsSpawned:0, popupsClosed:0, popupsIgnored:0, swipeCount:0,
-    longPressCount:0, doubleTapCount:0, dragCompleted:0, mobileAcknowledged:false
+    longPressCount:0, doubleTapCount:0, dragCompleted:0, mobileAcknowledged:false,
+    tabHiddenCount:0, cameBackFromTabAway:false, deniedLies:0, miniGameFails:0,
+    allMiniGameTypesSeen:new Set(), maxPressesReachedThisRun:0, _tinyBtnWasBaited:false
   });
   state.unlockedEndings = keepEndings; state.unlockedSecrets = keepSecrets; state.unlockedAchievements = keepAch;
   state.restartCount = keepRestartCount; state.totalPressesEver = keepTotal;
@@ -2130,9 +2119,6 @@ function resetGameState() {
   persistSave();
 }
 
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
 function initGame() {
   cacheDomRefs();
   initCanvases();
