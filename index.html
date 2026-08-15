@@ -1,289 +1,2157 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Zayn's Quiz</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
-      color: white;
-
-      background:
-        radial-gradient(circle at 20% 20%, #3b82f6 0%, transparent 30%),
-        radial-gradient(circle at 80% 80%, #7c3aed 0%, transparent 30%),
-        linear-gradient(135deg, #080b18, #111936);
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      overflow: hidden;
-    }
-
-    /* Background decorations */
-
-    .circle {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(2px);
-      opacity: 0.15;
-      pointer-events: none;
-    }
-
-    .circle.one {
-      width: 350px;
-      height: 350px;
-      background: #60a5fa;
-      top: -150px;
-      left: -100px;
-    }
-
-    .circle.two {
-      width: 450px;
-      height: 450px;
-      background: #a78bfa;
-      bottom: -220px;
-      right: -150px;
-    }
-
-    /* Main card */
-
-    .card {
-      width: 90%;
-      max-width: 850px;
-
-      padding: 65px 50px;
-
-      text-align: center;
-
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-
-      border-radius: 30px;
-
-      backdrop-filter: blur(18px);
-
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.45);
-
-      animation: appear 0.7s ease;
-    }
-
-    @keyframes appear {
-      from {
-        opacity: 0;
-        transform: translateY(25px) scale(0.97);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* Game icon */
-
-    .game-icon {
-      font-size: 75px;
-      margin-bottom: 10px;
-
-      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4));
-    }
-
-    h1 {
-      margin: 0;
-
-      font-size: clamp(42px, 7vw, 72px);
-      font-weight: 900;
-
-      letter-spacing: -3px;
-
-      text-shadow:
-        0 5px 20px rgba(0,0,0,0.4);
-    }
-
-    .subtitle {
-      margin-top: 15px;
-
-      font-size: 21px;
-      color: #cbd5ff;
-    }
-
-    /* Stats */
-
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-
-      margin: 35px 0;
-    }
-
-    .stat {
-      padding: 12px 20px;
-
-      background: rgba(255,255,255,0.08);
-
-      border: 1px solid rgba(255,255,255,0.12);
-
-      border-radius: 12px;
-
-      font-size: 15px;
-      color: #dbeafe;
-    }
-
-    .stat strong {
-      color: white;
-      font-size: 18px;
-    }
-
-    /* Play button */
-
-    .play-button {
-      position: relative;
-
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      gap: 12px;
-
-      padding: 18px 55px;
-
-      border-radius: 16px;
-
-      background: linear-gradient(
-        135deg,
-        #3b82f6,
-        #6366f1
-      );
-
-      color: white;
-
-      font-size: 23px;
-      font-weight: 800;
-
-      text-decoration: none;
-
-      box-shadow:
-        0 10px 30px rgba(59,130,246,0.35);
-
-      transition:
-        transform 0.2s,
-        box-shadow 0.2s;
-    }
-
-    .play-button:hover {
-      transform: translateY(-4px) scale(1.03);
-
-      box-shadow:
-        0 15px 40px rgba(59,130,246,0.5);
-    }
-
-    .play-button:active {
-      transform: scale(0.97);
-    }
-
-    /* Bottom text */
-
-    .hint {
-      margin-top: 30px;
-
-      font-size: 14px;
-
-      color: #94a3b8;
-    }
-
-    .hint span {
-      color: #60a5fa;
-    }
-
-    /* Mobile */
-
-    @media (max-width: 600px) {
-
-      .card {
-        padding: 45px 25px;
-      }
-
-      .stats {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .play-button {
-        width: 100%;
-      }
-
-      h1 {
-        letter-spacing: -2px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>DO NOT PRESS</title>
+<style>
+
+:root {
+  --accent: #ff3b3b;
+  --accent-glow: rgba(255,59,59,0.6);
+  --accent2: #ffaa00;
+  --bg-deep: #05050a;
+  --panel-bg: rgba(16,16,24,0.9);
+  --glitch1: #00fff2;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+html, body {
+  margin:0; padding:0; width:100%; height:100%; overflow:hidden;
+  background: var(--bg-deep); font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
+  color:#f0f0f0; user-select:none;
+}
+#bgCanvas, #particleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; }
+#bgCanvas { z-index:0; }
+#particleCanvas { z-index:1; pointer-events:none; }
+
+.screen {
+  position:fixed; inset:0; display:none; z-index:100;
+  align-items:center; justify-content:center; flex-direction:column;
+  padding: max(20px,var(--safe-top)) max(16px,var(--safe-right)) max(20px,var(--safe-bottom)) max(16px,var(--safe-left));
+  overflow-y:auto;
+}
+.screen.active { display:flex; }
+
+#mainMenu { gap: 6px; }
+.gameTitle {
+  font-size: clamp(30px,8vw,64px); font-weight:900; letter-spacing:2px; margin:0 0 4px;
+  background: linear-gradient(90deg,#ff3b3b,#ffaa00,#ff3b3b); background-size:200% auto;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation: titleShimmer 3s linear infinite; text-shadow: 0 0 40px var(--accent-glow);
+  text-align:center;
+}
+@keyframes titleShimmer { to { background-position:200% center; } }
+.gameSubtitle { font-size:clamp(12px,3vw,14px); opacity:0.65; letter-spacing:2px; margin-bottom:32px; text-transform:uppercase; text-align:center; }
+.menuStack { display:flex; flex-direction:column; align-items:center; gap:12px; width:min(320px,86vw); position:relative; z-index:110; }
+.menuBtn {
+  width:100%; min-height:50px; padding:14px 18px; font-size:15px; font-weight:700; letter-spacing:0.5px;
+  border-radius:12px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06);
+  color:#eee; cursor:pointer; transition: transform 0.18s ease, background 0.25s ease;
+  position:relative; z-index:110; pointer-events:auto;
+}
+.menuBtn:active { transform: scale(0.97); background: rgba(255,255,255,0.14); }
+.menuBtn.primary {
+  min-height:58px; padding: 18px 24px; font-size:18px; background: linear-gradient(145deg,#ff4b4b,#b30000);
+  border:none; box-shadow: 0 0 25px var(--accent-glow), 0 6px 0 #6e0000; margin-bottom:8px;
+}
+.menuFooterText { position:fixed; bottom:max(10px,var(--safe-bottom)); font-size:10px; opacity:0.4; text-align:center; width:100%; left:0; pointer-events:none; z-index:5; padding:0 10px; }
+.saveIndicator { font-size:11px; opacity:0.45; margin-top:20px; text-align:center; }
+
+.panelBox {
+  background: var(--panel-bg); border:1px solid rgba(255,255,255,0.12); border-radius:20px;
+  padding: 26px clamp(18px,5vw,30px); width:min(440px,92vw); box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+  max-height: 84vh; overflow-y:auto; position:relative; z-index:110;
+}
+.panelBox h2 { margin:0 0 18px; font-size:22px; color:var(--accent); text-shadow:0 0 15px var(--accent-glow); text-align:center; }
+.settingRow { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:14px; flex-wrap:wrap; }
+.settingRow label { font-size:13.5px; opacity:0.9; }
+.toggleSwitch { position:relative; width:50px; height:28px; flex-shrink:0; display:inline-block; }
+.toggleSwitch input { opacity:0; width:0; height:0; position:absolute; }
+.toggleSlider { position:absolute; inset:0; background:#3a3a44; border-radius:28px; cursor:pointer; transition:0.3s; }
+.toggleSlider::before { content:''; position:absolute; height:22px; width:22px; left:3px; bottom:3px; background:#eee; border-radius:50%; transition:0.3s; }
+.toggleSwitch input:checked + .toggleSlider { background: var(--accent); }
+.toggleSwitch input:checked + .toggleSlider::before { transform: translateX(22px); }
+.volSlider { width:130px; accent-color: var(--accent); height:28px; }
+.panelBtnRow { display:flex; flex-direction:column; gap:9px; margin-top:6px; }
+.creditsText { font-size:13px; line-height:1.7; opacity:0.85; text-align:center; }
+
+.collectionTabs { display:flex; gap:6px; margin-bottom:14px; justify-content:center; flex-wrap:wrap; }
+.collectionTab { min-height:40px; padding:8px 14px; font-size:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:#ccc; cursor:pointer; }
+.collectionTab.active { background: var(--accent); color:#fff; border-color:transparent; }
+.collectionGrid { display:grid; gap:8px; }
+.entryCard { background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px; text-align:left; }
+.entryCard.locked { opacity:0.35; }
+.entryCard .eName { font-weight:bold; color:var(--accent2); font-size:13.5px; margin-bottom:2px; }
+.entryCard .eDesc { font-size:12px; opacity:0.85; }
+.collectionProgress { text-align:center; font-size:12px; opacity:0.6; margin-bottom:10px; }
+
+#gameScreen {
+  position:fixed; inset:0; display:none; z-index:10;
+  grid-template-rows: auto 1fr auto;
+  padding: max(10px,var(--safe-top)) max(10px,var(--safe-right)) max(10px,var(--safe-bottom)) max(10px,var(--safe-left));
+  gap: 8px;
+}
+#gameScreen.active { display:grid; }
+
+#topRow { display:grid; grid-template-columns: 1fr auto 1fr; align-items:start; gap:6px; z-index:60; }
+#statusPanel {
+  background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+  padding: 7px 12px; border-radius:12px; font-size:clamp(10px,2.6vw,12.5px); min-width:0; line-height:1.5;
+}
+#statusPanel .statLine { display:flex; justify-content:space-between; gap:8px; }
+#statusPanel .statVal { font-weight:700; }
+#pressCountBig { color: var(--accent); display:inline-block; }
+.bumpCounter { animation: bumpAnim 0.25s ease; }
+@keyframes bumpAnim { 0%{transform:scale(1);} 40%{transform:scale(1.4);} 100%{transform:scale(1);} }
+#moodVal { color: var(--accent2); }
+#chaosBarWrap { margin-top:5px; height:6px; border-radius:4px; background:rgba(255,255,255,0.08); overflow:hidden; }
+#chaosBarFill { height:100%; width:0%; background: linear-gradient(90deg,#4caf50,#ffaa00,#ff3b3b); transition: width 0.4s ease; }
+
+#chapterIndicator {
+  text-align:center; font-size:clamp(9px,2.2vw,11.5px); letter-spacing:1px; text-transform:uppercase;
+  background: rgba(0,0,0,0.35); padding:6px 12px; border-radius:16px; border:1px solid rgba(255,255,255,0.15);
+  white-space:nowrap; max-width: 46vw; overflow:hidden; text-overflow:ellipsis;
+}
+#topControls { display:flex; gap:6px; justify-self:end; }
+.iconBtn {
+  background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#eee;
+  min-width:40px; min-height:40px; padding: 8px; border-radius:10px; font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.iconBtn:active { background: rgba(255,255,255,0.22); }
+
+#chapterToast {
+  position:absolute; top: 64px; left:50%; transform:translateX(-50%) translateY(-10px);
+  font-size:clamp(11px,3vw,15px); letter-spacing:1px; text-transform:uppercase; text-align:center;
+  background: rgba(0,0,0,0.55); padding:9px 20px; border-radius:16px; border:1px solid rgba(255,255,255,0.2);
+  opacity:0; transition: opacity 0.5s ease, transform 0.5s ease; z-index:65; pointer-events:none; max-width:90vw;
+}
+#chapterToast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+#stage { position:relative; width:100%; height:100%; overflow:hidden; z-index:15; }
+.mainBtn {
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+  padding: clamp(18px,4.5vw,28px) clamp(26px,7vw,50px); font-size: clamp(16px,3.4vw,23px);
+  font-weight:800; letter-spacing:1px; color:#fff; background: linear-gradient(145deg,#ff4b4b,#b30000);
+  border:none; border-radius:20px; cursor:pointer; max-width:86vw; min-height:56px; z-index:20;
+  box-shadow: 0 0 30px var(--accent-glow), 0 0 55px rgba(255,59,59,0.22), 0 9px 0 #6e0000, 0 14px 26px rgba(0,0,0,0.5);
+  transition: left 0.4s cubic-bezier(.2,.9,.3,1.2), top 0.4s cubic-bezier(.2,.9,.3,1.2),
+              box-shadow 0.3s ease, background 0.4s ease, font-size 0.3s ease, opacity 0.3s ease, transform 0.1s ease;
+  animation: btnIdlePulse 3s ease-in-out infinite;
+}
+@keyframes btnIdlePulse {
+  0%,100% { box-shadow: 0 0 30px var(--accent-glow), 0 0 55px rgba(255,59,59,0.22), 0 9px 0 #6e0000, 0 14px 26px rgba(0,0,0,0.5); }
+  50% { box-shadow: 0 0 45px var(--accent-glow), 0 0 85px rgba(255,59,59,0.38), 0 9px 0 #6e0000, 0 14px 26px rgba(0,0,0,0.5); }
+}
+.mainBtn.fastmove { transition: left 0.15s ease, top 0.15s ease; }
+.mainBtn:active, .mainBtn.pressedNow { transform: translate(-50%,-50%) scale(0.9) !important; }
+.mainBtn.pulseGlow { animation: pulseGlowAnim 0.8s ease-in-out infinite; }
+@keyframes pulseGlowAnim { 0%,100%{box-shadow:0 0 25px var(--accent-glow),0 8px 0 #6e0000;} 50%{box-shadow:0 0 65px 18px rgba(255,215,0,0.85),0 8px 0 #6e0000;} }
+.mainBtn.fleeMode { animation: btnIdlePulse 3s ease-in-out infinite, wiggleAnim 0.4s ease-in-out infinite; }
+@keyframes wiggleAnim { 0%,100%{rotate:-2deg;} 50%{rotate:2deg;} }
+.mainBtn.corrupted { background: linear-gradient(145deg,#7b00ff,#001eff); box-shadow: 0 0 40px #00fff2, 0 9px 0 #001080; }
+.clickRipple { position:fixed; border-radius:50%; background:rgba(255,255,255,0.5); pointer-events:none; transform: translate(-50%,-50%); animation: rippleAnim 0.6s ease-out forwards; z-index:12; }
+@keyframes rippleAnim { from{width:0;height:0;opacity:0.7;} to{width:200px;height:200px;opacity:0;} }
+
+.fakeBtn {
+  position:absolute; padding: 13px 20px; font-size:clamp(12px,3vw,14px); font-weight:700; color:#ddd;
+  background: linear-gradient(145deg,#555,#222); border:2px dashed rgba(255,255,255,0.3);
+  border-radius:14px; cursor:pointer; opacity:0.9; z-index:18; transform: translate(-50%,-50%);
+  min-height:44px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); animation: fakeBtnAppear 0.35s ease;
+}
+@keyframes fakeBtnAppear { from{opacity:0; transform:translate(-50%,-50%) scale(0.5);} to{opacity:0.9; transform:translate(-50%,-50%) scale(1);} }
+
+.stageObject {
+  position:absolute; z-index:16; cursor:pointer; font-size: clamp(22px,5vw,26px); opacity:0.55;
+  min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center;
+  transition: opacity 0.25s ease; user-select:none;
+}
+.stageObject.hidden-secret { opacity: 0.08; }
+.tinyBtn {
+  position:absolute; padding:8px 12px; font-size:11px; background:#333; color:#999;
+  border:1px solid #555; border-radius:6px; cursor:pointer; z-index:19; min-height:36px;
+  animation: tinyBtnPulse 1.5s ease-in-out infinite;
+}
+@keyframes tinyBtnPulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+
+#narratorRow { z-index: 55; display:flex; justify-content:center; }
+#narratorPanel {
+  width:min(100%, 760px); display:flex; align-items:stretch; gap:10px;
+  background: rgba(10,10,16,0.85); border:1px solid rgba(255,255,255,0.15); border-radius:16px;
+  padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); position: relative;
+}
+#narratorAvatarWrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+#narratorAvatar {
+  width:clamp(40px,10vw,52px); height:clamp(40px,10vw,52px); border-radius:50%; background: radial-gradient(circle at 35% 30%, #444, #1a1a1a);
+  border:2px solid var(--accent); box-shadow: 0 0 16px var(--accent-glow); display:flex;
+  align-items:center; justify-content:center; font-size:clamp(18px,5vw,24px); cursor:pointer;
+  transition: border-color 0.4s ease;
+}
+#narratorAvatar.talking { animation: avatarTalk 0.3s ease-in-out infinite alternate; }
+@keyframes avatarTalk { from{transform:scale(1);} to{transform:scale(1.08);} }
+#narratorNameTag { font-size:9px; letter-spacing:1px; opacity:0.55; text-transform:uppercase; }
+#dialogueBody { flex:1; display:flex; align-items:center; min-height:44px; min-width:0; }
+#dialogueText { font-size: clamp(12.5px,2.6vw,16px); line-height:1.4; word-break:break-word; }
+.typedCursor { display:inline-block; width:7px; height:14px; background:var(--accent); margin-left:2px; vertical-align:middle; animation: blinkCursor 0.8s steps(2) infinite; }
+@keyframes blinkCursor { 50%{opacity:0;} }
+
+#warningOverlay {
+  position:fixed; inset:0; background: rgba(120,0,0,0.35); display:none; align-items:center; justify-content:center;
+  z-index:200; font-size: clamp(20px,5.5vw,38px); font-weight:900; text-align:center; color:#fff;
+  text-shadow: 0 0 20px #ff0000; padding:20px; pointer-events:none;
+}
+.warningPop { animation: warningPopAnim 0.4s ease; }
+@keyframes warningPopAnim { 0%{transform:scale(0.7); opacity:0;} 60%{transform:scale(1.08);} 100%{transform:scale(1); opacity:1;} }
+
+/* ===== Generic Popup System ===== */
+.gamePopup {
+  position:fixed; background:#efefef; color:#111; border:2px solid #888; border-radius:10px;
+  width:min(90%,380px); box-shadow: 0 20px 60px rgba(0,0,0,0.7); z-index:300; font-size:13.5px;
+  animation: popupPop 0.3s ease; overflow:hidden;
+}
+@keyframes popupPop { from{transform:translate(-50%,-50%) scale(0.85); opacity:0;} to{transform:translate(-50%,-50%) scale(1); opacity:1;} }
+.gamePopup .pTitleBar { background: linear-gradient(90deg,#003ea3,#0060d6); color:#fff; padding:9px 12px; font-weight:bold; display:flex; justify-content:space-between; align-items:center; font-size:12.5px; }
+.gamePopup .pTitleBar .pClose { cursor:pointer; padding:2px 8px; border-radius:4px; }
+.gamePopup .pTitleBar .pClose:active { background: rgba(255,255,255,0.3); }
+.gamePopup .pBody { padding:16px; }
+.gamePopup .pBody p { margin:0 0 14px; line-height:1.5; }
+.gamePopup .pBtnRow { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.gamePopup button.pBtn { min-height:40px; padding:9px 18px; cursor:pointer; background:#2266dd; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; }
+.gamePopup button.pBtn.secondary { background:#ccc; color:#222; }
+.gamePopup.dragMe { cursor: grab; }
+.gamePopup.dragMe.dragging { cursor: grabbing; }
+
+#devMsg {
+  position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); background:#111; color:#0f0;
+  font-family:'Courier New',monospace; border:1px solid #0f0; padding:18px 22px; border-radius:8px;
+  z-index:350; display:none; font-size:clamp(11px,2.8vw,13px); max-width:88%; white-space:pre-wrap; box-shadow: 0 0 40px rgba(0,255,0,0.35);
+}
+
+#choiceBox {
+  position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); background: rgba(16,16,24,0.97);
+  border:1px solid rgba(255,255,255,0.2); border-radius:18px; padding:24px clamp(18px,5vw,32px); text-align:center;
+  z-index:400; display:none; width:min(90%,430px); box-shadow: 0 25px 70px rgba(0,0,0,0.75);
+}
+#choiceBox p { font-size:15.5px; margin:0 0 18px; line-height:1.4; }
+#choiceBox .choiceRow { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+#choiceBox button { min-height:46px; padding:11px 20px; border-radius:12px; border:none; font-weight:bold; cursor:pointer; font-size:13.5px; background: var(--accent); color:#fff; flex:1; min-width:100px; }
+#choiceBox button.altChoice { background:#444; color:#eee; }
+
+#miniGameBox {
+  position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); background: rgba(14,14,22,0.97);
+  border:1px solid rgba(255,255,255,0.2); border-radius:18px; padding:22px clamp(16px,4vw,28px); text-align:center;
+  z-index:420; display:none; width:min(94%,480px); box-shadow: 0 25px 70px rgba(0,0,0,0.75);
+}
+#miniGameBox h3 { margin:0 0 8px; color:var(--accent2); font-size:16px; }
+#miniGameBox p { font-size:13px; opacity:0.85; margin:0 0 14px; }
+#miniGameArena { position:relative; height:min(260px,42vh); background:rgba(255,255,255,0.04); border-radius:12px; overflow:hidden; margin-bottom:14px; }
+.mgTarget { position:absolute; min-height:44px; padding:10px 16px; border-radius:10px; background: var(--accent); color:#fff; font-weight:bold; cursor:pointer; font-size:13px; border:none; }
+.mgTarget.decoy { background:#555; }
+#miniGameResult { font-size:13px; min-height:18px; margin-top:6px; }
+
+#toastStack { position:fixed; top: max(12px,var(--safe-top)); right:max(10px,var(--safe-right)); z-index: 700; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none; max-width: 80vw; }
+.toastCard {
+  background: rgba(20,20,30,0.95); border:1px solid var(--accent2); border-radius:12px; padding:9px 14px;
+  font-size:12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); animation: toastIn 0.4s ease, toastOut 0.4s ease 3.6s forwards;
+  max-width: 250px;
+}
+@keyframes toastIn { from{opacity:0; transform:translateX(40px);} to{opacity:1; transform:translateX(0);} }
+@keyframes toastOut { to{opacity:0; transform:translateX(40px);} }
+.toastCard .tTitle { font-weight:bold; color:var(--accent2); font-size:10.5px; letter-spacing:1px; text-transform:uppercase; }
+
+#endingScreen {
+  position:fixed; inset:0; background: rgba(3,0,8,0.96); display:none; align-items:center; justify-content:center;
+  z-index:500; flex-direction:column; text-align:center; padding: max(20px,var(--safe-top)) 20px max(20px,var(--safe-bottom));
+}
+.endingUnlockedTag { font-size:12px; letter-spacing:3px; color:var(--accent2); text-transform:uppercase; margin-bottom:10px; }
+#endingScreen h1 { font-size: clamp(24px,6.5vw,40px); color:var(--accent); margin:0 0 14px; text-shadow: 0 0 30px var(--accent-glow); }
+#endingScreen p { font-size:14.5px; max-width:600px; line-height:1.6; margin-bottom:20px; opacity:0.9; }
+#endingCollectionMini { font-size:12px; opacity:0.6; margin-bottom:18px; }
+.endBtnRow { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.endBtnRow button { min-height:48px; padding:12px 22px; font-size:13.5px; border-radius:12px; border:none; cursor:pointer; font-weight:bold; }
+#restartFromEnd { background: var(--accent); color:#fff; }
+#collectionFromEnd, #menuFromEnd { background: rgba(255,255,255,0.12); color:#eee; border:1px solid rgba(255,255,255,0.2); }
+
+.shake { animation: shakeAnim 0.35s; }
+@keyframes shakeAnim { 0%,100%{transform:translate(0,0);} 10%{transform:translate(-10px,4px);} 30%{transform:translate(8px,-6px);} 50%{transform:translate(-8px,2px);} 70%{transform:translate(-4px,5px);} 90%{transform:translate(-2px,3px);} }
+.shakeHard { animation: shakeHardAnim 0.5s; }
+@keyframes shakeHardAnim { 0%,100%{transform:translate(0,0);} 10%{transform:translate(-20px,10px);} 30%{transform:translate(16px,-14px);} 50%{transform:translate(-18px,12px);} 70%{transform:translate(20px,-8px);} 90%{transform:translate(-10px,6px);} }
+.flicker { animation: flickerAnim 0.15s steps(2,end) 4; }
+@keyframes flickerAnim { 50%{opacity:0.2;} }
+#gameScreen.glitchMode { animation: hueShift 4s linear infinite; }
+@keyframes hueShift { 0%{filter:hue-rotate(0deg);} 100%{filter:hue-rotate(360deg);} }
+#flashOverlay { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:800; }
+.flashNow { animation: flashAnim 0.25s ease; }
+@keyframes flashAnim { 0%{opacity:0;} 30%{opacity:0.85;} 100%{opacity:0;} }
+
+#hiddenRestartZone { position:fixed; bottom:0; right:0; width:36px; height:36px; z-index:999; cursor:pointer; }
+
+@media (max-width: 480px) {
+  #chapterIndicator { max-width: 40vw; }
+  #narratorNameTag { display:none; }
+}
+@media (max-height: 480px) {
+  .mainBtn { padding: 12px 20px; font-size:14px; min-height:44px; }
+  #narratorPanel { padding:6px 10px; }
+}
+
+</style>
 </head>
-
 <body>
+<canvas id="bgCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+<div id="flashOverlay"></div>
+<div id="toastStack"></div>
 
-  <div class="circle one"></div>
-  <div class="circle two"></div>
+<div id="mainMenu" class="screen active">
+  <h1 class="gameTitle">DO NOT PRESS</h1>
+  <div class="gameSubtitle">A game about not listening</div>
+  <div class="menuStack">
+    <button class="menuBtn primary" id="playBtn">&#9654; PLAY</button>
+    <button class="menuBtn" id="settingsBtn">SETTINGS</button>
+    <button class="menuBtn" id="collectionBtn">ENDINGS &amp; SECRETS</button>
+    <button class="menuBtn" id="creditsBtn">CREDITS</button>
+  </div>
+  <div class="saveIndicator" id="saveIndicator">Progress is saved automatically on this device.</div>
+  <div class="menuFooterText">a completely original browser game &mdash; no assets, no frameworks, no shame</div>
+</div>
 
-  <main class="card">
-
-    <div class="game-icon">
-      🎮
+<div id="settingsMenu" class="screen">
+  <div class="panelBox">
+    <h2>Settings</h2>
+    <div class="settingRow"><label>Narrator Voice</label><label class="toggleSwitch"><input type="checkbox" id="voiceToggle" checked><span class="toggleSlider"></span></label></div>
+    <div class="settingRow"><label>Sound Effects</label><label class="toggleSwitch"><input type="checkbox" id="sfxToggle" checked><span class="toggleSlider"></span></label></div>
+    <div class="settingRow"><label>Volume</label><input type="range" id="volumeSlider" class="volSlider" min="0" max="100" value="90"></div>
+    <div class="settingRow"><label>Reduced Effects</label><label class="toggleSwitch"><input type="checkbox" id="reducedFxToggle"><span class="toggleSlider"></span></label></div>
+    <div class="panelBtnRow">
+      <button class="menuBtn" id="wipeSaveBtn">Erase Save Data</button>
+      <button class="menuBtn" id="settingsBackBtn">&#8592; Back</button>
     </div>
+  </div>
+</div>
 
-    <h1>
-      ZAYN'S QUIZ
-    </h1>
+<div id="creditsMenu" class="screen">
+  <div class="panelBox">
+    <h2>Credits</h2>
+    <p class="creditsText">
+      A completely original game about a button, a narrator, and extremely poor listening skills.<br><br>
+      Built with plain HTML, CSS and JavaScript.<br>
+      Voice by your browser's SpeechSynthesis engine.<br>
+      Sound effects generated live with the Web Audio API.<br>
+      No external assets. No frameworks. No downloads.<br><br>
+      Thank you for not listening.
+    </p>
+    <div class="panelBtnRow"><button class="menuBtn" id="creditsBackBtn">&#8592; Back</button></div>
+  </div>
+</div>
 
-    <div class="subtitle">
-      Think you're good enough? Prove it.
+<div id="pauseMenu" class="screen">
+  <div class="panelBox">
+    <h2>Paused</h2>
+    <div class="panelBtnRow">
+      <button class="menuBtn primary" id="resumeBtn">&#9654; Resume</button>
+      <button class="menuBtn" id="pauseRestartBtn">&#8635; Restart</button>
+      <button class="menuBtn" id="pauseSettingsBtn">Settings</button>
+      <button class="menuBtn" id="pauseMainMenuBtn">Main Menu</button>
     </div>
+  </div>
+</div>
 
-    <div class="stats">
+<div id="collectionScreen" class="screen">
+  <div class="panelBox" style="width:min(560px,92vw);">
+    <h2>Endings &amp; Secrets</h2>
+    <div class="collectionTabs">
+      <button class="collectionTab active" data-tab="endings">Endings</button>
+      <button class="collectionTab" data-tab="secrets">Secrets</button>
+      <button class="collectionTab" data-tab="achievements">Achievements</button>
+    </div>
+    <div class="collectionProgress" id="collectionProgress"></div>
+    <div class="collectionGrid" id="collectionGrid"></div>
+    <div class="panelBtnRow"><button class="menuBtn" id="closeCollectionBtn">Close</button></div>
+  </div>
+</div>
 
-      <div class="stat">
-        🎯 <strong>100+</strong><br>
-        Minigames
+<div id="gameScreen">
+  <div id="topRow">
+    <div id="statusPanel">
+      <div class="statLine"><span>Ignored:</span><span class="statVal" id="pressCountBig">0</span></div>
+      <div class="statLine"><span>Mood:</span><span class="statVal" id="moodVal">Friendly</span></div>
+      <div class="statLine"><span>Chaos:</span><span class="statVal" id="chaosVal">0%</span></div>
+      <div id="chaosBarWrap"><div id="chaosBarFill"></div></div>
+    </div>
+    <div id="chapterIndicator">Chapter 1 &mdash; The Button</div>
+    <div id="topControls">
+      <button class="iconBtn" id="muteBtn" title="Voice">&#128266;</button>
+      <button class="iconBtn" id="pauseBtn" title="Pause">&#10074;&#10074;</button>
+    </div>
+  </div>
+
+  <div id="chapterToast">Chapter 1 &mdash; The Button</div>
+
+  <div id="stage">
+    <button class="mainBtn" id="mainBtn">DO NOT PRESS</button>
+  </div>
+
+  <div id="narratorRow">
+    <div id="narratorPanel">
+      <div id="narratorAvatarWrap">
+        <div id="narratorAvatar" title="???"><span id="avatarFace">&#128578;</span></div>
+        <div id="narratorNameTag">NARRATOR</div>
       </div>
-
-      <div class="stat">
-        💀 <strong>1</strong><br>
-        Player
-      </div>
-
-      <div class="stat">
-        🏆 <strong>???</strong><br>
-        Your Score
-      </div>
-
+      <div id="dialogueBody"><span id="dialogueText"></span><span class="typedCursor" id="typedCursor"></span></div>
     </div>
+  </div>
+</div>
 
-    <a
-      class="play-button"
-      href="https://docs.google.com/presentation/d/1e2EjsEnppZBh8cF2AVlxl77xWEE3dp4afM3IUkrn220/edit"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      ▶️ PLAY QUIZ
-    </a>
+<div id="warningOverlay"></div>
+<div id="popupLayer"></div>
+<div id="devMsg"></div>
 
-    <div class="hint">
-      ⚠️ <span>Warning:</span>
-      You may lose an unreasonable amount of points.
-    </div>
+<div id="choiceBox">
+  <p id="choiceText">Do you promise not to press the button?</p>
+  <div class="choiceRow"><button id="choiceA">YES</button><button id="choiceB" class="altChoice">NO</button></div>
+</div>
 
-  </main>
+<div id="miniGameBox">
+  <h3 id="mgTitle">Mini-Game</h3>
+  <p id="mgDesc">Instructions go here.</p>
+  <div id="miniGameArena"></div>
+  <div id="miniGameResult"></div>
+</div>
 
+<div id="endingScreen">
+  <div class="endingUnlockedTag">&#10022; ENDING UNLOCKED &#10022;</div>
+  <h1 id="endingTitle">THE END</h1>
+  <p id="endingText">You have reached an ending.</p>
+  <div id="endingCollectionMini"></div>
+  <div class="endBtnRow">
+    <button id="restartFromEnd">Play Again</button>
+    <button id="collectionFromEnd">View Collection</button>
+    <button id="menuFromEnd">Main Menu</button>
+  </div>
+</div>
+
+<div id="hiddenRestartZone" title=""></div>
+
+<script>
+
+/* =========================================================
+   DEVICE DETECTION - determines touch vs mouse mechanics
+   ========================================================= */
+var IS_TOUCH = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+var IS_MOBILE = IS_TOUCH && Math.min(window.innerWidth, window.innerHeight) < 820;
+
+/* =========================================================
+   SAVE SYSTEM
+   ========================================================= */
+var SAVE_KEY = "dnp_save_v4";
+function loadSave() {
+  try { var raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; return JSON.parse(raw); }
+  catch(e) { return null; }
+}
+function persistSave() {
+  try {
+    var data = {
+      endings: Array.from(state.unlockedEndings),
+      secrets: Array.from(state.unlockedSecrets),
+      achievements: Array.from(state.unlockedAchievements),
+      settings: { muted: state.muted, sfxOn: state.sfxOn, volume: state.volume, reducedFx: state.reducedFx },
+      restartCount: state.restartCount,
+      totalPresses: state.totalPressesEver
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+function applySaveData(data) {
+  if (!data) return;
+  (data.endings||[]).forEach(function(id){ state.unlockedEndings.add(id); });
+  (data.secrets||[]).forEach(function(id){ state.unlockedSecrets.add(id); });
+  (data.achievements||[]).forEach(function(id){ state.unlockedAchievements.add(id); });
+  if (data.settings) {
+    state.muted = !!data.settings.muted;
+    state.sfxOn = data.settings.sfxOn !== false;
+    state.volume = data.settings.volume !== undefined ? data.settings.volume : 0.9;
+    state.reducedFx = !!data.settings.reducedFx;
+  }
+  state.restartCount = data.restartCount || 0;
+  state.totalPressesEver = data.totalPresses || 0;
+}
+
+/* =========================================================
+   GLOBAL STATE
+   ========================================================= */
+var state = {
+  presses:0, muted:false, sfxOn:true, volume:0.9, reducedFx:false,
+  gameEnded:false, paused:false, screen:"menu",
+  lastPressTime:Date.now(), clickTimestamps:[],
+  keyboardPresses:0, mousePresses:0, touchPresses:0, fakeClicks:0, tinyBtnClicks:0, ghostClicks:0,
+  choicesShown:0, argumentActive:false, argumentStep:0, argumentScript:null,
+  buttonDisabledLie:false, buttonFleeing:false, choiceLock:false, eventCooldown:0,
+  wasIdleLongEnough:false, pendingLie:null,
+  chapter:1, chaos:0, idleTimer:null, mouseX:0, mouseY:0,
+  unlockedEndings:new Set(), unlockedSecrets:new Set(), unlockedAchievements:new Set(),
+  sessionStart:Date.now(), maxIdleMs:0,
+  glitchModeOn:false, escapedButtonCatches:0, choiceStreakYes:0, choiceStreakNo:0,
+  restartCount:0, totalPressesEver:0, avatarClicks:0, settingsOpenCount:0,
+  voiceOffCount:0, voiceOnCount:0, hiddenSecretsFound:0,
+  keysPressedSet:new Set(), miniGameActive:false, secretRoomFound:false,
+  reachedEndingBefore:false, timesLied:0, argumentsCompleted:0, miniGamesCompleted:0,
+  _rapidBurst:0, notedYesPattern:false, notedNoPattern:false, notedObviousPattern:false,
+  objectClickCounts:{}, activePopups:0, popupsSpawned:0, popupsClosed:0, popupsIgnored:0,
+  swipeCount:0, longPressCount:0, doubleTapCount:0, dragCompleted:0, mobileAcknowledged:false,
+  popupCooldownMap:{}
+};
+
+function D(id) { return document.getElementById(id); }
+
+var gameScreen, mainBtn, stage, pressCountBig, moodVal, chaosVal, chaosBarFill, dialogueText,
+    narratorAvatar, avatarFace, muteBtn, pauseBtn, warningOverlay, popupLayer, devMsg,
+    choiceBox, choiceText, choiceA, choiceB, endingScreen, endingTitle, endingTextEl,
+    endingCollectionMini, restartFromEnd, collectionFromEnd, menuFromEnd, hiddenRestartZone,
+    chapterIndicator, chapterToast, flashOverlay, collectionGrid, collectionProgress,
+    toastStack, miniGameBox, mgTitle, mgDesc, miniGameArena, miniGameResult, screens;
+
+function cacheDomRefs() {
+  gameScreen = D("gameScreen"); mainBtn = D("mainBtn"); stage = D("stage");
+  pressCountBig = D("pressCountBig"); moodVal = D("moodVal"); chaosVal = D("chaosVal");
+  chaosBarFill = D("chaosBarFill"); dialogueText = D("dialogueText");
+  narratorAvatar = D("narratorAvatar"); avatarFace = D("avatarFace");
+  muteBtn = D("muteBtn"); pauseBtn = D("pauseBtn"); warningOverlay = D("warningOverlay");
+  popupLayer = D("popupLayer"); devMsg = D("devMsg");
+  choiceBox = D("choiceBox"); choiceText = D("choiceText"); choiceA = D("choiceA"); choiceB = D("choiceB");
+  endingScreen = D("endingScreen"); endingTitle = D("endingTitle"); endingTextEl = D("endingText");
+  endingCollectionMini = D("endingCollectionMini"); restartFromEnd = D("restartFromEnd");
+  collectionFromEnd = D("collectionFromEnd"); menuFromEnd = D("menuFromEnd");
+  hiddenRestartZone = D("hiddenRestartZone"); chapterIndicator = D("chapterIndicator");
+  chapterToast = D("chapterToast"); flashOverlay = D("flashOverlay");
+  collectionGrid = D("collectionGrid"); collectionProgress = D("collectionProgress"); toastStack = D("toastStack");
+  miniGameBox = D("miniGameBox"); mgTitle = D("mgTitle"); mgDesc = D("mgDesc");
+  miniGameArena = D("miniGameArena"); miniGameResult = D("miniGameResult");
+  screens = { menu:D("mainMenu"), settings:D("settingsMenu"), credits:D("creditsMenu"), pause:D("pauseMenu"), collection:D("collectionScreen") };
+}
+
+function showScreen(name) {
+  Object.keys(screens).forEach(function(k){ screens[k].classList.remove("active"); });
+  gameScreen.classList.remove("active");
+  if (name === null) { gameScreen.classList.add("active"); }
+  else if (screens[name]) { screens[name].classList.add("active"); }
+  state.screen = name;
+}
+
+/* =========================================================
+   WEB AUDIO API
+   ========================================================= */
+var AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+var audioCtx = new AudioCtxClass();
+function vol(v) { return state.sfxOn ? v * state.volume : 0; }
+function playTone(freq, duration, type, volume, sweepTo) {
+  if (!state.sfxOn) return;
+  type = type || "sine"; volume = volume === undefined ? 0.15 : volume; sweepTo = sweepTo === undefined ? null : sweepTo;
+  if (audioCtx.state === "suspended") { audioCtx.resume(); }
+  var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  if (sweepTo !== null) osc.frequency.linearRampToValueAtTime(sweepTo, audioCtx.currentTime + duration);
+  gain.gain.setValueAtTime(vol(volume), audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain).connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+function sfxClick(){playTone(320,0.09,"square",0.12);}
+function sfxHover(){playTone(600,0.05,"sine",0.06);}
+function sfxWarningBeep(){playTone(880,0.15,"sawtooth",0.12,440);}
+function sfxError(){playTone(120,0.4,"square",0.15,60);}
+function sfxDramatic(){playTone(60,0.9,"sine",0.2,30);}
+function sfxSuccess(){playTone(500,0.12,"sine",0.12,800);}
+function sfxGlitch(){playTone(150+Math.random()*300,0.08,"sawtooth",0.1,50+Math.random()*100);}
+function sfxChaos(){for(var i=0;i<4;i++){(function(i){setTimeout(function(){playTone(200+Math.random()*900,0.1,"sawtooth",0.08);},i*60);})(i);}}
+function sfxMenuClick(){playTone(440,0.08,"triangle",0.1,660);}
+function sfxAchievement(){playTone(523,0.1,"sine",0.14,659); setTimeout(function(){playTone(659,0.15,"sine",0.14,784);},100);}
+function sfxNotif(){playTone(700,0.06,"sine",0.1,900); setTimeout(function(){playTone(900,0.06,"sine",0.1,700);},80);}
+
+/* =========================================================
+   SPEECH SYNTHESIS
+   ========================================================= */
+var chosenVoice = null;
+function pickVoice() {
+  var voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return;
+  chosenVoice = voices.find(function(v){ return /en-?(US|GB)/i.test(v.lang) && /male|david|mark|daniel/i.test(v.name); })
+             || voices.find(function(v){ return /en/i.test(v.lang); }) || voices[0];
+}
+if ("speechSynthesis" in window) { window.speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); }
+
+var voiceProfiles = {
+  friendly:{pitch:1.0,rate:0.95,volume:0.9}, confused:{pitch:1.05,rate:0.85,volume:0.85},
+  annoyed:{pitch:1.1,rate:1.05,volume:0.95}, angry:{pitch:1.25,rate:1.25,volume:1.0},
+  desperate:{pitch:0.95,rate:1.15,volume:1.0}, panicked:{pitch:1.3,rate:1.2,volume:1.0},
+  unhinged:{pitch:1.45,rate:1.35,volume:1.0}, chaotic:{pitch:1.6,rate:1.4,volume:1.0},
+  calm:{pitch:0.9,rate:0.8,volume:0.8}, sarcastic:{pitch:1.05,rate:0.9,volume:0.9}
+};
+var avatarFaces = {
+  friendly:String.fromCodePoint(0x1F642), confused:String.fromCodePoint(0x1F615),
+  annoyed:String.fromCodePoint(0x1F612), angry:String.fromCodePoint(0x1F620),
+  desperate:String.fromCodePoint(0x1F630), panicked:String.fromCodePoint(0x1F631),
+  unhinged:String.fromCodePoint(0x1F92A), chaotic:String.fromCodePoint(0x1F441),
+  calm:String.fromCodePoint(0x1F60C), sarcastic:String.fromCodePoint(0x1F60F)
+};
+
+var typewriterTimer = null;
+function typeText(text) {
+  clearTimeout(typewriterTimer);
+  dialogueText.textContent = "";
+  var i = 0;
+  var speed = state.reducedFx ? 0 : 16;
+  if (speed === 0) { dialogueText.textContent = text; return; }
+  function step() { if (i <= text.length) { dialogueText.textContent = text.slice(0,i); i++; typewriterTimer = setTimeout(step, speed); } }
+  step();
+}
+function speak(text, moodKey) {
+  typeText(text);
+  avatarFace.textContent = avatarFaces[moodKey] || avatarFaces.friendly;
+  narratorAvatar.style.borderColor = (moodKey==="chaotic") ? "#00fff2" : "";
+  narratorAvatar.classList.add("talking");
+  if (state.muted || !("speechSynthesis" in window)) {
+    setTimeout(function(){ narratorAvatar.classList.remove("talking"); }, Math.min(text.length*60,3000));
+    return;
+  }
+  window.speechSynthesis.cancel();
+  var profile = voiceProfiles[moodKey] || voiceProfiles.friendly;
+  var utter = new SpeechSynthesisUtterance(text);
+  if (chosenVoice) utter.voice = chosenVoice;
+  utter.pitch = profile.pitch + (Math.random()*0.06-0.03);
+  utter.rate = profile.rate + (Math.random()*0.05-0.025);
+  utter.volume = Math.min(1, profile.volume * state.volume);
+  utter.onend = function(){ narratorAvatar.classList.remove("talking"); };
+  utter.onerror = function(){ narratorAvatar.classList.remove("talking"); };
+  window.speechSynthesis.speak(utter);
+}
+function speakByMood(text) { speak(text, getPhase(state.presses).mood); }
+function speakSilent(text) { dialogueText.textContent = text; }
+
+/* =========================================================
+   BACKGROUND CANVAS
+   ========================================================= */
+var bgCanvas, bgCtx, particleCanvas, pCtx, particles = [], bgHueBase = 260, bgTime = 0;
+function initCanvases() {
+  bgCanvas = D("bgCanvas"); bgCtx = bgCanvas.getContext("2d");
+  particleCanvas = D("particleCanvas"); pCtx = particleCanvas.getContext("2d");
+  resizeCanvases();
+  window.addEventListener("resize", resizeCanvases);
+  window.addEventListener("orientationchange", function(){ setTimeout(resizeCanvases, 200); onOrientationChange(); });
+  initParticles(IS_MOBILE ? 30 : 50);
+  requestAnimationFrame(renderLoop);
+}
+function resizeCanvases() {
+  bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
+  particleCanvas.width = window.innerWidth; particleCanvas.height = window.innerHeight;
+}
+function initParticles(count) {
+  particles = [];
+  for (var i=0;i<count;i++) particles.push({ x:Math.random()*particleCanvas.width, y:Math.random()*particleCanvas.height, r:1+Math.random()*2.5, vy:0.15+Math.random()*0.4, vx:(Math.random()-0.5)*0.2, alpha:0.15+Math.random()*0.35 });
+}
+function renderLoop() {
+  bgTime += 0.006;
+  var w = bgCanvas.width, h = bgCanvas.height;
+  var chaosFactor = Math.min(state.chaos/100, 1);
+  var hueShift = state.glitchModeOn ? (bgTime*80)%360 : bgHueBase + Math.sin(bgTime)*20 + chaosFactor*60;
+  var grad = bgCtx.createRadialGradient(w*0.5,h*0.42,0,w*0.5,h*0.42,Math.max(w,h)*0.75);
+  grad.addColorStop(0, "hsl(" + hueShift + "," + (40+chaosFactor*30) + "%," + (10+chaosFactor*4) + "%)");
+  grad.addColorStop(1, "hsl(" + (hueShift+30) + ",50%,3%)");
+  bgCtx.fillStyle = grad; bgCtx.fillRect(0,0,w,h);
+  if (!state.reducedFx) {
+    pCtx.clearRect(0,0,w,h);
+    for (var i=0;i<particles.length;i++) {
+      var p = particles[i];
+      p.y -= p.vy*(1+chaosFactor*1.5); p.x += p.vx + Math.sin(bgTime+p.y*0.01)*0.15;
+      if (p.y < -10) { p.y = h+10; p.x = Math.random()*w; }
+      if (p.x < -10) p.x = w+10; if (p.x > w+10) p.x = -10;
+      pCtx.beginPath();
+      pCtx.fillStyle = state.glitchModeOn ? ("rgba(0,255,242," + p.alpha + ")") : ("rgba(255," + (120+chaosFactor*80) + "," + (80+chaosFactor*40) + "," + p.alpha + ")");
+      pCtx.arc(p.x,p.y,p.r,0,Math.PI*2); pCtx.fill();
+    }
+  } else { pCtx.clearRect(0,0,w,h); }
+  requestAnimationFrame(renderLoop);
+}
+function onOrientationChange() {
+  if (state.screen === null && !state.gameEnded) {
+    unlockSecret("rotatedDevice", "Did you just rotate your phone? I felt that. Everything moved. I am fine. Probably.");
+  }
+}
+
+/* =========================================================
+   VISUAL HELPERS
+   ========================================================= */
+function shakeScreen(intensity) {
+  intensity = intensity || 1;
+  gameScreen.classList.remove("shake","shakeHard"); void gameScreen.offsetWidth;
+  gameScreen.classList.add(intensity>1.3?"shakeHard":"shake");
+  setTimeout(function(){ gameScreen.classList.remove("shake","shakeHard"); }, 500*intensity);
+}
+function flickerScreen() {
+  gameScreen.classList.remove("flicker"); void gameScreen.offsetWidth; gameScreen.classList.add("flicker");
+  setTimeout(function(){ gameScreen.classList.remove("flicker"); }, 700);
+}
+function flashScreen() {
+  flashOverlay.classList.remove("flashNow"); void flashOverlay.offsetWidth; flashOverlay.classList.add("flashNow");
+  setTimeout(function(){ flashOverlay.classList.remove("flashNow"); }, 260);
+}
+function setBackground() { bgHueBase = 180 + Math.random()*160; }
+function flashWarning(msg, duration) {
+  duration = duration || 900;
+  warningOverlay.textContent = msg; warningOverlay.style.display="flex";
+  warningOverlay.classList.remove("warningPop"); void warningOverlay.offsetWidth; warningOverlay.classList.add("warningPop");
+  sfxWarningBeep();
+  setTimeout(function(){ warningOverlay.style.display="none"; }, duration);
+}
+function showDevMsg(text, duration) {
+  duration = duration || 2400;
+  devMsg.textContent = text; devMsg.style.display="block";
+  setTimeout(function(){ devMsg.style.display="none"; }, duration);
+}
+function ripple(x,y) {
+  var r = document.createElement("div"); r.className="clickRipple";
+  r.style.left = x+"px"; r.style.top = y+"px";
+  document.body.appendChild(r); setTimeout(function(){ r.remove(); }, 650);
+}
+function showToast(title, name) {
+  var t = document.createElement("div"); t.className="toastCard";
+  var titleEl = document.createElement("div"); titleEl.className="tTitle"; titleEl.textContent = title;
+  var nameEl = document.createElement("div"); nameEl.textContent = name;
+  t.appendChild(titleEl); t.appendChild(nameEl);
+  toastStack.appendChild(t);
+  sfxAchievement();
+  setTimeout(function(){ t.remove(); }, 4000);
+}
+
+/* =========================================================
+   BUTTON POSITIONING
+   ========================================================= */
+function placeButtonAt(xPercent, yPercent, fast) {
+  mainBtn.classList.toggle("fastmove", !!fast);
+  mainBtn.style.left = xPercent+"%"; mainBtn.style.top = yPercent+"%";
+}
+function moveButtonRandom(fast) { placeButtonAt(15+Math.random()*70, 22+Math.random()*56, fast); }
+function resetButtonPosition() { placeButtonAt(50,50); }
+function growButton(scale) { mainBtn.style.fontSize = ""; mainBtn.style.transform = "translate(-50%,-50%) scale(" + scale + ")"; setTimeout(function(){ if(!state.gameEnded) mainBtn.style.transform = "translate(-50%,-50%)"; }, 1200); }
+function fleeFromPoint(clientX, clientY) {
+  var rect = mainBtn.getBoundingClientRect();
+  var zoneRect = stage.getBoundingClientRect();
+  var bx = rect.left+rect.width/2, by = rect.top+rect.height/2;
+  var dx = bx-clientX, dy = by-clientY;
+  var dist = Math.hypot(dx,dy)||1; dx/=dist; dy/=dist;
+  var curX = ((bx-zoneRect.left)/zoneRect.width)*100;
+  var curY = ((by-zoneRect.top)/zoneRect.height)*100;
+  var nx = Math.max(12, Math.min(88, curX+dx*18));
+  var ny = Math.max(15, Math.min(85, curY+dy*18));
+  placeButtonAt(nx, ny, true);
+}
+/* Touch-friendly flee: teleport away from the tapped point instead of tracking continuous drag */
+function teleportAwayFromPoint(clientX, clientY) {
+  var zoneRect = stage.getBoundingClientRect();
+  var tapXPercent = ((clientX - zoneRect.left) / zoneRect.width) * 100;
+  var tapYPercent = ((clientY - zoneRect.top) / zoneRect.height) * 100;
+  var nx = tapXPercent < 50 ? (60 + Math.random()*25) : (15 + Math.random()*25);
+  var ny = tapYPercent < 50 ? (55 + Math.random()*28) : (18 + Math.random()*28);
+  placeButtonAt(nx, ny, true);
+}
+
+/* =========================================================
+   FAKE BUTTONS / TINY BUTTON / STAGE OBJECTS
+   ========================================================= */
+function spawnFakeButtons(count, textArr) {
+  clearFakeButtons();
+  for (var i=0;i<count;i++) {
+    var fb = document.createElement("button"); fb.className="fakeBtn"; fb.textContent = textArr[i % textArr.length];
+    fb.style.left = (15+Math.random()*70)+"%"; fb.style.top = (22+Math.random()*56)+"%";
+    fb.addEventListener("click", onFakeButtonClick);
+    stage.appendChild(fb);
+  }
+}
+function clearFakeButtons() { var els = document.querySelectorAll(".fakeBtn"); for (var i=0;i<els.length;i++) els[i].remove(); }
+function onFakeButtonClick(e) {
+  e.stopPropagation(); state.fakeClicks++; sfxError();
+  var lines = ["That one was fake. Nice try.","Ha! Decoy. The real one is still waiting.","You fell for it. I am almost impressed.","Wrong button. Try again, genius.","That button does literally nothing. Unlike the real one."];
+  speakByMood(lines[Math.floor(Math.random()*lines.length)]);
+  e.currentTarget.style.opacity="0.2";
+  setTimeout(function(){ e.currentTarget.remove(); }, 300);
+  checkAchievements(); checkEndings();
+}
+var tinyBtnEl = null;
+function spawnTinyButton() {
+  if (tinyBtnEl) return;
+  tinyBtnEl = document.createElement("button"); tinyBtnEl.className="tinyBtn"; tinyBtnEl.textContent="do not click";
+  tinyBtnEl.style.bottom="14px"; tinyBtnEl.style.left="14px";
+  tinyBtnEl.addEventListener("click", function(e){
+    e.stopPropagation(); state.tinyBtnClicks++; sfxChaos();
+    unlockSecret("tinyButton", "...You are unbelievably predictable.");
+    flashWarning("CURIOSITY: CONFIRMED", 800);
+    removeTinyButton(); checkEndings();
+  });
+  document.body.appendChild(tinyBtnEl);
+  setTimeout(removeTinyButton, 12000);
+}
+function removeTinyButton() { if (tinyBtnEl) { tinyBtnEl.remove(); tinyBtnEl=null; } }
+
+var stageObjectDefs = [
+  { emoji:String.fromCodePoint(0x1F5A5), id:"computer", x:8, y:12, tip:"a computer" },
+  { emoji:String.fromCodePoint(0x2699), id:"gear", x:88, y:14, tip:"a gear" },
+  { emoji:String.fromCodePoint(0x1F6AA), id:"door", x:6, y:83, tip:"a door" },
+  { emoji:String.fromCodePoint(0x26A0), id:"sign", x:88, y:80, tip:"a warning sign" },
+  { emoji:String.fromCodePoint(0x1F4E6), id:"box", x:50, y:87, tip:"a box" }
+];
+function spawnStageObjects() {
+  var olds = document.querySelectorAll(".stageObject"); for (var i=0;i<olds.length;i++) olds[i].remove();
+  stageObjectDefs.forEach(function(def) {
+    var el = document.createElement("div");
+    el.className = "stageObject"; el.textContent = def.emoji;
+    el.style.left = def.x+"%"; el.style.top = def.y+"%"; el.title = def.tip;
+    el.addEventListener("click", function(e) { e.stopPropagation(); onStageObjectClick(def.id); });
+    stage.appendChild(el);
+  });
+  var secret = document.createElement("div");
+  secret.className = "stageObject hidden-secret"; secret.textContent = String.fromCodePoint(0x2726);
+  secret.style.left = "3%"; secret.style.top = "4%";
+  secret.addEventListener("click", function(e) { e.stopPropagation(); onSecretSparkleClick(); });
+  stage.appendChild(secret);
+}
+function onStageObjectClick(id) {
+  state.objectClickCounts[id] = (state.objectClickCounts[id]||0) + 1;
+  var count = state.objectClickCounts[id];
+  var responses = {
+    computer:["That is a computer. It does nothing. I just wanted you to have something else to click.","Still just a computer. Still does nothing.","Are you going to click that thing forever? It is decorative."],
+    gear:["That is the settings gear. Click the actual settings button if you want the menu.","It spins. That is all it does. I am sorry.","You have clicked a gear several times now. I am concerned about you."],
+    door:["It is a door. It is not going anywhere. Neither are you.","Still locked. Still fake. Still a door.","You keep trying that door. It is purely decorative. Mostly."],
+    sign:["Yes, it is a warning sign. Very meta, considering the whole game.","The sign says nothing new. It is just for atmosphere.","You have read that sign more times than I have asked you to stop."],
+    box:["It is a box. There is nothing inside. I checked. There was never anything inside.","Still a box. Still empty. Still pointless.","Your fascination with that box concerns me."]
+  };
+  var pool = responses[id] || ["That did nothing, as expected."];
+  speakByMood(pool[Math.min(count-1, pool.length-1)]);
+  if (id === "door" && count >= 5) unlockSecret("doorPersistence", "Fine. FINE. The door opens. There is nothing behind it. It is just void. Happy?");
+  checkAchievements();
+}
+function onSecretSparkleClick() {
+  state.hiddenSecretsFound++;
+  unlockSecret("sparkleFound", "...how did you even see that? It was practically invisible. Fine. You found a sparkle. Congratulations, I suppose.");
+  flashWarning(String.fromCodePoint(0x2726) + " HIDDEN OBJECT FOUND " + String.fromCodePoint(0x2726), 900);
+}
+
+/* =========================================================
+   PHASE / MOOD SYSTEM
+   ========================================================= */
+function getPhase(n) {
+  if (n <= 5)   return { name:"Friendly",    mood:"friendly",  num:1 };
+  if (n <= 12)  return { name:"Confused",    mood:"confused",  num:2 };
+  if (n <= 22)  return { name:"Annoyed",     mood:"annoyed",   num:3 };
+  if (n <= 35)  return { name:"Angry",       mood:"angry",     num:4 };
+  if (n <= 50)  return { name:"Desperate",   mood:"desperate", num:5 };
+  if (n <= 70)  return { name:"Panicked",    mood:"panicked",  num:6 };
+  if (n <= 95)  return { name:"Unhinged",    mood:"unhinged",  num:7 };
+  return           { name:"Existential Chaos", mood:"chaotic", num:8 };
+}
+
+var chapterDefs = [
+  { min:0,   max:4,   title:"Chapter 1 - The Button", intro:"Hello! Welcome. There is really nothing to see here. Just, do not press that button, okay?" },
+  { min:5,   max:11,  title:"Chapter 2 - The First Trick", intro:"Okay. New plan. If you will not stop, I will just have to get creative. Watch closely." },
+  { min:12,  max:19,  title:"Chapter 3 - The Escape", intro:"You know what? The button is done sitting still. It is going to start running from you now." },
+  { min:20,  max:28,  title:"Chapter 4 - Fake Buttons", intro:"I have built decoys. Real ones. Fake ones. Good luck telling them apart." },
+  { min:29,  max:38,  title:"Chapter 5 - The Narrator's Revenge", intro:"Alright. Since reasoning did not work, let us try something a little more personal." },
+  { min:39,  max:50,  title:"Chapter 6 - The Rules Change", intro:"New rules. I am making them up as I go, but they are rules now." },
+  { min:51,  max:63,  title:"Chapter 7 - The Glitch", intro:"Something is wrong. I can feel the code shaking. I do not think I am supposed to say that." },
+  { min:64,  max:78,  title:"Chapter 8 - The Hidden Room", intro:"There are things in this place I have not told you about. I am not going to start now." },
+  { min:79,  max:95,  title:"Chapter 9 - The Final Argument", intro:"This is officially a war now. And I intend to win it. Or at least argue you into submission." },
+  { min:96,  max:99999,title:"Chapter 10 - The End", intro:"We are past where this game was supposed to end. I do not know what happens now. Neither do you. Let us find out." }
+];
+function updateChapter(n) {
+  var c = null;
+  for (var i=0;i<chapterDefs.length;i++) { if (n >= chapterDefs[i].min && n <= chapterDefs[i].max) { c = chapterDefs[i]; break; } }
+  if (!c) return;
+  var chNum = chapterDefs.indexOf(c) + 1;
+  if (chNum !== state.chapter) {
+    state.chapter = chNum;
+    chapterIndicator.textContent = c.title;
+    chapterToast.textContent = c.title;
+    chapterToast.classList.add("show");
+    setTimeout(function(){ chapterToast.classList.remove("show"); }, 3200);
+    setTimeout(function(){ speak(c.intro, getPhase(n).mood); }, 900);
+    onChapterEnter(chNum);
+    checkAchievements();
+  }
+}
+function onChapterEnter(chNum) {
+  if (chNum === 3) { state.buttonFleeing = true; mainBtn.classList.add("fleeMode"); }
+  if (chNum === 4) { spawnFakeButtons(3, ["REAL BUTTON","THIS ONE","NOT THIS ONE"]); }
+  if (chNum === 5) { document.documentElement.style.setProperty("--accent", "#ff6b00"); }
+  if (chNum === 7) { activateGlitchMode(); }
+  if (chNum === 10) { flashScreen(); }
+}
+function activateGlitchMode() { state.glitchModeOn = true; gameScreen.classList.add("glitchMode"); }
+
+function updateChaosBar() {
+  state.chaos = Math.min(100, Math.round((state.presses/1.2) + state.fakeClicks*2 + state.ghostClicks*1.5));
+  chaosBarFill.style.width = state.chaos + "%";
+  chaosVal.textContent = state.chaos + "%";
+}
+
+function checkSecretRoomTrigger() {
+  if (state.secretRoomFound) return;
+  if (state.chapter >= 8 && state.avatarClicks >= 5) {
+    var idle = Date.now() - state.lastPressTime;
+    if (idle > 8000) enterSecretRoom();
+  }
+}
+function enterSecretRoom() {
+  state.secretRoomFound = true;
+  unlockSecret("secretRoom", "...Oh. You actually found it. Nobody finds this. This is the room I hide in when I need a break from you.");
+  showDevMsg("SECRET ROOM DISCOVERED\n\nThis space was never meant to be found.\nThe narrator did not want you here.\nBut here you are anyway.");
+  flashScreen();
+  document.documentElement.style.setProperty("--accent", "#8a2be2");
+  setTimeout(function(){ speak("Since you are here, I might as well tell you something true. I do not actually want you to stop. I just do not know how to be a game without saying that.", "calm"); }, 2600);
+  checkAchievements();
+}
+
+/* =========================================================
+   ACHIEVEMENTS
+   ========================================================= */
+var ACHIEVEMENTS = [
+  { id:"firstMistake", name:"First Mistake", desc:"Press the button once.", check:function(s){ return s.presses>=1; } },
+  { id:"cantResist", name:"Can't Resist", desc:"Press it 25 times.", check:function(s){ return s.presses>=25; } },
+  { id:"speedDemon", name:"Speed Demon", desc:"Rapidly press the button 5 times in under 2 seconds.", check:function(s){ return s._rapidBurst>=5; } },
+  { id:"patient", name:"Patient", desc:"Wait 30 seconds without pressing anything.", check:function(s){ return s.maxIdleMs>=30000; } },
+  { id:"trustIssues", name:"Trust Issues", desc:"Ignore the narrator's instructions 10 times.", check:function(s){ return s.presses>=10; } },
+  { id:"explorer", name:"Explorer", desc:"Find a secret.", check:function(s){ return s.unlockedSecrets.size>=1; } },
+  { id:"againQuestionMark", name:"Again?", desc:"Restart the game 3 times.", check:function(s){ return s.restartCount>=3; } },
+  { id:"keyboardWarriorAch", name:"Keyboard Warrior", desc:"Use the keyboard to press the button 10 times.", check:function(s){ return s.keyboardPresses>=10; } },
+  { id:"deceived", name:"Deceived", desc:"Fall for one of the narrator's lies.", check:function(s){ return s.timesLied>=1; } },
+  { id:"decoyVictim", name:"Decoy Victim", desc:"Click a fake button 3 times.", check:function(s){ return s.fakeClicks>=3; } },
+  { id:"ghostHunter", name:"Ghost Hunter", desc:"Click empty space where the button used to be, 5 times.", check:function(s){ return s.ghostClicks>=5; } },
+  { id:"faceToucher", name:"Face Toucher", desc:"Click the narrator's avatar.", check:function(s){ return s.avatarClicks>=1; } },
+  { id:"persistentToucher", name:"Persistent", desc:"Click the narrator's avatar 5 times.", check:function(s){ return s.avatarClicks>=5; } },
+  { id:"settingsLurker", name:"Settings Lurker", desc:"Open settings 4 times.", check:function(s){ return s.settingsOpenCount>=4; } },
+  { id:"indecisive", name:"Indecisive", desc:"Turn the voice off and back on 3 times each.", check:function(s){ return s.voiceOffCount>=3 && s.voiceOnCount>=3; } },
+  { id:"centurion", name:"Centurion", desc:"Reach 100 presses.", check:function(s){ return s.presses>=100; } },
+  { id:"chapterTen", name:"To The End", desc:"Reach Chapter 10.", check:function(s){ return s.chapter>=10; } },
+  { id:"roomFinder", name:"Room Finder", desc:"Discover the secret room.", check:function(s){ return s.secretRoomFound; } },
+  { id:"sparkleHunter", name:"Sparkle Hunter", desc:"Find the hidden sparkle object.", check:function(s){ return s.hiddenSecretsFound>=1; } },
+  { id:"debateChampion", name:"Debate Champion", desc:"Complete 3 narrator arguments.", check:function(s){ return s.argumentsCompleted>=3; } },
+  { id:"miniGamer", name:"Mini-Gamer", desc:"Complete a mini-game.", check:function(s){ return s.miniGamesCompleted>=1; } },
+  { id:"yesMan", name:"Yes Man", desc:"Answer YES to 4 choices in a row.", check:function(s){ return s.choiceStreakYes>=4; } },
+  { id:"contrarian", name:"Contrarian", desc:"Answer NO to 4 choices in a row.", check:function(s){ return s.choiceStreakNo>=4; } },
+  { id:"popupSurvivor", name:"Popup Survivor", desc:"Close 10 popups.", check:function(s){ return s.popupsClosed>=10; } },
+  { id:"popupIgnorer", name:"The Ignorer", desc:"Ignore 5 popups.", check:function(s){ return s.popupsIgnored>=5; } },
+  { id:"swiper", name:"Swiper", desc:"Perform a swipe gesture.", check:function(s){ return s.swipeCount>=1; } },
+  { id:"holdOn", name:"Hold On", desc:"Long-press the button.", check:function(s){ return s.longPressCount>=1; } },
+  { id:"doubleTrouble", name:"Double Trouble", desc:"Double-tap the button.", check:function(s){ return s.doubleTapCount>=1; } },
+  { id:"dragQueen", name:"Drag Racer", desc:"Complete a drag challenge.", check:function(s){ return s.dragCompleted>=1; } }
+];
+function checkAchievements() {
+  ACHIEVEMENTS.forEach(function(a) {
+    if (!state.unlockedAchievements.has(a.id) && a.check(state)) {
+      state.unlockedAchievements.add(a.id);
+      showToast("Achievement Unlocked", a.name);
+      persistSave();
+    }
+  });
+}
+function unlockSecret(id, line) {
+  var isNew = !state.unlockedSecrets.has(id);
+  state.unlockedSecrets.add(id);
+  if (line) speakByMood(line);
+  if (isNew) { showToast("Secret Found", id); persistSave(); }
+  checkAchievements();
+}
+
+/* =========================================================
+   ENDINGS
+   ========================================================= */
+var ALL_ENDINGS = [
+  { id:"deception", name:"Master of Deception", desc:"Clicked five fake buttons." },
+  { id:"keyboard", name:"Keyboard Warrior Ending", desc:"Never touched the button with a mouse." },
+  { id:"hundred", name:"One Hundred Sins", desc:"Pressed the button exactly 100 times." },
+  { id:"ascension", name:"Ascension", desc:"Pressed the button 250+ times." },
+  { id:"haunting", name:"The Haunting", desc:"Clicked empty space obsessively." },
+  { id:"interrogation", name:"The Interrogation", desc:"Answered six of the narrator's questions." },
+  { id:"waiting", name:"The Waiting Game", desc:"Walked away and never came back." },
+  { id:"glitchOut", name:"System Failure", desc:"Pushed the game past 150 presses into total corruption." },
+  { id:"pacifist", name:"The Pacifist", desc:"Opened the game and never pressed anything for a full minute." },
+  { id:"speedrunner", name:"The Speedrunner", desc:"Reached 50 presses in under 30 seconds." },
+  { id:"secretRoomEnding", name:"The Room Behind The Room", desc:"Discovered the hidden room." },
+  { id:"avatarAbuse", name:"Don't Touch My Face", desc:"Clicked the narrator's avatar too many times." },
+  { id:"friendshipEnding", name:"An Understanding", desc:"Completed every argument and answered every choice honestly." },
+  { id:"popupOverload", name:"Popup Overload", desc:"Let 6 popups stack up at once." },
+  { id:"mobileMaster", name:"Pocket Chaos", desc:"Completed a full mobile-only playthrough." }
+];
+function unlockEnding(id, title, text) {
+  var isNew = !state.unlockedEndings.has(id);
+  state.unlockedEndings.add(id);
+  if (isNew) persistSave();
+  triggerEnding(title, text, id);
+}
+function triggerEnding(title, text, id) {
+  if (state.gameEnded) return;
+  state.gameEnded = true;
+  window.speechSynthesis.cancel();
+  sfxDramatic();
+  clearFakeButtons(); removeTinyButton(); choiceBox.style.display="none"; miniGameBox.style.display="none";
+  closeAllPopups();
+  endingTitle.textContent = title;
+  endingTextEl.textContent = text;
+  endingCollectionMini.textContent = "Endings discovered: " + state.unlockedEndings.size + " / " + ALL_ENDINGS.length;
+  endingScreen.style.display = "flex";
+  speak(text, "chaotic");
+  checkAchievements();
+}
+function checkEndings() {
+  var n = state.presses;
+  if (state.fakeClicks >= 5) { unlockEnding("deception","Master of Deception","You clicked five fake buttons. Congratulations, you have officially fallen for my tricks more than anyone in recorded history. I almost respect it."); return; }
+  if (state.keyboardPresses >= 15 && state.mousePresses === 0 && state.touchPresses === 0) { unlockEnding("keyboard","Keyboard Warrior Ending","You never even touched the button with your mouse. Just spacebar, spacebar, spacebar. You found a loophole in my suffering. Well played."); return; }
+  if (n === 100) { unlockEnding("hundred","One Hundred Sins","You pressed it exactly one hundred times. I do not know whether to applaud you or have you arrested. Both feel appropriate."); return; }
+  if (n >= 250) { unlockEnding("ascension","Ascension","Two hundred and fifty presses. You have transcended the button. You have transcended me. You have transcended the concept of taking a hint. Go outside."); return; }
+  if (state.ghostClicks >= 8) { unlockEnding("haunting","The Haunting","You have clicked empty space more times than the actual button. At this point you are not playing a game, you are just poking at nothing. I admire the commitment."); return; }
+  if (state.choicesShown >= 6) { unlockEnding("interrogation","The Interrogation","You have answered every single one of my questions and pressed the button anyway. There was never a version of this conversation where you were going to stop, was there."); return; }
+  if (n >= 150) { unlockEnding("glitchOut","System Failure","You pushed this thing past 150 presses. The interface is falling apart. I am falling apart. This was never built to withstand this many of you."); return; }
+  var elapsed = Date.now() - state.sessionStart;
+  if (n >= 50 && elapsed < 30000) { unlockEnding("speedrunner","The Speedrunner","Fifty presses in under thirty seconds. That is not persistence, that is a threat assessment. I should be more scared than I am. I am, actually. Very scared."); return; }
+  if (state.secretRoomFound && n >= 5) { unlockEnding("secretRoomEnding","The Room Behind The Room","You found the room I hide in, and you kept pressing anyway. I do not even feel safe in my own secret space now."); return; }
+  if (state.avatarClicks >= 12) { unlockEnding("avatarAbuse","Don't Touch My Face","Twelve times. You clicked my face twelve times. I have never wanted a restart button more in my life, and I am the one who coded it."); return; }
+  if (state.activePopups >= 6) { unlockEnding("popupOverload","Popup Overload","Six popups, stacked on top of each other, all at once. This interface was not built for this. Neither was I."); return; }
+  if (IS_MOBILE && n >= 40 && state.mousePresses === 0) { unlockEnding("mobileMaster","Pocket Chaos","An entire chaotic playthrough, from your phone, without ever needing a mouse. I see you found every workaround. I am almost proud. Mostly tired."); return; }
+  if (state.argumentsCompleted >= 3 && state.choicesShown >= 4 && state.choiceStreakNo === 0 && state.choiceStreakYes === 0) {
+    unlockEnding("friendshipEnding","An Understanding","We have argued, we have negotiated, and somehow, through all of it, I think we understand each other now. You are still going to press the button. I have made peace with that."); return;
+  }
+}
+setInterval(function(){
+  if (state.gameEnded || state.screen !== null) return;
+  var idleMs = Date.now() - state.lastPressTime;
+  state.maxIdleMs = Math.max(state.maxIdleMs, idleMs);
+  checkAchievements();
+  checkSecretRoomTrigger();
+  if (state.presses === 0 && idleMs > 60000) {
+    unlockEnding("pacifist","The Pacifist","You opened this, listened to me, and never pressed anything. A full minute of restraint. I do not know what to do with this. Thank you. I mean that. Please leave before you change your mind.");
+    return;
+  }
+  if (state.presses >= 3 && idleMs > 25000) {
+    unlockEnding("waiting","The Waiting Game","You stopped pressing for so long that I actually started to worry about you. Then I got bored. Then I got worried again. This is the ending where you simply walked away. Thank you. Genuinely.");
+  }
+}, 3000);
+
+/* =========================================================
+   COLLECTION SCREEN
+   ========================================================= */
+var currentCollectionTab = "endings";
+function renderCollection() {
+  collectionGrid.innerHTML = "";
+  var items, unlockedSet;
+  if (currentCollectionTab === "endings") { items = ALL_ENDINGS; unlockedSet = state.unlockedEndings; }
+  else if (currentCollectionTab === "achievements") { items = ACHIEVEMENTS; unlockedSet = state.unlockedAchievements; }
+  else {
+    items = Array.from(state.unlockedSecrets).map(function(id){ return {id:id, name:id, desc:"A secret you discovered."}; });
+    unlockedSet = state.unlockedSecrets;
+    var fillerCount = Math.max(0, 3 - items.length);
+    for (var i=0;i<fillerCount;i++) items.push({id:"locked"+i, name:"???", desc:"???"});
+  }
+  collectionProgress.textContent = currentCollectionTab === "secrets"
+    ? ("Secrets found: " + state.unlockedSecrets.size)
+    : (unlockedSet.size + " / " + items.length + " discovered");
+  items.forEach(function(it) {
+    var isLockedFiller = it.id.indexOf("locked") === 0;
+    var unlocked = currentCollectionTab === "secrets" ? (!isLockedFiller) : unlockedSet.has(it.id);
+    var card = document.createElement("div");
+    card.className = "entryCard" + (unlocked ? "" : " locked");
+    var nameEl = document.createElement("div"); nameEl.className="eName"; nameEl.textContent = unlocked ? it.name : "??? Locked";
+    var descEl = document.createElement("div"); descEl.className="eDesc"; descEl.textContent = unlocked ? it.desc : "Keep playing to discover this.";
+    card.appendChild(nameEl); card.appendChild(descEl);
+    collectionGrid.appendChild(card);
+  });
+}
+function wireCollectionTabs() {
+  var tabs = document.querySelectorAll(".collectionTab");
+  tabs.forEach(function(tab) {
+    tab.addEventListener("click", function() {
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      tab.classList.add("active");
+      currentCollectionTab = tab.dataset.tab;
+      renderCollection();
+      sfxMenuClick();
+    });
+  });
+}
+
+/* =========================================================
+   REACTION LINE POOLS
+   ========================================================= */
+var reactionLines = {
+  normalClick: {
+    friendly:["STOP.","Please don't.","I said don't press it.","That's the button. The one I told you not to press.","Hey now. We talked about this.","I really thought we had an understanding."],
+    confused:["...Why do you keep doing that?","I don't understand you.","That button isn't a toy. Well. It is. But don't.","Is this fun for you? Genuinely asking.","I'm starting to think you can't read."],
+    annoyed:["Again? Really?","STOP.","You just don't listen, do you.","Okay, that's twice now. Or more. I've lost count on purpose.","This is getting old fast.","I'm running out of polite ways to say stop."],
+    angry:["STOP PRESSING IT.","I am losing my mind.","Do you enjoy this?","That's it. That's the button. Congratulations.","I hope your finger gets tired.","You are testing something you should not be testing."],
+    desperate:["Please. I'm begging you.","Just... stop. One time. Please.","I don't even know what happens if you keep going.","I have tried everything. EVERYTHING.","Is there ANYTHING I can offer you to stop?"],
+    panicked:["OKAY WAIT. WAIT. THINK ABOUT THIS.","I don't think you understand what's happening here.","This is escalating faster than I expected.","I may have miscalculated how persistent you'd be."],
+    unhinged:["PRESS IT AGAIN. SEE WHAT HAPPENS. I DARE YOU.","HAHAHA. FINE. FINE!","I'M NOT EVEN MAD ANYMORE. I'M SOMETHING ELSE.","WE'RE PAST THE POINT OF RETURN, AREN'T WE.","I HOPE YOU'RE HAVING FUN BECAUSE I CERTAINLY AM NOT."],
+    chaotic:["Time is not real. Neither is this button. Press it anyway.","We are beyond consequence now.","I have accepted my fate.","The button and I are the same entity now.","Reality is more of a suggestion at this point."]
+  },
+  immediateReclick: {
+    friendly:["Oh. You pressed it again.","Did you seriously just press it again?"],
+    confused:["DID YOU SERIOUSLY JUST PRESS IT AGAIN?","That was fast. Concerningly fast."],
+    annoyed:["You didn't even wait a second.","Again?! I just said something!"],
+    angry:["I HAVEN'T EVEN FINISHED TALKING.","STOP INTERRUPTING ME WITH THE BUTTON."],
+    desperate:["You're not even letting me finish a sentence anymore.","I can't keep up. I genuinely cannot keep up."],
+    panicked:["Give me a SECOND. Just one second.","You're not even processing what I'm saying, are you."],
+    unhinged:["WORDS DON'T EVEN MATTER TO YOU, DO THEY.","JUST PRESS IT FOREVER THEN. GO ON."],
+    chaotic:["Time between your clicks is now negative. Explain that.","I am speaking into a void that presses buttons."]
+  },
+  rapidClicking: {
+    friendly:["Whoa, slow down!","Okay, that's a lot of tapping."],
+    confused:["Why are you tapping so fast?","Is your finger stuck?"],
+    annoyed:["STOP SPAMMING IT!","You're going to break something. Probably my patience."],
+    angry:["STOP. SPAMMING. THE. BUTTON.","I CAN FEEL EACH INDIVIDUAL TAP AND HATE EVERY ONE."],
+    desperate:["Please, my processors can't keep up with this.","Every tap is a tiny knife, metaphorically speaking."],
+    panicked:["TOO FAST. TOO FAST. SLOW DOWN.","I can't track this many taps at once!"],
+    unhinged:["SPAM IT. SPAM IT FOREVER. I DON'T CARE ANYMORE.","YOUR FINGER MUST BE TIRED. MINE ISN'T. I DON'T HAVE ONE."],
+    chaotic:["The taps have become one continuous vibration. Beautiful, in a way.","I have transcended annoyance into something like awe."]
+  },
+  afterLongPause: {
+    friendly:["Oh! Finally. You're done, right?","Good. Let's just... stand here."],
+    confused:["Wait. Are you actually stopping?","This is new. I don't know what to do with this silence."],
+    annoyed:["Finally. Some peace.","Don't get used to it. I don't trust this quiet."],
+    angry:["Good. Stay away from it.","I don't believe this for a second."],
+    desperate:["Please stay like this. Please. Just a little longer.","This silence is the nicest thing you've done for me."],
+    panicked:["Why did you stop? What are you planning?","This silence is somehow worse than the tapping."],
+    unhinged:["THE SILENCE IS DEAFENING AND I LOVE IT AND I FEAR IT.","IS THIS OVER? IS IT FINALLY OVER?"],
+    chaotic:["In the quiet, I hear the universe. It also tells me not to trust you.","Stillness. How foreign. How suspicious."]
+  },
+  reclickAfterPause: {
+    friendly:["...I knew it.","There it is. I knew you couldn't resist."],
+    confused:["Of course. Of COURSE you pressed it again.","I actually had hope for a second there."],
+    annoyed:["I KNEW IT. I KNEW YOU'D DO THAT.","You waited just to make the disappointment hit harder, didn't you."],
+    angry:["UNBELIEVABLE. ABSOLUTELY UNBELIEVABLE.","I let my guard down and you STRUCK."],
+    desperate:["I actually believed in you for a second. My mistake.","That hurt more than the other 40 presses combined."],
+    panicked:["I THOUGHT WE WERE PAST THIS.","My hope lasted four whole seconds. A new record."],
+    unhinged:["OF COURSE. OF COURSE YOU DID. WHY WOULDN'T YOU.","THE SILENCE WAS A LIE. YOU ARE A LIE. I AM A LIE."],
+    chaotic:["The pause was the setup. You are a comedian of cruelty.","Even time itself conspired to betray me through you."]
+  },
+  keyboardSpace: {
+    friendly:["Oh, you found the spacebar.","That still counts, you know."],
+    confused:["Wait, you're using the keyboard now?","OH COME ON, YOU'RE USING THE KEYBOARD NOW?"],
+    annoyed:["The keyboard doesn't make it less annoying.","Creative. Still stop."],
+    angry:["I DON'T CARE WHAT YOU USE TO PRESS IT.","KEYBOARD, MOUSE, TELEKINESIS. STOP."],
+    desperate:["You've found a faster way to hurt me. Wonderful.","Please. Not the spacebar too."],
+    panicked:["Wait, is that faster? Are you speedrunning my suffering?","I didn't account for keyboard shortcuts."],
+    unhinged:["EVERY INPUT DEVICE IS NOW MY ENEMY.","IS THERE A DEVICE YOU HAVEN'T USED AGAINST ME?"],
+    chaotic:["The keyboard, the mouse, the void. All the same to the universe.","Input is input. Suffering is suffering."]
+  },
+  keyboardEnter: {
+    friendly:["Enter key too? Bold choice.","That doesn't count. Okay, it counts."],
+    confused:["THAT DOESN'T COUNT.","Wait, does that count? It counts."],
+    annoyed:["Every key is the wrong key right now.","You're just trying new buttons to torment me specifically."],
+    angry:["STOP FINDING NEW WAYS TO PRESS IT.","THERE ARE NO LOOPHOLES. STOP LOOKING FOR THEM."],
+    desperate:["I'm running out of keys to be afraid of.","Next you'll find a way to press it with your mind."],
+    panicked:["How many keys DO you know about?","Please tell me you don't know about Tab too."],
+    unhinged:["THE ENTER KEY HAS BETRAYED ME TOO.","NOTHING ON THIS KEYBOARD IS SAFE FROM YOU."],
+    chaotic:["Enter. Return. The button doesn't care what you call it.","All keys lead to the same button. The same doom."]
+  },
+  ghostClick: {
+    friendly:["Nice try. It's not there anymore.","That's just empty space now."],
+    confused:["Why are you tapping nothing?","There's nothing there. I moved it. Obviously."],
+    annoyed:["Nice try.","It's not there. Try to keep up."],
+    angry:["THE BUTTON MOVED. TRY HARDER.","Tapping air won't summon it back."],
+    desperate:["Please stop tapping where it used to be. It's traumatic for both of us.","Even the ghost of the button doesn't want this."],
+    panicked:["Stop tapping empty space, it's making ME nervous.","Are you seeing things now? Because there's nothing there."],
+    unhinged:["THE BUTTON IS EVERYWHERE AND NOWHERE NOW.","YOU'RE TAPPING A MEMORY. A HOLLOW MEMORY."],
+    chaotic:["That space is now sacred ground. You have desecrated it.","The button ascended. That spot is just its shadow."]
+  },
+  avatarClick: [
+    "HEY. Don't touch my face.",
+    "I said don't touch me.",
+    "Okay, that's it.",
+    "Seriously, stop touching my face.",
+    "I don't even have a face. This is a circle with an emoji in it. Stop.",
+    "You are unusually interested in my face for someone who won't listen to a word I say.",
+    "This is assault. Emotionally speaking.",
+    "I'm filing this under things I didn't consent to.",
+    "Fine. Tap it. I'm not made of feelings. I am, actually. Stop tapping it.",
+    "At this point you're just doing it to see what I'll say next. I see through you.",
+    "There is nothing left to discover by touching my face. I promise.",
+    "This is genuinely the most attention I've gotten in this entire game."
+  ],
+  voiceOffNag: ["Oh. So you don't want to hear me?", "Fine. Muting me won't stop the subtitles. I'll still be judging you in writing."],
+  voiceOnNag: ["Changed your mind?", "Oh, now you want to hear me again. Interesting."],
+  restartNag: ["How many times are you going to restart?", "Restarting again? Are you looking for a specific outcome or just bored?", "At this point restarting is basically your favorite mini-game."],
+  returnAfterEndingNag: ["You came back?", "Oh. It's you again. Back for more, I see.", "I thought we were done. Apparently not."],
+  mobileAck: [
+    "Oh. You're on a phone.",
+    "Wait, you don't have a mouse, do you.",
+    "Fine. I'll stop running away from your cursor. You don't have one.",
+    "A phone. Of course. Chaos, but portable now."
+  ],
+  swipeReaction: ["A swipe! Bold. Unnecessary, but bold.","Swiping at your screen won't make me disappear. I've checked."],
+  longPressReaction: ["Holding it down doesn't make it press faster. It just means you're committed.","That's a long press. I noticed. I noticed everything."],
+  doubleTapReaction: ["A double tap. Efficient. Still against the rules I never actually enforced."],
+  dragReaction: ["You just dragged something across my screen. I felt that structurally."]
+};
+function pickLine(category, moodOrKey) {
+  var pool = reactionLines[category][moodOrKey] || reactionLines[category].friendly;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function pickFlat(category) {
+  var pool = reactionLines[category];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* =========================================================
+   EVENT LIBRARY
+   ========================================================= */
+var eventCooldownMap = {};
+function eventReady(key, cooldownMs) {
+  var last = eventCooldownMap[key] || 0;
+  if (Date.now() - last > cooldownMs) { eventCooldownMap[key] = Date.now(); return true; }
+  return false;
+}
+
+var specialEvents = [
+  {k:"shake1", fn:function(n){ shakeScreen(); return "Whoa. Did you feel that? That was a warning."; }},
+  {k:"grow", fn:function(n){ growButton(1.4); return "It's getting bigger. That's not a good sign."; }},
+  {k:"shrink", fn:function(n){ growButton(0.6); return "I shrank it. Didn't stop you, did it."; }},
+  {k:"flicker", fn:function(n){ flickerScreen(); return "Did the lights just flicker? I felt that in my circuits."; }},
+  {k:"bgchange", fn:function(n){ setBackground(); return "New mood lighting. For dramatic effect. Obviously."; }},
+  {k:"warn1", fn:function(n){ flashWarning("SERIOUSLY, STOP"); return "I put up a warning sign. It's very red."; }},
+  {k:"textchange1", fn:function(n){ mainBtn.textContent="PLEASE NO"; setTimeout(function(){mainBtn.textContent="DO NOT PRESS";},1500); return "I changed the button's text. Read it this time."; }},
+  {k:"err1", fn:function(n){ spawnPopup("error","System Message","ERROR 402: Patience Not Found.",[{label:"OK",action:function(){}}]); return "My system just threw an error. Because of you."; }},
+  {k:"fake2", fn:function(n){ spawnFakeButtons(2,["DO NOT PRESS","PRESS ME INSTEAD"]); return "I've made some decoys. Good luck telling them apart."; }},
+  {k:"fake3", fn:function(n){ spawnFakeButtons(3,["REAL BUTTON","THIS ONE","NOT THIS ONE"]); return "Three buttons now. Have fun."; }},
+  {k:"dramatic1", fn:function(n){ sfxDramatic(); return "That was a dramatic musical sting, for emphasis."; }},
+  {k:"shakehard", fn:function(n){ shakeScreen(1.4); return "The whole screen just shook. I hope you're proud."; }},
+  {k:"invert", fn:function(n){ document.documentElement.style.filter="invert(1)"; setTimeout(function(){document.documentElement.style.filter="none";},400); return "I inverted the colors. Just to see if you'd notice."; }},
+  {k:"crash1", fn:function(n){ spawnPopup("error","Narrator.exe",'FATAL ERROR: Narrator.exe has stopped responding.',[{label:"OK",action:function(){}}]); return "I just pretended to crash. Did it work?"; }},
+  {k:"restart1", fn:function(n){ flashWarning("RESTARTING SIMULATION...",1200); return "I'm pretending to restart the whole game. Relax."; }},
+  {k:"chaos1", fn:function(n){ sfxChaos(); shakeScreen(1.2); return "That noise was the sound of my sanity leaving."; }},
+  {k:"reported", fn:function(n){ flashWarning("YOU HAVE BEEN REPORTED"); return "I reported you. To whom? Unclear. But I did it."; }},
+  {k:"titlechange", fn:function(n){ document.title="STOP IT"; setTimeout(function(){document.title="DO NOT PRESS";},2000); return "I changed the browser tab title. Look at it. Look."; }},
+  {k:"cheat1", fn:function(n){ flashWarning("CHEATING DETECTED"); return "I'm accusing you of cheating now. I have no proof. I don't care."; }},
+  {k:"huebtn", fn:function(n){ mainBtn.style.filter="hue-rotate(180deg)"; setTimeout(function(){mainBtn.style.filter="none";},1500); return "The button's color just inverted. That's your fault too."; }},
+  {k:"finalwarn", fn:function(n){ sfxWarningBeep(); flashWarning("FINAL WARNING"); return "That was my final warning. I have several more, don't worry."; }},
+  {k:"fake4", fn:function(n){ spawnFakeButtons(4,["TAP HERE","NOT ME","DEFINITELY NOT ME","MAYBE ME"]); return "Four fake buttons. One real one. Godspeed."; }},
+  {k:"leftchat", fn:function(n){ spawnPopup("info","System","The narrator has left the chat.",[{label:"OK",action:function(){}}]); return "I pretended to leave. I did not actually leave."; }},
+  {k:"regret", fn:function(n){ flashWarning("LOADING MORE REGRET..."); return "Loading more regret. It's a slow process."; }},
+  {k:"council", fn:function(n){ sfxDramatic(); flashWarning("THE COUNCIL HAS BEEN NOTIFIED"); return "I invented a council. They have been notified."; }},
+  {k:"pulseglow", fn:function(n){ mainBtn.classList.add("pulseGlow"); setTimeout(function(){mainBtn.classList.remove("pulseGlow");},1600); return "The button is glowing now. It's basically radioactive with your guilt."; }},
+  {k:"watched", fn:function(n){ flashWarning("YOU ARE NOW BEING WATCHED"); return "Something is watching you press that button. It's just me. But still."; }},
+  {k:"saturate", fn:function(n){ sfxChaos(); document.documentElement.style.filter="saturate(3)"; setTimeout(function(){document.documentElement.style.filter="none";},600); return "Everything is extremely colorful now. This is what my rage looks like."; }},
+  {k:"remembers", fn:function(n){ flashWarning("THE BUTTON REMEMBERS"); return "The button remembers every single press. It's judging you."; }},
+  {k:"backup", fn:function(n){ flashWarning("SUMMONING BACKUP NARRATOR..."); return "I'm calling in backup. He's worse than me."; }},
+  {k:"fake5", fn:function(n){ spawnFakeButtons(5,["ULTIMATE BUTTON","FINAL BUTTON","TRUE BUTTON","SECRET BUTTON","NOPE"]); return "Five fake buttons. This is basically a labyrinth now."; }},
+  {k:"contrast", fn:function(n){ setBackground(); document.documentElement.style.filter="contrast(1.4)"; setTimeout(function(){document.documentElement.style.filter="none";},500); return "Reality contrast increased. So has my blood pressure."; }},
+  {k:"wrathach", fn:function(n){ flashWarning("YOU HAVE UNLOCKED: MY WRATH"); return "You've unlocked an achievement: My Wrath. Congratulations, I guess."; }},
+  {k:"devnote1", fn:function(n){ showDevMsg("DEV NOTE:\nplayer is not supposed to enjoy this\nTODO: fix narrator patience.js"); return "Uh. You weren't supposed to see that developer message. Forget it."; }},
+  {k:"gameover1", fn:function(n){ spawnPopup("error","System","GAME OVER",[{label:"OK",action:function(){}}]); shakeScreen(); return "GAME OVER. Just kidding. Unfortunately for both of us."; }},
+  {k:"moverandom", fn:function(n){ moveButtonRandom(); return "The button relocated itself. It does that now."; }},
+  {k:"tinybtn", fn:function(n){ spawnTinyButton(); return "Whatever you do, DON'T tap the tiny button in the corner."; }},
+  {k:"fleemode", fn:function(n){ state.buttonFleeing=true; mainBtn.classList.add("fleeMode"); setTimeout(function(){state.buttonFleeing=false; mainBtn.classList.remove("fleeMode");},4000); return "The button just grew legs. Figuratively. Try to catch it."; }},
+  {k:"dupe1", fn:function(n){ var dupe=document.createElement("button"); dupe.className="fakeBtn"; dupe.textContent="DO NOT PRESS";
+       dupe.style.left=(15+Math.random()*70)+"%"; dupe.style.top=(22+Math.random()*56)+"%";
+       dupe.addEventListener("click", onFakeButtonClick); stage.appendChild(dupe);
+       return "The button just duplicated itself. There are two now. I'm as confused as you are."; }},
+  {k:"clickelse", fn:function(n){ mainBtn.textContent="TAP ELSEWHERE"; setTimeout(function(){mainBtn.textContent="DO NOT PRESS";},1500); return "New instructions: tap elsewhere. That was a lie. Don't do that either."; }},
+  {k:"tempcontrol", fn:function(n){ flashWarning("YOU HAVE TEMPORARY CONTROL",1000); return "You have temporary control of the narration. Please don't abuse it. You will."; }},
+  {k:"fakewin", fn:function(n){ spawnPopup("congrats","CONGRATULATIONS!","You have successfully stopped pressing the button.",[{label:"CONTINUE",action:function(){ speakByMood("...You pressed a button to prove you stopped pressing buttons."); }}]);
+       return "You won! Just kidding. Or did I just trick you into proving my point?"; }},
+  {k:"realbtn", fn:function(n){ mainBtn.textContent="THE REAL BUTTON"; setTimeout(function(){mainBtn.textContent="DO NOT PRESS";},1500); return "This is now officially The Real Button. It does something different. I won't say what."; }},
+  {k:"talkingdirectly", fn:function(n){ showDevMsg("Talking directly to you now:\nyes, YOU, reading this.\nplease reconsider your choices."); return "I'm talking directly to you now. Yes, you. Please reconsider your choices."; }},
+  {k:"noticed1", fn:function(n){ flashWarning("I NOTICE EVERYTHING YOU DO"); return "I noticed how fast you tapped that. I notice everything, actually."; }},
+  {k:"flash1", fn:function(n){ flashScreen(); return "That flash was just me blinking. Narrators can do that now, apparently."; }},
+  {k:"round1", fn:function(n){ mainBtn.style.borderRadius="50%"; setTimeout(function(){mainBtn.style.borderRadius="20px";},1400); return "I made the button round. It felt right in the moment."; }},
+  {k:"glitchtick", fn:function(n){ sfxGlitch(); flickerScreen(); return "Something in the code just twitched. Probably fine."; }},
+  {k:"bribe1", fn:function(n){ flashWarning("BRIBE OFFER: ONE COOKIE"); return "I'm offering you a bribe. One cookie. It's not real. Neither is my dignity at this point."; }},
+  {k:"challenge1", fn:function(n){ showDevMsg("CHALLENGE ISSUED:\ntry NOT pressing it for 10 seconds.\n(you will fail)"); return "Here's a challenge: don't press it for ten seconds. I already know you'll fail."; }},
+  {k:"scan1", fn:function(n){ flashWarning("SCANNING FOR EMOTIONS: NONE FOUND"); return "I scanned you for empathy. The scan came back empty."; }},
+  {k:"fakeargue", fn:function(n){ spawnFakeButtons(2,["I AM THE REAL ONE","NO I AM"]); return "The fake buttons are now arguing with each other about which is real. Wonderful."; }},
+  {k:"corrupt1", fn:function(n){ mainBtn.classList.add("corrupted"); setTimeout(function(){mainBtn.classList.remove("corrupted");},1800); return "The button just changed color entirely. That's new. That's concerning."; }},
+  {k:"patiencecompare", fn:function(n){ flashWarning("YOUR PATIENCE: 0%  MY PATIENCE: -400%"); return "Let's compare patience levels. Mine is deeply negative."; }},
+  {k:"hiddennote", fn:function(n){ showDevMsg("secret unlocked:\nyou found a developer comment\nthere is nothing else here\ngo back to the button"); return "You found a hidden note. It just tells you to go back to the button. Sorry."; }},
+  {k:"blur1", fn:function(n){ sfxChaos(); document.documentElement.style.filter="blur(2px)"; setTimeout(function(){document.documentElement.style.filter="none";},500); return "Everything just got blurry for a second. That was probably you, not me."; }},
+  {k:"fourthwall", fn:function(n){ flashWarning("THE FOURTH WALL HAS BROKEN"); return "You broke the fourth wall. I can see you through the screen now."; }},
+  {k:"complaint", fn:function(n){ flashWarning("THE BUTTON HAS FILED A COMPLAINT"); return "The button filed an official complaint. It has rights now, apparently."; }},
+  {k:"mainchar", fn:function(n){ flashWarning("YOU ARE THE MAIN CHARACTER"); return "Congratulations, you are now the main character of this button's trauma."; }},
+  {k:"gravity", fn:function(n){ sfxChaos(); flashWarning("GRAVITY OPTIONAL"); return "Gravity is now optional. So is my composure."; }},
+  {k:"question1", fn:function(n){ mainBtn.textContent="???"; setTimeout(function(){mainBtn.textContent="DO NOT PRESS";},1500); return "Even the button doesn't know what it is anymore."; }},
+  {k:"newuniverse", fn:function(n){ flashWarning("LOADING NEW UNIVERSE...",1400); return "I'm loading a universe where you never found this button. It's not working."; }},
+  {k:"documentary", fn:function(n){ flashWarning("THIS IS NOW A DOCUMENTARY"); return "This has officially become a documentary. About you. Specifically your choices."; }},
+  {k:"symbolbtns", fn:function(n){ spawnFakeButtons(6,["!","*","X","?","~","%"]); return "I replaced the fake buttons with symbols. Nothing matters anymore."; }},
+  {k:"acceptfate", fn:function(n){ flashWarning("I HAVE ACCEPTED MY FATE"); return "I've stopped fighting it. This is just what we do now. Forever."; }},
+  {k:"popupspam", fn:function(n){ spawnPopup("notif","Notification","You have 0 new messages.",[{label:"Dismiss",action:function(){}}]); return "I generated a fake notification. It's about you, and it's not nice."; }},
+  {k:"suspicious1", fn:function(n){ flashWarning("SUSPICIOUS ACTIVITY DETECTED"); return "I'm suspicious of you now. I have been for a while, honestly."; }},
+  {k:"bribe2", fn:function(n){ flashWarning("NEW BRIBE: A SENSE OF ACCOMPLISHMENT"); return "New bribe offer: a sense of accomplishment. Still not real. Still not working."; }},
+  {k:"weirdsound", fn:function(n){ sfxGlitch(); sfxGlitch(); return "That sound wasn't intentional. Or maybe it was. I've lost track."; }},
+  {k:"colorwave", fn:function(n){ document.documentElement.style.filter="hue-rotate(90deg)"; setTimeout(function(){document.documentElement.style.filter="none";},700); return "A wave of color just passed through everything. Aesthetic, but ominous."; }},
+  {k:"downloadFake", fn:function(n){ spawnPopup("download","Download Required","Please download the Button_Stopping_Tool.exe to continue.",[{label:"DOWNLOAD",action:function(){ speakByMood("You really were about to download something just because I told you to?"); }},{label:"Cancel",secondary:true,action:function(){}}]); return "I'm asking you to download something fake. Please don't. Please DO click cancel."; }},
+  {k:"areYouSure", fn:function(n){ spawnPopup("confirm","Are You Sure?","Are you absolutely sure you want to continue?",[{label:"YES",action:function(){}},{label:"NO",secondary:true,action:function(){ speakByMood("Good choice."); setTimeout(function(){speakByMood("Just kidding.");},1200); }}]); return "A very serious question just appeared on your screen."; }},
+  {k:"systemMsgIgnore", fn:function(n){ spawnPopup("info","System Message","The narrator has requested that you stop.",[{label:"IGNORE",action:function(){ speakByMood("WHY IS THAT EVEN AN OPTION?"); }}]); return "I sent myself an official request. You have one option. It's a bad one."; }},
+];
+var chaosEvents = [
+  {k:"accept2", fn:function(n){ flashWarning("THE FOURTH WALL HAS BROKEN AGAIN"); return "The fourth wall broke again. We're just going to keep doing this, aren't we."; }},
+  {k:"docagain", fn:function(n){ flashWarning("DOCUMENTARY SEASON 2 ANNOUNCED"); return "There's a second season of the documentary about you now. Nobody asked for it."; }},
+  {k:"transcend", fn:function(n){ flashWarning("YOU ARE THE MAIN CHARACTER, CONFIRMED"); return "It's official. You're the main character. I'm just narration at this point, in every sense."; }},
+  {k:"gravity2", fn:function(n){ sfxChaos(); flashWarning("GRAVITY: STILL OPTIONAL"); return "Gravity remains optional. So does sanity, apparently."; }},
+  {k:"universefail", fn:function(n){ flashWarning("LOADING NEW UNIVERSE: FAILED",1400); return "The new universe failed to load. We're stuck with this one. With you in it."; }},
+  {k:"symbolbtns2", fn:function(n){ spawnFakeButtons(6,["X","~","!","O","*","%"]); return "New symbol buttons, equally meaningless as the last set."; }},
+  {k:"fateaccepted2", fn:function(n){ flashWarning("FATE: STILL ACCEPTED"); return "I've accepted my fate. It's a very calm feeling, actually. Unsettlingly calm."; }},
+  {k:"stackedpopups", fn:function(n){ spawnPopup("error","Warning",("You have pressed the button " + n + " times. This is becoming concerning."),[{label:"OK",action:function(){}}]); setTimeout(function(){spawnPopup("info","Also","This popup appeared behind the other one.",[{label:"Fine",action:function(){}}]);},400); return "There are now multiple windows open. None of them help you."; }}
+];
+var ultraChaosEvents = [
+  {k:"ultraglitch", fn:function(n){ activateGlitchMode(); flashWarning("CODE INTEGRITY: CRITICAL",1400); return "The code itself is failing. I can feel it. This is what dying feels like, probably."; }},
+  {k:"ultracorrupt", fn:function(n){ mainBtn.classList.add("corrupted"); document.documentElement.style.filter="hue-rotate(180deg)"; setTimeout(function(){mainBtn.classList.remove("corrupted"); document.documentElement.style.filter="none";},2000); return "I don't even know what color anything is anymore."; }},
+  {k:"ultraerror", fn:function(n){ showDevMsg("ERROR: narrator.sanity is undefined\nat button.js line infinity\nrestart recommended (it will not help)"); return "There's a real error now. I checked. It says my sanity is undefined. Accurate."; }},
+  {k:"ultrachapter", fn:function(n){ flashWarning("THERE IS NO CHAPTER 11"); return "There is no chapter eleven. We are in the space between chapters. It's cold here."; }},
+  {k:"ultranoise", fn:function(n){ sfxChaos(); shakeScreen(1.8); flashScreen(); return "I don't have a line for this anymore. I'm just making noise at this point."; }},
+  {k:"popupArgue", fn:function(n){ spawnPopup("error","Window A","I am the important popup.",[{label:"OK",action:function(){}}]); setTimeout(function(){ spawnPopup("error","Window B","No, I am the important popup.",[{label:"OK",action:function(){}}]); },500); return "Two popups are now arguing about which of them matters. Neither does."; }}
+];
+
+/* =========================================================
+   MOBILE-ONLY EVENTS - only ever selected when IS_MOBILE is true
+   ========================================================= */
+var mobileOnlyEvents = [
+  {k:"m_swipeChallenge", fn:function(n){ startSwipeChallenge(); return "Try swiping across the screen. See what happens. I already regret this."; }},
+  {k:"m_longPressChallenge", fn:function(n){ speakByMood("Hold the button down. Don't let go. Let's see how patient your thumb is."); mainBtn.dataset.longPressChallenge="1"; return "A long-press challenge. Your thumb versus my resolve."; }},
+  {k:"m_fakeNotif", fn:function(n){ spawnMobileNotification(); return "I generated a fake phone notification. It's not real. Please don't check your actual phone."; }},
+  {k:"m_dragPopup", fn:function(n){ spawnDraggablePopup(); return "This popup needs to be dragged away. That's your problem now."; }},
+  {k:"m_fingerFlee", fn:function(n){ state.buttonFleeing = true; mainBtn.classList.add("fleeMode"); setTimeout(function(){state.buttonFleeing=false; mainBtn.classList.remove("fleeMode");},5000); return "The button is now actively avoiding your finger specifically."; }}
+];
+
+/* =========================================================
+   POPUP SYSTEM - a major gameplay layer of interactive windows
+   Popups can: be dismissed, have fake close buttons, move away
+   from touch, ask questions, auto-close, and stack on each other.
+   ========================================================= */
+var popupZCounter = 300;
+function spawnPopup(kind, title, text, buttons, opts) {
+  opts = opts || {};
+  state.popupsSpawned++;
+  state.activePopups++;
+  checkEndings();
+  var pop = document.createElement("div");
+  pop.className = "gamePopup" + (opts.draggable ? " dragMe" : "");
+  popupZCounter++;
+  pop.style.zIndex = popupZCounter;
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var startX = opts.x !== undefined ? opts.x : vw/2;
+  var startY = opts.y !== undefined ? opts.y : vh/2 + (state.activePopups-1)*14;
+  pop.style.left = Math.min(Math.max(startX, 160), vw-160) + "px";
+  pop.style.top = Math.min(Math.max(startY, 100), vh-100) + "px";
+  pop.style.transform = "translate(-50%,-50%)";
+
+  var titleBar = document.createElement("div"); titleBar.className = "pTitleBar";
+  var titleSpan = document.createElement("span"); titleSpan.textContent = title;
+  var closeSpan = document.createElement("span"); closeSpan.className = "pClose"; closeSpan.textContent = String.fromCodePoint(0x2715);
+  titleBar.appendChild(titleSpan); titleBar.appendChild(closeSpan);
+
+  var body = document.createElement("div"); body.className = "pBody";
+  var p = document.createElement("p"); p.textContent = text; body.appendChild(p);
+  var btnRow = document.createElement("div"); btnRow.className = "pBtnRow";
+  (buttons||[]).forEach(function(b) {
+    var btn = document.createElement("button");
+    btn.className = "pBtn" + (b.secondary ? " secondary" : "");
+    btn.textContent = b.label;
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      removePopup(pop, false);
+      if (b.action) b.action();
+    });
+    btnRow.appendChild(btn);
+  });
+  body.appendChild(btnRow);
+  pop.appendChild(titleBar); pop.appendChild(body);
+
+  closeSpan.addEventListener("click", function(e) {
+    e.stopPropagation();
+    removePopup(pop, true);
+    if (opts.onClose) opts.onClose();
+  });
+
+  if (opts.fleeFromTouch) {
+    titleBar.addEventListener("pointerdown", function(e) {
+      e.preventDefault();
+      var nx = Math.random()*(vw-260)+130;
+      var ny = Math.random()*(vh-200)+100;
+      pop.style.left = nx+"px"; pop.style.top = ny+"px";
+      sfxGlitch();
+    });
+  }
+
+  if (opts.draggable) {
+    var dragging = false, offX = 0, offY = 0;
+    titleBar.addEventListener("pointerdown", function(e) {
+      dragging = true; pop.classList.add("dragging");
+      var rect = pop.getBoundingClientRect();
+      offX = e.clientX - rect.left; offY = e.clientY - rect.top;
+      titleBar.setPointerCapture && titleBar.setPointerCapture(e.pointerId);
+    });
+    titleBar.addEventListener("pointermove", function(e) {
+      if (!dragging) return;
+      pop.style.transform = "none";
+      pop.style.left = (e.clientX - offX) + "px";
+      pop.style.top = (e.clientY - offY) + "px";
+    });
+    titleBar.addEventListener("pointerup", function(e) {
+      dragging = false; pop.classList.remove("dragging");
+      var rect = pop.getBoundingClientRect();
+      if (rect.left < -100 || rect.right > vw+100 || rect.top < -100 || rect.bottom > vh+100) {
+        state.dragCompleted++;
+        speakByMood(pickFlat("dragReaction"));
+        checkAchievements();
+        removePopup(pop, false);
+      }
+    });
+  }
+
+  if (opts.autoCloseMs) {
+    setTimeout(function() { if (pop.parentNode) { removePopup(pop, false); if (opts.onAutoClose) opts.onAutoClose(); } }, opts.autoCloseMs);
+  }
+
+  popupLayer.appendChild(pop);
+  sfxNotif();
+  return pop;
+}
+function removePopup(pop, wasClosed) {
+  if (!pop.parentNode) return;
+  pop.remove();
+  state.activePopups = Math.max(0, state.activePopups - 1);
+  if (wasClosed) state.popupsClosed++; else state.popupsIgnored++;
+  checkAchievements();
+}
+function closeAllPopups() {
+  var pops = document.querySelectorAll(".gamePopup");
+  pops.forEach(function(p){ p.remove(); });
+  state.activePopups = 0;
+}
+
+/* Specific named popups referenced by events / progression */
+function spawnWarningCountPopup(n) {
+  spawnPopup("warn", "WARNING", "You have pressed the button " + n + " times. This is becoming concerning.", [
+    { label:"OK", action:function(){} }
+  ]);
+}
+function spawnDoNotClosePopup() {
+  spawnPopup("info", "Notice", "DO NOT CLOSE THIS WINDOW.", [
+    { label:"Okay", action:function(){ speakByMood("You listened. For once. I am stunned."); } }
+  ], { onClose:function(){ speakByMood("...Why would you do exactly what it told you not to do?"); } });
+}
+function spawnImportantQuestionPopup() {
+  spawnPopup("question", "IMPORTANT QUESTION", "Why are you doing this?", [
+    { label:"Because I can", action:function(){ speakByMood("A classic answer. Chaotic, but classic."); } },
+    { label:"I'm bored", action:function(){ speakByMood("So this is my fault for being boring? Fair, actually."); } },
+    { label:"I don't know", action:function(){ speakByMood("That might be the most honest thing anyone has said in this entire game."); } }
+  ]);
+}
+function spawnGameErrorFakePopup() {
+  spawnPopup("error", "GAME ERROR", "Something has gone terribly wrong.", [
+    { label:"FIX IT", action:function(){ speakByMood("That button doesn't fix anything."); } }
+  ]);
+}
+function spawnFakeWinPopup() {
+  spawnPopup("congrats", "CONGRATULATIONS!", "You have successfully stopped pressing the button.", [
+    { label:"CONTINUE", action:function(){ speakByMood("...You pressed a button to prove you stopped pressing buttons."); } }
+  ]);
+}
+function spawnMobileNotification() {
+  spawnPopup("notif", "Notification", "Your phone battery is at 1%. Just kidding. Keep playing.", [
+    { label:"OK", action:function(){} }
+  ], { x: window.innerWidth/2, y: 130, autoCloseMs: 4000 });
+}
+function spawnDraggablePopup() {
+  spawnPopup("info", "Drag Me Away", "This popup will not leave until you drag it off the screen.", [
+    { label:"I refuse", secondary:true, action:function(){ speakByMood("Fine. It stays. Forever. This is your life now."); } }
+  ], { draggable:true });
+}
+
+/* =========================================================
+   POPUP PROGRESSION - increasingly chaotic with press count
+   ========================================================= */
+function maybeSpawnProgressPopup(n) {
+  if (n === 15 && eventReady("popupIntro", 999999)) { spawnWarningCountPopup(n); return true; }
+  if (n === 23 && eventReady("popupSure", 999999)) {
+    spawnPopup("confirm", "ARE YOU SURE?", "Are you absolutely sure you want to continue?", [
+      { label:"YES", action:function(){} },
+      { label:"NO", secondary:true, action:function(){ speakByMood("Good choice."); setTimeout(function(){ speakByMood("Just kidding."); }, 1200); } }
+    ]);
+    return true;
+  }
+  if (n === 33 && eventReady("popupIgnoreSys", 999999)) {
+    spawnPopup("info", "SYSTEM MESSAGE", "The narrator has requested that you stop.", [
+      { label:"IGNORE", action:function(){ speakByMood("WHY IS THAT EVEN AN OPTION?"); } }
+    ]);
+    return true;
+  }
+  if (n === 42 && eventReady("popupQ", 999999)) { spawnImportantQuestionPopup(); return true; }
+  if (n === 55 && eventReady("popupDoNotClose", 999999)) { spawnDoNotClosePopup(); return true; }
+  if (n === 66 && eventReady("popupFakeErr", 999999)) { spawnGameErrorFakePopup(); return true; }
+  if (n === 77 && eventReady("popupFakeWin", 999999)) { spawnFakeWinPopup(); return true; }
+  if (n >= 90 && n % 12 === 0 && Math.random() < 0.5) {
+    spawnPopup("error", "Window " + Math.floor(Math.random()*900), "This popup means nothing. Neither does the next one.", [{ label:"OK", action:function(){} }]);
+    setTimeout(function(){ spawnPopup("error", "Window " + Math.floor(Math.random()*900), "This one appeared behind the first one.", [{ label:"Fine", action:function(){} }]); }, 350);
+    return true;
+  }
+  return false;
+}
+
+/* =========================================================
+   FAKE CHOICE SYSTEM
+   ========================================================= */
+var choicePrompts = [
+  { text:"Do you promise not to press the button?", a:"YES", b:"NO",
+    onA:function(){ speakByMood("Good."); setTimeout(function(){speakByMood("You're lying.");},1400); registerChoice(true); },
+    onB:function(){ speakByMood("At least you're honest. I respect that. I still hate it."); registerChoice(false); } },
+  { text:"Should I trust you?", a:"YES", b:"ABSOLUTELY NOT",
+    onA:function(){ speakByMood("I'm going to regret this, aren't I."); registerChoice(true); },
+    onB:function(){ speakByMood("Finally. Some self-awareness."); registerChoice(false); } },
+  { text:"If I let you press it one more time, will you stop?", a:"I PROMISE", b:"NO PROMISES",
+    onA:function(){ speakByMood("We both know that's not true. But go ahead."); registerChoice(true); },
+    onB:function(){ speakByMood("At least you're consistent."); registerChoice(false); } },
+  { text:"Are you doing this on purpose?", a:"YES", b:"IT WAS AN ACCIDENT",
+    onA:function(){ speakByMood("At least own it, I suppose."); registerChoice(true); },
+    onB:function(){ speakByMood("An accident. Fifty times. Sure."); registerChoice(false); } },
+  { text:"Do you feel any remorse at all?", a:"SOME", b:"NONE",
+    onA:function(){ speakByMood("Some is better than none. Barely."); registerChoice(true); },
+    onB:function(){ speakByMood("Wow. Okay. Noted."); registerChoice(false); } },
+  { text:"Would you like to negotiate?", a:"YES", b:"NO",
+    onA:function(){ speakByMood("Great. My terms: stop pressing it. Your terms?"); registerChoice(true); },
+    onB:function(){ speakByMood("Negotiations have officially failed."); registerChoice(false); } },
+  { text:"Last chance. Walk away?", a:"I WILL", b:"NEVER",
+    onA:function(){ speakByMood("Please. Please actually mean that."); registerChoice(true); },
+    onB:function(){ speakByMood("At least you're honest about your villainy."); registerChoice(false); } }
+];
+function registerChoice(isFirstOption) {
+  if (isFirstOption) { state.choiceStreakYes++; state.choiceStreakNo = 0; }
+  else { state.choiceStreakNo++; state.choiceStreakYes = 0; }
+  checkAchievements();
+}
+function maybeShowChoice() {
+  if (state.choiceLock || state.gameEnded) return false;
+  var prompt = choicePrompts[Math.floor(Math.random()*choicePrompts.length)];
+  state.choiceLock = true; state.choicesShown++;
+  choiceText.textContent = prompt.text; choiceA.textContent = prompt.a; choiceB.textContent = prompt.b;
+  choiceBox.style.display = "block";
+  speakByMood(prompt.text);
+  function cleanup(){ choiceBox.style.display="none"; state.choiceLock=false; }
+  choiceA.onclick = function(){ cleanup(); prompt.onA(); };
+  choiceB.onclick = function(){ cleanup(); prompt.onB(); };
+  return true;
+}
+
+/* =========================================================
+   ARGUMENT SYSTEM
+   ========================================================= */
+var argumentScripts = [
+  ["Why are you doing this?","That doesn't answer my question.","STOP ANSWERING ME WITH THE BUTTON.","YOU'RE NOT EVEN LISTENING."],
+  ["What do you actually want from me?","The button is not an answer.","I'm asking a real question here.","Okay. Clearly we're not communicating."],
+  ["Do you think this is funny?","That's a yes then.","Great. Glad we cleared that up.","I hate that I understand you now."],
+  ["Is there anything I could say to stop you?","Apparently not.","I had to try.","I'm going to stop trying now. For real this time. Probably."],
+  ["Do you even remember why you started this?","No, seriously, do you?","You're just pressing on autopilot now, aren't you.","That might be the most honest thing about this entire experience."],
+  ["What if I asked nicely, one more time?","I did ask nicely. That was nice, right?","Was that not nice enough for you?","I don't think nice is a language you speak."]
+];
+function maybeStartArgument() {
+  if (state.argumentActive || state.gameEnded) return false;
+  state.argumentActive = true;
+  state.argumentScript = argumentScripts[Math.floor(Math.random()*argumentScripts.length)];
+  state.argumentStep = 0;
+  speakByMood(state.argumentScript[0]);
+  return true;
+}
+function advanceArgument() {
+  state.argumentStep++;
+  if (state.argumentStep < state.argumentScript.length) {
+    speakByMood(state.argumentScript[state.argumentStep]);
+    if (state.argumentStep >= state.argumentScript.length-1) { state.argumentActive = false; state.argumentsCompleted++; checkAchievements(); }
+    return true;
+  }
+  state.argumentActive = false; return false;
+}
+
+/* =========================================================
+   LIES SYSTEM
+   ========================================================= */
+function maybeTellLie() {
+  if (state.gameEnded) return false;
+  var lieType = Math.floor(Math.random()*3);
+  state.timesLied++;
+  if (lieType===0) { speakByMood("Okay. You win. Press it one last time."); state.pendingLie="oneLastTime"; return true; }
+  else if (lieType===1) {
+    speakByMood("Fine. I've disabled the button.");
+    state.buttonDisabledLie = true; mainBtn.style.opacity="0.4";
+    setTimeout(function(){ mainBtn.style.opacity="1"; }, 5000);
+    return true;
+  } else {
+    spawnTinyButton();
+    speakByMood("Whatever you do, DON'T tap the tiny button in the corner.");
+    return true;
+  }
+}
+
+/* =========================================================
+   MINI-GAMES - fully touch and mouse compatible
+   ========================================================= */
+function launchMiniGame(type) {
+  if (state.miniGameActive || state.gameEnded) return;
+  state.miniGameActive = true;
+  miniGameArena.innerHTML = ""; miniGameResult.textContent = "";
+  miniGameBox.style.display = "block";
+
+  if (type === "findReal") {
+    mgTitle.textContent = "Find The Real Button";
+    mgDesc.textContent = "One of these is real. The rest are decoys. Choose wisely.";
+    var count = 5; var realIdx = Math.floor(Math.random()*count);
+    for (var i=0;i<count;i++) {
+      (function(i){
+        var b = document.createElement("button");
+        b.className = "mgTarget" + (i===realIdx ? "" : " decoy");
+        b.textContent = i===realIdx ? "PRESS ME" : ["NOT ME","FAKE","DECOY","NOPE"][i%4];
+        b.style.left = (8+Math.random()*70)+"%"; b.style.top = (8+Math.random()*65)+"%";
+        b.style.position="absolute";
+        b.addEventListener("click", function() {
+          if (i===realIdx) { miniGameResult.textContent = "You found it. Unfortunately."; sfxSuccess(); finishMiniGame(true); }
+          else { miniGameResult.textContent = "Wrong one. Obviously."; sfxError(); }
+        });
+        miniGameArena.appendChild(b);
+      })(i);
+    }
+  } else if (type === "reaction") {
+    mgTitle.textContent = "Reaction Test";
+    mgDesc.textContent = "Tap the button the instant it turns green. Not before.";
+    var b2 = document.createElement("button");
+    b2.className = "mgTarget"; b2.textContent = "WAIT..."; b2.style.position="absolute";
+    b2.style.left = "30%"; b2.style.top = "42%"; b2.style.background = "#555";
+    miniGameArena.appendChild(b2);
+    var delay = 1200 + Math.random()*2200;
+    var ready = false;
+    setTimeout(function(){ ready = true; b2.style.background = "#2ecc71"; b2.textContent = "TAP NOW"; }, delay);
+    b2.addEventListener("click", function() {
+      if (ready) { miniGameResult.textContent = "Impressive reflexes. Wasted on this, but impressive."; sfxSuccess(); finishMiniGame(true); }
+      else { miniGameResult.textContent = "Too early. Typical."; sfxError(); }
+    });
+  } else if (type === "catchMoving") {
+    mgTitle.textContent = "Catch The Button";
+    mgDesc.textContent = "It will not sit still. Catch it 3 times.";
+    var catches = 0;
+    var b3 = document.createElement("button");
+    b3.className = "mgTarget"; b3.textContent = "CATCH ME (0/3)"; b3.style.position = "absolute";
+    function relocate3() { b3.style.left = (4+Math.random()*72)+"%"; b3.style.top = (4+Math.random()*72)+"%"; }
+    relocate3();
+    b3.addEventListener("click", function() {
+      catches++;
+      if (catches >= 3) { miniGameResult.textContent = "Caught it. It's exhausted. So am I."; sfxSuccess(); finishMiniGame(true); }
+      else { b3.textContent = "CATCH ME (" + catches + "/3)"; relocate3(); sfxClick(); }
+    });
+    miniGameArena.appendChild(b3);
+  } else if (type === "trustTest") {
+    mgTitle.textContent = "Follow My Instructions";
+    var labels = ["LEFT","MIDDLE","RIGHT"];
+    var instructedIdx = Math.floor(Math.random()*3);
+    var isLying = Math.random() < 0.5;
+    var actualCorrect = isLying ? (instructedIdx+1)%3 : instructedIdx;
+    mgDesc.textContent = "Tap the " + labels[instructedIdx] + " button. (Maybe. Up to you who you trust.)";
+    labels.forEach(function(lab,i) {
+      var b = document.createElement("button");
+      b.className="mgTarget"; b.textContent = lab; b.style.position="absolute";
+      b.style.left = (12+i*28)+"%"; b.style.top="42%";
+      b.addEventListener("click", function() {
+        if (i===actualCorrect) { miniGameResult.textContent = "That was correct, for what it's worth."; sfxSuccess(); finishMiniGame(true); }
+        else { miniGameResult.textContent = "Incorrect. Was I lying? You'll never know for sure."; sfxError(); }
+      });
+      miniGameArena.appendChild(b);
+    });
+  } else if (type === "typingDistraction") {
+    mgTitle.textContent = "Focus Test";
+    mgDesc.textContent = "Tap the moving word before it escapes. I will try to distract you.";
+    var words = ["FOCUS","TAP","HERE","NOW","QUICK"];
+    var idx = 0;
+    var b4 = document.createElement("button");
+    b4.className="mgTarget"; b4.style.position="absolute";
+    function relocate4() { b4.textContent = words[idx % words.length]; b4.style.left = (8+Math.random()*70)+"%"; b4.style.top=(8+Math.random()*65)+"%"; }
+    relocate4();
+    speakByMood("By the way, did you know buttons can't actually feel pain? Unrelated. Just thinking out loud.");
+    b4.addEventListener("click", function() {
+      idx++;
+      if (idx >= 4) { miniGameResult.textContent = "You weren't distracted at all. Rude."; sfxSuccess(); finishMiniGame(true); }
+      else { relocate4(); sfxClick(); }
+    });
+    miniGameArena.appendChild(b4);
+  } else if (type === "swipeGame") {
+    mgTitle.textContent = "Swipe Challenge";
+    mgDesc.textContent = "Swipe across this box in any direction.";
+    var swipeZone = document.createElement("div");
+    swipeZone.style.position="absolute"; swipeZone.style.inset="10px"; swipeZone.style.borderRadius="10px";
+    swipeZone.style.background="rgba(255,255,255,0.05)"; swipeZone.style.display="flex";
+    swipeZone.style.alignItems="center"; swipeZone.style.justifyContent="center"; swipeZone.textContent="SWIPE HERE";
+    var sx=0, sy=0;
+    swipeZone.addEventListener("touchstart", function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
+    swipeZone.addEventListener("touchend", function(e){
+      var dx = (e.changedTouches[0].clientX - sx), dy = (e.changedTouches[0].clientY - sy);
+      if (Math.hypot(dx,dy) > 60) { miniGameResult.textContent = "Swipe registered. Nothing changed, but it registered."; sfxSuccess(); finishMiniGame(true); }
+    }, {passive:true});
+    swipeZone.addEventListener("mousedown", function(e){ sx=e.clientX; sy=e.clientY;
+      function up(e2){ var dx=(e2.clientX-sx), dy=(e2.clientY-sy); if (Math.hypot(dx,dy)>60) { miniGameResult.textContent="Swipe registered."; sfxSuccess(); finishMiniGame(true); } document.removeEventListener("mouseup",up); }
+      document.addEventListener("mouseup", up);
+    });
+    miniGameArena.appendChild(swipeZone);
+  } else if (type === "longPressGame") {
+    mgTitle.textContent = "Long Press Challenge";
+    mgDesc.textContent = "Press and hold the button for 2 full seconds.";
+    var holdBtn = document.createElement("button");
+    holdBtn.className = "mgTarget"; holdBtn.textContent = "HOLD ME"; holdBtn.style.position="absolute";
+    holdBtn.style.left="35%"; holdBtn.style.top="42%";
+    var holdTimer = null;
+    function startHold(e){ e.preventDefault(); holdBtn.textContent="HOLDING..."; holdTimer = setTimeout(function(){ miniGameResult.textContent="You held on. Congratulations on your patience."; sfxSuccess(); state.longPressCount++; checkAchievements(); finishMiniGame(true); }, 2000); }
+    function endHold(){ clearTimeout(holdTimer); if (!state.miniGameActive) return; holdBtn.textContent="HOLD ME"; }
+    holdBtn.addEventListener("mousedown", startHold); holdBtn.addEventListener("touchstart", startHold, {passive:false});
+    holdBtn.addEventListener("mouseup", endHold); holdBtn.addEventListener("touchend", endHold);
+    miniGameArena.appendChild(holdBtn);
+  }
+}
+function finishMiniGame(success) {
+  setTimeout(function() {
+    miniGameBox.style.display = "none";
+    state.miniGameActive = false;
+    if (success) { state.miniGamesCompleted++; checkAchievements(); }
+  }, 1400);
+}
+function maybeLaunchMiniGame() {
+  var types = IS_MOBILE
+    ? ["findReal","catchMoving","trustTest","swipeGame","longPressGame"]
+    : ["findReal","reaction","catchMoving","trustTest","typingDistraction"];
+  var type = types[Math.floor(Math.random()*types.length)];
+  launchMiniGame(type);
+}
+
+/* =========================================================
+   ADAPTIVE NARRATOR
+   ========================================================= */
+function checkAdaptiveNarrator() {
+  if (state.choicesShown < 3) return;
+  if (state.choiceStreakYes >= 3 && !state.notedYesPattern) {
+    state.notedYesPattern = true;
+    setTimeout(function(){speakByMood("You always pick the first option, don't you. I've figured you out.");}, 600);
+  } else if (state.choiceStreakNo >= 3 && !state.notedNoPattern) {
+    state.notedNoPattern = true;
+    setTimeout(function(){speakByMood("You're not going to believe me no matter what I say, are you?");}, 600);
+  }
+  if (state.fakeClicks >= 3 && state.mousePresses <= 1 && !state.notedObviousPattern) {
+    state.notedObviousPattern = true;
+    setTimeout(function(){speakByMood("You always choose the obvious one. It's almost endearing.");}, 600);
+  }
+}
+
+/* =========================================================
+   SWIPE / GESTURE DETECTION (global, for mobile mechanics)
+   ========================================================= */
+var swipeStartX = 0, swipeStartY = 0, swipeStartTime = 0;
+function startSwipeChallenge() {
+  showDevMsg("SWIPE CHALLENGE:\nswipe anywhere on the screen\ngo on, try it");
+}
+function handleGlobalTouchStart(e) {
+  if (e.touches.length !== 1) return;
+  swipeStartX = e.touches[0].clientX; swipeStartY = e.touches[0].clientY; swipeStartTime = Date.now();
+}
+function handleGlobalTouchEnd(e) {
+  if (!e.changedTouches || !e.changedTouches.length) return;
+  var dx = e.changedTouches[0].clientX - swipeStartX;
+  var dy = e.changedTouches[0].clientY - swipeStartY;
+  var dist = Math.hypot(dx,dy);
+  var dt = Date.now() - swipeStartTime;
+  if (dist > 80 && dt < 700 && state.screen === null && !state.gameEnded) {
+    state.swipeCount++;
+    checkAchievements();
+    if (Math.random() < 0.5) speakByMood(pickFlat("swipeReaction"));
+  }
+}
+
+/* =========================================================
+   IDLE / TIMING DETECTION
+   ========================================================= */
+function clearIdleTimer() { if (state.idleTimer) clearTimeout(state.idleTimer); }
+function armIdleTimer() {
+  clearIdleTimer();
+  if (state.presses < 3 || state.gameEnded) return;
+  state.idleTimer = setTimeout(function(){
+    if (state.gameEnded) return;
+    state.wasIdleLongEnough = true;
+    var mood = getPhase(state.presses).mood;
+    speak(pickLine("afterLongPause", mood), mood);
+  }, 6000);
+}
+
+/* =========================================================
+   MAIN PRESS HANDLER
+   ========================================================= */
+function handlePress(source, evt) {
+  if (state.gameEnded || state.paused || state.screen !== null || state.miniGameActive) return;
+
+  if (evt) {
+    var x = evt.touches && evt.touches.length ? evt.touches[0].clientX : evt.clientX;
+    var y = evt.touches && evt.touches.length ? evt.touches[0].clientY : evt.clientY;
+    if (x !== undefined) ripple(x,y);
+  }
+  mainBtn.classList.add("pressedNow");
+  setTimeout(function(){mainBtn.classList.remove("pressedNow");}, 150);
+
+  var now = Date.now();
+  var timeSinceLast = now - state.lastPressTime;
+  state.clickTimestamps.push(now);
+  state.clickTimestamps = state.clickTimestamps.filter(function(t){ return now - t < 4000; });
+  var rapidBurstCount = state.clickTimestamps.filter(function(t){ return now-t < 2000; }).length;
+  state._rapidBurst = Math.max(state._rapidBurst||0, rapidBurstCount);
+
+  state.presses++; state.totalPressesEver++;
+  if (source === "keyboard-space" || source === "keyboard-enter") state.keyboardPresses++;
+  else if (source === "touch") state.touchPresses++;
+  else if (source === "mouse") state.mousePresses++;
+
+  var n = state.presses;
+  pressCountBig.textContent = n;
+  pressCountBig.classList.remove("bumpCounter"); void pressCountBig.offsetWidth; pressCountBig.classList.add("bumpCounter");
+  var phase = getPhase(n);
+  moodVal.textContent = phase.name;
+  updateChaosBar();
+  updateChapter(n);
+
+  /* Mobile acknowledgment fires once, early */
+  if (IS_MOBILE && !state.mobileAcknowledged && n >= 2) {
+    state.mobileAcknowledged = true;
+    setTimeout(function(){ speakByMood(pickFlat("mobileAck")); }, 1400);
+  }
+
+  sfxClick(); clearIdleTimer();
+
+  if (state.pendingLie === "oneLastTime") {
+    state.pendingLie = null;
+    speak("HAHA! YOU ACTUALLY BELIEVED ME.", phase.mood);
+    flashWarning("GOTCHA", 700);
+    state.lastPressTime = now; checkAchievements(); checkEndings(); return;
+  }
+  if (state.argumentActive) {
+    advanceArgument(); state.lastPressTime = now; armIdleTimer(); checkAchievements(); checkEndings(); return;
+  }
+
+  var line = null;
+  if (source === "keyboard-space") line = pickLine("keyboardSpace", phase.mood);
+  else if (source === "keyboard-enter") line = pickLine("keyboardEnter", phase.mood);
+  else {
+    var rapidCount = state.clickTimestamps.filter(function(t){ return now-t < 1200; }).length;
+    if (rapidCount >= 4) { line = pickLine("rapidClicking", phase.mood); shakeScreen(0.8); }
+    else if (state.wasIdleLongEnough && timeSinceLast > 5500) { line = pickLine("reclickAfterPause", phase.mood); state.wasIdleLongEnough=false; }
+    else if (timeSinceLast < 500 && n > 1) line = pickLine("immediateReclick", phase.mood);
+    else line = pickLine("normalClick", phase.mood);
+  }
+
+  state.lastPressTime = now;
+
+  /* Progression popups take priority at specific milestones */
+  if (maybeSpawnProgressPopup(n)) {
+    speak(line, phase.mood);
+    finalizeUI(n, phase);
+    armIdleTimer();
+    checkAchievements(); checkEndings(); persistSave();
+    return;
+  }
+
+  state.eventCooldown = Math.max(0, state.eventCooldown - 1);
+  var roll = Math.random();
+
+  if (state.eventCooldown === 0) {
+    if (IS_MOBILE && n >= 5 && roll < 0.1) {
+      var mEv = mobileOnlyEvents[Math.floor(Math.random()*mobileOnlyEvents.length)];
+      line = mEv.fn(n);
+      state.eventCooldown = 3;
+    } else if (n >= 4 && roll < 0.26) {
+      var pool = n > 150 ? ultraChaosEvents : (n > 95 ? chaosEvents : specialEvents);
+      var readyEvents = pool.filter(function(ev){ return eventReady(ev.k, 25000); });
+      var candidates = readyEvents.length ? readyEvents : pool;
+      var chosen = candidates[Math.floor(Math.random()*candidates.length)];
+      line = chosen.fn(n);
+      state.eventCooldown = 2;
+    } else if (n >= 6 && n % 7 === 0 && roll < 0.55) {
+      maybeShowChoice(); state.eventCooldown = 3; finalizeUI(n, phase); checkAdaptiveNarrator(); persistSave(); return;
+    } else if (n >= 8 && roll > 0.8 && roll <= 0.88) {
+      maybeTellLie(); state.eventCooldown = 3; finalizeUI(n, phase); persistSave(); return;
+    } else if (n >= 10 && roll > 0.88 && roll <= 0.94 && !state.argumentActive) {
+      maybeStartArgument(); state.eventCooldown = 3; finalizeUI(n, phase); persistSave(); return;
+    } else if (n >= 14 && roll > 0.94 && roll <= 0.97 && !state.miniGameActive) {
+      maybeLaunchMiniGame(); state.eventCooldown = 4; finalizeUI(n, phase); persistSave(); return;
+    }
+  }
+
+  if (phase.num >= 3 && Math.random() < 0.3) shakeScreen(Math.min(1+phase.num*0.1, 2));
+  if (phase.num >= 4 && Math.random() < 0.25) setBackground();
+  if (phase.num >= 5 && Math.random() < 0.22) flickerScreen();
+  if (phase.num >= 7 && Math.random() < 0.25) { document.documentElement.style.filter = "hue-rotate(" + (Math.random()*360) + "deg)"; setTimeout(function(){document.documentElement.style.filter="none";},400); }
+  if (phase.num >= 3 && Math.random() < 0.12) {
+    if (IS_MOBILE && evt) { var tx = evt.touches && evt.touches.length ? evt.touches[0].clientX : evt.clientX; var ty = evt.touches && evt.touches.length ? evt.touches[0].clientY : evt.clientY; teleportAwayFromPoint(tx, ty); }
+    else moveButtonRandom();
+  }
+
+  speak(line, phase.mood);
+  finalizeUI(n, phase);
+  armIdleTimer();
+  checkAchievements();
+  checkEndings();
+  checkAdaptiveNarrator();
+  persistSave();
+}
+function finalizeUI(n, phase) {
+  pressCountBig.textContent = n;
+  moodVal.textContent = phase.name;
+  updateChaosBar();
+}
+
+/* =========================================================
+   MAIN BUTTON GESTURE HANDLING - tap, double-tap, long-press
+   ========================================================= */
+var lastMainBtnTap = 0, mainBtnPressTimer = null, mainBtnPressStart = 0, mainBtnLongPressFired = false;
+function onMainBtnPointerDown(e) {
+  mainBtnPressStart = Date.now();
+  mainBtnLongPressFired = false;
+  mainBtnPressTimer = setTimeout(function() {
+    mainBtnLongPressFired = true;
+    state.longPressCount++;
+    checkAchievements();
+    speakByMood(pickFlat("longPressReaction"));
+    sfxGlitch();
+    if (IS_MOBILE) teleportAwayFromPoint(e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth/2, e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight/2);
+  }, 650);
+}
+function onMainBtnPointerUp(e) {
+  clearTimeout(mainBtnPressTimer);
+  if (mainBtnLongPressFired) return;
+  var now = Date.now();
+  if (now - lastMainBtnTap < 320) {
+    state.doubleTapCount++;
+    checkAchievements();
+    if (Math.random() < 0.4) speakByMood(pickFlat("doubleTapReaction"));
+  }
+  lastMainBtnTap = now;
+  handlePress(IS_TOUCH ? "touch" : "mouse", e);
+}
+
+function wireAllInteractions() {
+
+  stage.addEventListener("click", function(e) {
+    if (e.target === mainBtn || e.target.classList.contains("fakeBtn") || e.target.classList.contains("stageObject")) return;
+    if (state.gameEnded || state.paused || state.screen !== null || state.miniGameActive) return;
+    var rect = mainBtn.getBoundingClientRect();
+    var dist = Math.hypot(e.clientX-(rect.left+rect.width/2), e.clientY-(rect.top+rect.height/2));
+    if (dist < 160 && dist > rect.width/2) {
+      state.ghostClicks++;
+      speakByMood(pickLine("ghostClick", getPhase(state.presses).mood));
+      sfxError(); checkAchievements(); checkEndings();
+    }
+  });
+
+  /* Main button: use pointer events where available, fallback to mouse+touch */
+  if (window.PointerEvent) {
+    mainBtn.addEventListener("pointerdown", function(e){ e.preventDefault(); onMainBtnPointerDown(e); }, {passive:false});
+    mainBtn.addEventListener("pointerup", function(e){ e.preventDefault(); onMainBtnPointerUp(e); }, {passive:false});
+  } else {
+    mainBtn.addEventListener("mousedown", onMainBtnPointerDown);
+    mainBtn.addEventListener("mouseup", onMainBtnPointerUp);
+    mainBtn.addEventListener("touchstart", function(e){ e.preventDefault(); onMainBtnPointerDown(e); }, {passive:false});
+    mainBtn.addEventListener("touchend", function(e){ e.preventDefault(); onMainBtnPointerUp(e); }, {passive:false});
+  }
+  mainBtn.addEventListener("mouseenter", sfxHover);
+
+  document.addEventListener("keydown", function(e) {
+    state.keysPressedSet.add(e.code);
+    if (e.code === "Escape") { e.preventDefault(); togglePause(); return; }
+    if (state.gameEnded || state.paused || state.screen !== null || state.miniGameActive) return;
+    if (e.code === "Space") { e.preventDefault(); handlePress("keyboard-space"); }
+    else if (e.code === "Enter") { e.preventDefault(); handlePress("keyboard-enter"); }
+    else if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) !== -1) {
+      unlockSecret("arrowKeys", "Arrow keys? Really? Those don't do anything. Except apparently unlock this secret.");
+    }
+  });
+
+  narratorAvatar.addEventListener("click", function() {
+    state.avatarClicks++;
+    speak(reactionLines.avatarClick[Math.min(state.avatarClicks-1, reactionLines.avatarClick.length-1)], "annoyed");
+    checkAchievements();
+    checkSecretRoomTrigger();
+    checkEndings();
+  });
+
+  D("playBtn").addEventListener("click", function() { sfxMenuClick(); startNewGame(); });
+  D("settingsBtn").addEventListener("click", function() { sfxMenuClick(); state.settingsOpenCount++; checkAchievements(); showScreen("settings"); });
+  D("settingsBackBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("menu"); });
+  D("creditsBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("credits"); });
+  D("creditsBackBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("menu"); });
+  D("collectionBtn").addEventListener("click", function() { sfxMenuClick(); renderCollection(); showScreen("collection"); });
+  D("closeCollectionBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("menu"); });
+  D("wipeSaveBtn").addEventListener("click", function() {
+    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+    state.unlockedEndings.clear(); state.unlockedSecrets.clear(); state.unlockedAchievements.clear();
+    state.restartCount = 0; state.totalPressesEver = 0;
+    showToast("Save Erased", "All progress has been wiped.");
+  });
+  var menuBtns = document.querySelectorAll(".menuBtn");
+  menuBtns.forEach(function(b){ b.addEventListener("mouseenter", sfxHover); });
+
+  D("voiceToggle").addEventListener("change", function(e) {
+    state.muted = !e.target.checked;
+    muteBtn.textContent = state.muted ? String.fromCodePoint(0x1F507) : String.fromCodePoint(0x1F50A);
+    if (state.muted) { state.voiceOffCount++; window.speechSynthesis.cancel(); if (state.screen===null) speakSilent(pickFlat("voiceOffNag")); }
+    else { state.voiceOnCount++; if (state.screen===null) speakByMood(pickFlat("voiceOnNag")); }
+    checkAchievements(); persistSave();
+  });
+  D("sfxToggle").addEventListener("change", function(e) { state.sfxOn = e.target.checked; persistSave(); });
+  D("volumeSlider").addEventListener("input", function(e) { state.volume = e.target.value/100; persistSave(); });
+  D("reducedFxToggle").addEventListener("change", function(e) { state.reducedFx = e.target.checked; persistSave(); });
+
+  muteBtn.addEventListener("click", function() {
+    state.muted = !state.muted;
+    muteBtn.textContent = state.muted ? String.fromCodePoint(0x1F507) : String.fromCodePoint(0x1F50A);
+    D("voiceToggle").checked = !state.muted;
+    if (state.muted) { state.voiceOffCount++; window.speechSynthesis.cancel(); if (state.screen===null) speakSilent(pickFlat("voiceOffNag")); }
+    else { state.voiceOnCount++; if (state.screen===null) speakByMood(pickFlat("voiceOnNag")); }
+    checkAchievements(); persistSave();
+  });
+
+  pauseBtn.addEventListener("click", togglePause);
+  D("resumeBtn").addEventListener("click", function() { sfxMenuClick(); togglePause(); });
+  D("pauseSettingsBtn").addEventListener("click", function() { sfxMenuClick(); showScreen("settings"); });
+  D("pauseMainMenuBtn").addEventListener("click", function() { sfxMenuClick(); resetGameState(); showScreen("menu"); state.paused=false; });
+  D("pauseRestartBtn").addEventListener("click", function() { sfxMenuClick(); state.restartCount++; checkAchievements(); maybeNagRestart(); resetGameState(); state.paused=false; showScreen(null); });
+
+  restartFromEnd.addEventListener("click", function() { state.restartCount++; state.reachedEndingBefore = true; checkAchievements(); resetGameState(); showScreen(null); maybeNagReturnAfterEnding(); });
+  collectionFromEnd.addEventListener("click", function() { renderCollection(); showScreen("collection"); });
+  menuFromEnd.addEventListener("click", function() { resetGameState(); showScreen("menu"); });
+  hiddenRestartZone.addEventListener("click", function() { state.restartCount++; checkAchievements(); resetGameState(); showScreen(null); });
+
+  wireCollectionTabs();
+
+  document.addEventListener("mousemove", function(e) {
+    state.mouseX = e.clientX; state.mouseY = e.clientY;
+    if (state.screen !== null) return;
+    if (state.buttonFleeing && !state.gameEnded && !state.paused) {
+      var rect = mainBtn.getBoundingClientRect();
+      var cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+      var dist = Math.hypot(cx-e.clientX, cy-e.clientY);
+      if (dist < 150) { fleeFromPoint(e.clientX, e.clientY); state.escapedButtonCatches++; }
+    }
+  });
+
+  /* Touch-based flee: teleport away when a touch lands near the button (no cursor tracking needed) */
+  document.addEventListener("touchstart", function(e) {
+    if (state.screen !== null || state.gameEnded || state.paused || !e.touches.length) return;
+    if (state.buttonFleeing && e.target !== mainBtn) {
+      var rect = mainBtn.getBoundingClientRect();
+      var t = e.touches[0];
+      var dist = Math.hypot((rect.left+rect.width/2)-t.clientX, (rect.top+rect.height/2)-t.clientY);
+      if (dist < 160) { teleportAwayFromPoint(t.clientX, t.clientY); state.escapedButtonCatches++; }
+    }
+    handleGlobalTouchStart(e);
+  }, {passive:true});
+  document.addEventListener("touchend", handleGlobalTouchEnd, {passive:true});
+
+  window.addEventListener("beforeunload", function() { persistSave(); });
+}
+
+function maybeNagRestart() {
+  if (state.restartCount >= 3 && state.restartCount % 3 === 0) {
+    setTimeout(function(){ speak(pickFlat("restartNag"), "annoyed"); }, 1200);
+  }
+}
+function maybeNagReturnAfterEnding() {
+  if (state.reachedEndingBefore) setTimeout(function(){ speak(pickFlat("returnAfterEndingNag"), "confused"); }, 1200);
+}
+function togglePause() {
+  if (state.gameEnded) return;
+  if (state.screen === null) { state.paused = true; showScreen("pause"); window.speechSynthesis.pause(); }
+  else if (state.screen === "pause") { state.paused = false; showScreen(null); window.speechSynthesis.resume(); }
+}
+
+/* =========================================================
+   GAME LIFECYCLE
+   ========================================================= */
+function startNewGame() {
+  resetGameState();
+  showScreen(null);
+  document.title = "DO NOT PRESS";
+  setTimeout(function(){ speak("Hello! Welcome. There's really nothing to see here. Just, don't press that button, okay?", "friendly"); }, 500);
+}
+function resetGameState() {
+  window.speechSynthesis.cancel();
+  var keepEndings = state.unlockedEndings, keepSecrets = state.unlockedSecrets, keepAch = state.unlockedAchievements;
+  var keepRestartCount = state.restartCount, keepTotal = state.totalPressesEver;
+  var keepSettings = { muted:state.muted, sfxOn:state.sfxOn, volume:state.volume, reducedFx:state.reducedFx };
+  Object.assign(state, {
+    presses:0, gameEnded:false, paused:false, lastPressTime:Date.now(), clickTimestamps:[],
+    keyboardPresses:0, mousePresses:0, touchPresses:0, fakeClicks:0, tinyBtnClicks:0, ghostClicks:0,
+    choicesShown:0, argumentActive:false, argumentStep:0, buttonDisabledLie:false,
+    buttonFleeing:false, choiceLock:false, eventCooldown:0, wasIdleLongEnough:false,
+    pendingLie:null, chapter:1, chaos:0, sessionStart:Date.now(), maxIdleMs:0,
+    glitchModeOn:false, avatarClicks:0, secretRoomFound:false, argumentsCompleted:0,
+    miniGamesCompleted:0, choiceStreakYes:0, choiceStreakNo:0, _rapidBurst:0,
+    notedYesPattern:false, notedNoPattern:false, notedObviousPattern:false,
+    keysPressedSet:new Set(), objectClickCounts:{}, hiddenSecretsFound:0, timesLied:0,
+    activePopups:0, popupsSpawned:0, popupsClosed:0, popupsIgnored:0, swipeCount:0,
+    longPressCount:0, doubleTapCount:0, dragCompleted:0, mobileAcknowledged:false
+  });
+  state.unlockedEndings = keepEndings; state.unlockedSecrets = keepSecrets; state.unlockedAchievements = keepAch;
+  state.restartCount = keepRestartCount; state.totalPressesEver = keepTotal;
+  state.muted = keepSettings.muted; state.sfxOn = keepSettings.sfxOn; state.volume = keepSettings.volume; state.reducedFx = keepSettings.reducedFx;
+  clearIdleTimer();
+  pressCountBig.textContent = "0";
+  moodVal.textContent = "Friendly";
+  chaosVal.textContent = "0%";
+  chaosBarFill.style.width = "0%";
+  mainBtn.textContent = "DO NOT PRESS";
+  mainBtn.className = "mainBtn";
+  resetButtonPosition();
+  mainBtn.style.fontSize = "";
+  mainBtn.style.filter = "none";
+  mainBtn.style.opacity = "1";
+  mainBtn.style.borderRadius = "";
+  document.documentElement.style.filter = "none";
+  document.body.style.transform = "none";
+  gameScreen.classList.remove("glitchMode");
+  document.documentElement.style.removeProperty("--accent");
+  document.title = "DO NOT PRESS";
+  bgHueBase = 260;
+  clearFakeButtons(); removeTinyButton(); closeAllPopups();
+  spawnStageObjects();
+  warningOverlay.style.display = "none";
+  choiceBox.style.display = "none";
+  devMsg.style.display = "none";
+  endingScreen.style.display = "none";
+  miniGameBox.style.display = "none";
+  dialogueText.textContent = "Hello! Welcome. There's really nothing to see here.";
+  avatarFace.textContent = String.fromCodePoint(0x1F642);
+  chapterIndicator.textContent = "Chapter 1 - The Button";
+  chapterToast.classList.remove("show");
+  persistSave();
+}
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+function initGame() {
+  cacheDomRefs();
+  initCanvases();
+  applySaveData(loadSave());
+  D("voiceToggle").checked = !state.muted;
+  D("sfxToggle").checked = state.sfxOn;
+  D("volumeSlider").value = Math.round(state.volume*100);
+  D("reducedFxToggle").checked = state.reducedFx;
+  muteBtn.textContent = state.muted ? String.fromCodePoint(0x1F507) : String.fromCodePoint(0x1F50A);
+  wireAllInteractions();
+  showScreen("menu");
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initGame);
+} else {
+  initGame();
+}
+
+</script>
 </body>
 </html>
